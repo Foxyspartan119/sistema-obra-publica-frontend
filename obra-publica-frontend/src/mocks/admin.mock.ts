@@ -13,7 +13,7 @@ export interface AdminUserRecord {
     tieneHistorialOperativo: boolean;
 }
 
-export interface AusitLogPreviewItem {
+export interface AuditLogPreviewItem {
     id: string;
     fechaHora: string;
     actor: string;
@@ -124,7 +124,7 @@ export const INITIAL_ADMIN_USERS: AdminUserRecord[] = [
     } as AdminUserRecord,
 ];
 
-export const INITIAL_AUDIT_PREVIEW: AusitLogPreviewItem[] = [
+export const INITIAL_AUDIT_PREVIEW: AuditLogPreviewItem[] = [
     {
         id: 'log-1',
         fechaHora: '14 oct 2024 · 08:45:12',
