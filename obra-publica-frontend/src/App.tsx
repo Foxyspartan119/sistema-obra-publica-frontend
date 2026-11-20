@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AppLayout } from './components/layout/AppLayout';
+import { AdminPage } from './pages/AdminPage';
 
 const MainRouter: React.FC = () => {
   const { user, sessionExpired, loginAsRole } = useAuth();
-  const [section, setSection] = useState<string>('inicio');
+  const [section, setSection] = useState<string>('admin-usuarios');
 
   if (!user) {
     return (
@@ -27,6 +28,7 @@ const MainRouter: React.FC = () => {
             ).map((rol) => (
               <button
                 key={rol}
+                type="button"
                 onClick={() => {
                   loginAsRole(rol);
                   setSection(rol === 'ADMINISTRADOR' ? 'admin-usuarios' : 'inicio');
@@ -44,13 +46,18 @@ const MainRouter: React.FC = () => {
 
   return (
     <AppLayout activeSection={section} onNavigate={setSection}>
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
-        <h2 className="text-lg font-bold capitalize">Vista activa: {section}</h2>
-        <p className="text-sm text-slate-500 mt-1">
-          Operando como <strong>{user.rol}</strong> ({user.nombre}). Aquí montaremos las
-          pantallas de `src/pages/`.
-        </p>
-      </div>
+      {user.rol === 'ADMINISTRADOR' || section.startsWith('admin-') ? (
+        <AdminPage activeSubSection={section} />
+      ) : (
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+          <h2 className="text-lg font-bold capitalize text-slate-900 dark:text-white">
+            Vista activa: {section}
+          </h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Operando como <strong>{user.rol}</strong> ({user.nombre}).
+          </p>
+        </div>
+      )}
     </AppLayout>
   );
 };

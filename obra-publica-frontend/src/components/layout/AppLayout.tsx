@@ -61,20 +61,21 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       ];
 
   return (
-    <div className="min-h-screen flex bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
-      {/* Sidebar */}
-      <aside className="w-64 bg-sidebar text-slate-300 flex flex-col shrink-0 select-none">
-        <div className="p-5 flex items-center gap-3 border-b border-slate-800">
-          <div className="w-9 h-9 rounded-lg bg-brand flex items-center justify-center text-white font-bold">
-            OB
+    <div className="h-screen w-full overflow-hidden flex bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+      <div className="h-full shrink-0 overflow-y-auto">
+        {/* Sidebar */}
+        <aside className="h-full w-64 bg-sidebar text-slate-300 flex flex-col shrink-0 select-none">
+          <div className="p-5 flex items-center gap-3 border-b border-slate-800">
+            <div className="w-9 h-9 rounded-lg bg-brand flex items-center justify-center text-white font-bold">
+              OB
+            </div>
+            <div>
+              <p className="text-white font-bold leading-tight">OBRA</p>
+              <p className="text-xs text-slate-400">Gestión de obra pública</p>
+            </div>
           </div>
-          <div>
-            <p className="text-white font-bold leading-tight">OBRA</p>
-            <p className="text-xs text-slate-400">Gestión de obra pública</p>
-          </div>
-        </div>
 
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+          <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           <p className="px-3 pb-2 text-[11px] font-semibold tracking-wider text-slate-500 uppercase">
             {isAdmin ? 'Administración' : 'Principal'}
           </p>
@@ -130,26 +131,27 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
               </div>
             )}
           </div>
-        </nav>
+          </nav>
 
-        <div className="p-4 border-t border-slate-800 text-xs text-slate-400 space-y-2">
-          <div className="p-2.5 rounded-lg bg-slate-900/70">
-            <p className="text-slate-500 text-[10px] uppercase">Espacio de trabajo</p>
-            <p className="text-slate-200 font-medium">Dirección de Obras</p>
-            <p className="text-[11px] text-slate-500">Administración 2024–2027</p>
+          <div className="p-4 border-t border-slate-800 text-xs text-slate-400 space-y-2">
+            <div className="p-2.5 rounded-lg bg-slate-900/70">
+              <p className="text-slate-500 text-[10px] uppercase">Espacio de trabajo</p>
+              <p className="text-slate-200 font-medium">Dirección de Obras</p>
+              <p className="text-[11px] text-slate-500">Administración 2024–2027</p>
+            </div>
+            <button
+              onClick={() => logout(false)}
+              className="w-full flex items-center gap-2 px-2 py-1.5 text-slate-400 hover:text-rose-400 transition-colors cursor-pointer"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              Cerrar sesión
+            </button>
           </div>
-          <button
-            onClick={() => logout(false)}
-            className="w-full flex items-center gap-2 px-2 py-1.5 text-slate-400 hover:text-rose-400 transition-colors cursor-pointer"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            Cerrar sesión
-          </button>
-        </div>
-      </aside>
+        </aside>
+      </div>
 
       {/* Área Principal */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
         <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 flex items-center justify-between sticky top-0 z-10">
           <div className="flex items-center gap-3 text-sm">
             <span className="font-semibold text-slate-700 dark:text-slate-200">
@@ -197,7 +199,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           </div>
         </header>
 
-        <main className="flex-1 p-6 overflow-y-auto">{children}</main>
+        <main className="flex-1 p-6 overflow-y-auto overflow-x-hidden">{children}</main>
       </div>
     </div>
   );

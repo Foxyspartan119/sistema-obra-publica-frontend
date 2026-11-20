@@ -223,7 +223,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
       </div>
 
       {/* Pestañas superiores */}
-      <div className="border-b border-slate-200 dark:border-slate-800 overflow-x-auto">
+     { /*<div className="border-b border-slate-200 dark:border-slate-800 overflow-x-auto">
         <div className="flex items-center gap-6 min-w-max text-xs">
           {(
             [
@@ -253,7 +253,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
             );
           })}
         </div>
-      </div>
+      </div> */}
 
       {/* Alerta de regla de negocio cuando se intenta una acción restringida */}
       {feedbackError && (
