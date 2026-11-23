@@ -310,8 +310,8 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
               </div>
 
               <div className="w-full overflow-x-auto">
-                <div className="min-w-[520px] flex gap-3">
-                  <div className="flex flex-col justify-between h-[140px] text-[10px] text-slate-400 shrink-0">
+                <div className="min-w-130 flex gap-3">
+                  <div className="flex flex-col justify-between h-35 text-[10px] text-slate-400 shrink-0">
                     <span>80%</span>
                     <span>60%</span>
                     <span>40%</span>
@@ -322,7 +322,7 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
                   <div className="flex-1">
                     <svg
                       viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-                      className="w-full h-[140px] overflow-visible"
+                      className="w-full h-35 overflow-visible"
                     >
                       {[0, 35, 70, 105, 140].map((y) => (
                         <line
@@ -383,7 +383,7 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
             </div>
 
             {/* Ficha de la obra */}
-            <div className="w-full xl:w-[360px] shrink-0 bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl p-5 flex flex-col justify-between gap-4">
+            <div className="w-full xl:w-90 shrink-0 bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl p-5 flex flex-col justify-between gap-4">
               <div className="flex items-center justify-between relative">
                 <h2 className="text-sm font-semibold text-slate-900 dark:text-white hc:text-black">
                   Información de la obra
@@ -495,7 +495,7 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse min-w-[520px]">
+                <table className="w-full text-left border-collapse min-w-130">
                   <thead>
                     <tr className="bg-slate-50 dark:bg-slate-950/60 text-[10px] font-medium text-slate-500 uppercase border-y border-slate-200 dark:border-slate-800">
                       <th className="py-2 px-5">Actividad</th>
@@ -547,7 +547,7 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
               </div>
             </div>
 
-            <div className="w-full xl:w-[360px] shrink-0 bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl p-5 flex flex-col gap-4">
+            <div className="w-full xl:w-90 shrink-0 bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl p-5 flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-semibold text-slate-900 dark:text-white hc:text-black">
                   Requieren tu atención
