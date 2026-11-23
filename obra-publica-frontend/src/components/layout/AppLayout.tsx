@@ -52,6 +52,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       ]
     : [
         { id: 'inicio', label: 'Inicio', icon: LayoutDashboard },
+        { id: 'obras', label: 'Mis obras', icon: HardHat },
         { id: 'catalogo', label: 'Catálogo de conceptos', icon: ListChecks },
         { id: 'programa', label: 'Programa de ejecución', icon: CalendarClock },
         { id: 'bitacora', label: 'Bitácora', icon: BookOpen },
