@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AppLayout } from './components/layout/AppLayout';
 import { AdminPage } from './pages/AdminPage';
+import { ObraDetailPage } from './pages/ObraDetailPage';
 
 const MainRouter: React.FC = () => {
   const { user, sessionExpired, loginAsRole } = useAuth();
-  const [section, setSection] = useState<string>('admin-usuarios');
+  const [section, setSection] = useState<string>('inicio');
 
   if (!user) {
     return (
@@ -49,14 +50,15 @@ const MainRouter: React.FC = () => {
       {user.rol === 'ADMINISTRADOR' || section.startsWith('admin-') ? (
         <AdminPage activeSubSection={section} />
       ) : (
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+       /* <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
           <h2 className="text-lg font-bold capitalize text-slate-900 dark:text-white">
             Vista activa: {section}
           </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Operando como <strong>{user.rol}</strong> ({user.nombre}).
           </p>
-        </div>
+        </div> */
+        <ObraDetailPage activeSection={section} onNavigate={setSection}/>
       )}
     </AppLayout>
   );

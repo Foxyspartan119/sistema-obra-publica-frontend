@@ -61,10 +61,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       ];
 
   return (
-    <div className="h-screen w-full overflow-hidden flex bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+    <div className="h-screen w-full overflow-hidden flex bg-slate-50 dark:bg-slate-950 hc:bg-white text-slate-900 dark:text-slate-100 hc:text-black">
       <div className="h-full shrink-0 overflow-y-auto">
         {/* Sidebar */}
-        <aside className="h-full w-64 bg-sidebar text-slate-300 flex flex-col shrink-0 select-none">
+        <aside className="h-full w-64 bg-sidebar text-slate-300 flex flex-col shrink-0 select-none overflow-y-auto">
           <div className="p-5 flex items-center gap-3 border-b border-slate-800">
             <div className="w-9 h-9 rounded-lg bg-brand flex items-center justify-center text-white font-bold">
               OB
@@ -152,7 +152,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
 
       {/* Área Principal */}
       <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
-        <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 flex items-center justify-between sticky top-0 z-10">
+        <header className="h-16 shrink-0 bg-white dark:bg-slate-900 hc:bg-white border-b border-slate-200 dark:border-slate-800 hc:border-black px-6 flex items-center justify-between z-10">
           <div className="flex items-center gap-3 text-sm">
             <span className="font-semibold text-slate-700 dark:text-slate-200">
               {isAdmin ? 'Panel de Administración' : 'Contrato: OP-2024-001 · Puente Vehicular'}
