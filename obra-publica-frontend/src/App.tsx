@@ -1,8 +1,20 @@
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AppLayout } from './components/layout/AppLayout';
+import { LoginPage } from './pages/LoginPage';
 import { AdminPage } from './pages/AdminPage';
+import {
+  MisObrasPage,
+  PORTFOLIO_OBRAS_MOCK,
+  type ObraPortfolioItem,
+} from './pages/MisObrasPage';
 import { ObraInicioPage } from './pages/ObraInicioPage';
+import { CatalogoPage } from './pages/CatalogoPage';
+import { BitacoraPage } from './pages/BitacoraPage';
+import { EstimacionesPage } from './pages/EstimacionesPage';
+import { DocumentosCierrePage } from './pages/DocumentosCierrePage';
+import { ReportesPage } from './pages/ReportesPage';
+/*
 import {
   BITACORA_ENTRIES,
   CATALOG_CONCEPTS,
@@ -11,14 +23,70 @@ import {
   OBRA_DETAIL_MOCK,
   WEEKLY_ACTIVITIES,
 } from './mocks/obra.mock';
-
+*/
 const MainRouter: React.FC = () => {
-  const { user, sessionExpired, loginAsRole } = useAuth();
+  const { user/*, sessionExpired, loginAsRole*/ } = useAuth();
   const [section, setSection] = useState<string>('inicio');
+  const [selectedObra, setSelectedObra] = useState<ObraPortfolioItem>(
+    PORTFOLIO_OBRAS_MOCK[0]
+  );
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-950 p-4">
+      <LoginPage
+      onLoginSuccess={(role) => {
+        setSection(role === 'ADMINISTRADOR' ? 'admin-usuarios' : 'inicio')
+      }}
+      />
+    );
+  }
+
+  const renderPage = () => {
+    if (user.rol === 'ADMINISTRADOR' || section.startsWith('admin-')) {
+      return <AdminPage activeSubSection={section} />;
+    }
+
+    switch (section) {
+      case 'mis-obras':
+        return (
+          <MisObrasPage
+          selectedObraId={selectedObra.id}
+          onSelectObra={(obra) => {
+            setSelectedObra(obra);
+            setSection('inicio');
+          }}
+          />
+        );
+      case 'catalogo':
+        return <CatalogoPage />;
+      case 'bitacora':
+        return <BitacoraPage />;
+      case 'estimaciones':
+        return <EstimacionesPage />;
+      case 'cierre':
+        return <DocumentosCierrePage />;
+      case 'reportes':
+        return <ReportesPage />;
+      default:
+        return <ObraInicioPage onNavigateSection={setSection} />;
+    }
+  };
+
+  return (
+    <AppLayout activeSection={section} onNavigate={setSection}>
+      {renderPage()}
+    </AppLayout>
+  );
+};
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <MainRouter />
+    </AuthProvider>
+  );
+}
+     /* <div className="min-h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-950 p-4">
         <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 space-y-4">
           <h1 className="text-xl font-bold text-slate-900 dark:text-white">
             OBRA · Acceso al Sistema
@@ -195,4 +263,4 @@ export default function App() {
       <MainRouter />
     </AuthProvider>
   );
-}
+}*/
