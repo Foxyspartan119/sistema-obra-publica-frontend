@@ -10,6 +10,7 @@ import {
 } from './pages/MisObrasPage';
 import { ObraInicioPage } from './pages/ObraInicioPage';
 import { CatalogoPage } from './pages/CatalogoPage';
+import { ProgramaPage } from './pages/ProgramaPage';
 import { BitacoraPage } from './pages/BitacoraPage';
 import { EstimacionesPage } from './pages/EstimacionesPage';
 import { DocumentosCierrePage } from './pages/DocumentosCierrePage';
@@ -59,6 +60,8 @@ const MainRouter: React.FC = () => {
         );
       case 'catalogo':
         return <CatalogoPage />;
+      case 'programa':
+        return <ProgramaPage />;
       case 'bitacora':
         return <BitacoraPage />;
       case 'estimaciones':
