@@ -21,6 +21,7 @@ import {
 import { AdminVinculacionTab } from '../components/admin/AdminVinculacionTab';
 import { AdminCatalogosTab } from '../components/admin/AdminCatalogosTab';
 import { AdminLogsTab } from '../components/admin/AdminLogsTab';
+import { CreateUserModal } from '../components/admin/CreateUserModal';
 
 type AdminTabId = 'cuentas' | 'vinculacion' | 'catalogos' | 'logs';
 
@@ -74,6 +75,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
   const [feedbackError, setFeedbackError] = useState<string | null>(null);
   const [openMenuUserId, setOpenMenuUserId] = useState<number | null>(null);
   const [page, setPage] = useState(1);
+  const [createUserModalOpen, setCreateUserModalOpen] = useState(false);
+
   const pageSize = 10;
 
   React.useEffect(() => {
@@ -174,23 +177,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
     );
   };
 
-  const handleQuickCreateUser = () => {
-    setFeedbackError(null);
-    const nextIndex = users.length + 1;
-    const nuevo: AdminUserRecord = {
-      id: 100 + nextIndex,
-      nombre: `Nuevo Operativo ${nextIndex}`,
-      area: 'Residencia',
-      correo: `operativo${nextIndex}@obra.gob.mx`,
-      rol: 'RESIDENTE',
-      obrasAsignadas: [],
-      estado: 'ACTIVO',
-      tieneHistorialOperativo: false,
-    };
-    setUsers((prev) => [nuevo, ...prev]);
-    appendAuditLog('Crear', `Cuenta de usuario para ${nuevo.nombre}`);
-  };
-
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3">
@@ -221,12 +207,15 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
           {activeTab === 'cuentas' && (
             <button
               type="button"
-              onClick={handleQuickCreateUser}
+              onClick={() => {
+                setFeedbackError(null);
+                setCreateUserModalOpen(true);
+              }}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-brand hover:bg-brand-hover text-white text-xs font-semibold transition-colors cursor-pointer self-start md:self-auto"
             >
               <Plus className="w-4 h-4" />
               Crear nuevo usuario
-            </button>
+              </button>
           )}
         </div>
       </div>
@@ -544,6 +533,24 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
       {activeTab === 'vinculacion' && <AdminVinculacionTab />}
       {activeTab === 'catalogos' && <AdminCatalogosTab />}
       {activeTab === 'logs' && <AdminLogsTab />}
+
+      <CreateUserModal
+        open={createUserModalOpen}
+        existingEmails={users.map((u) => u.correo)}
+        onClose={() => setCreateUserModalOpen(false)}
+        onCreateUser={(newUserData) => {
+          const created: AdminUserRecord = {
+            ...newUserData,
+            id: Date.now(),
+          };
+          setUsers((prev) => [created, ...prev]);
+          appendAuditLog(
+            'Crear',
+            `Cuenta de usuario para ${created.nombre} (${created.rol})`
+          );
+          }}
+          />
     </div>
   );
 };
+
