@@ -308,10 +308,10 @@ export const BitacoraPage: React.FC = () => {
       {/* Encabezado */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-fg-muted ">
             Registro inmutable con firma electrónica (RNF-SEG-02 / RNF-SEG-04)
           </p>
-          <h1 className="text-2xl font-normal text-slate-900 dark:text-white hc:text-black tracking-tight mt-0.5">
+          <h1 className="text-2xl font-normal text-fg tracking-tight mt-0.5">
             Bitácora electrónica y supervisión
           </h1>
         </div>
@@ -329,14 +329,14 @@ export const BitacoraPage: React.FC = () => {
       </div>
 
       {/* Pestañas internas */}
-      <div className="border-b border-slate-200 dark:border-slate-800 flex items-center gap-6 text-xs">
+      <div className="border-b border-line flex items-center gap-6 text-xs">
         <button
           type="button"
           onClick={() => setSubTab('notas')}
           className={`pb-3 font-medium border-b-2 cursor-pointer inline-flex items-center gap-1.5 ${
             subTab === 'notas'
-              ? 'border-brand text-brand font-semibold'
-              : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+              ? 'border-brand text-accent font-semibold'
+              : 'border-transparent text-fg-muted hover:text-fg '
           }`}
         >
           <BookOpen className="w-3.5 h-3.5" />
@@ -348,8 +348,8 @@ export const BitacoraPage: React.FC = () => {
           onClick={() => setSubTab('reportes')}
           className={`pb-3 font-medium border-b-2 cursor-pointer inline-flex items-center gap-1.5 ${
             subTab === 'reportes'
-              ? 'border-brand text-brand font-semibold'
-              : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+              ? 'border-brand text-accent font-semibold'
+              : 'border-transparent text-fg-muted hover:text-fg '
           }`}
         >
           <ClipboardCheck className="w-3.5 h-3.5" />
@@ -361,7 +361,7 @@ export const BitacoraPage: React.FC = () => {
       {subTab === 'notas' && (
         <div className="space-y-4">
           {bitacoraCerrada && (
-            <div className="flex items-center gap-2.5 p-3.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-200 text-xs">
+            <div className="flex items-center gap-2.5 p-3.5 rounded-xl bg-info-bg border border-info-line text-info-fg text-xs">
               <Lock className="w-4 h-4 shrink-0" />
               <span>
                 <strong>Bitácora cerrada y congelada (RN-RES-01.2):</strong> se firmó la nota de CIERRE.
@@ -375,36 +375,36 @@ export const BitacoraPage: React.FC = () => {
             {paginatedNotes.map((nota) => (
               <article
                 key={nota.numero}
-                className="bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl p-5 space-y-2.5"
+                className="bg-surface border border-line rounded-xl p-5 space-y-2.5"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex flex-wrap items-center gap-2 text-xs">
-                    <span className="font-bold text-brand">Nota N.º {nota.numero}</span>
-                    <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-semibold text-slate-700 dark:text-slate-200">
+                    <span className="font-bold text-accent">Nota N.º {nota.numero}</span>
+                    <span className="px-2 py-0.5 rounded bg-subtle text-[10px] font-semibold text-fg-soft ">
                       {nota.tipo}
                     </span>
-                    <span className="text-[11px] text-slate-400">· {nota.fecha}</span>
+                    <span className="text-[11px] text-fg-muted">· {nota.fecha}</span>
                   </div>
-                  <span className="inline-flex items-center gap-1 text-[10px] font-mono text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded">
+                  <span className="inline-flex items-center gap-1 text-[10px] font-mono text-ok-fg bg-ok-bg px-2 py-0.5 rounded">
                     <ShieldCheck className="w-3 h-3" />
                     {nota.selloDigital}
                   </span>
                 </div>
 
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-white hc:text-black">
+                <h3 className="text-sm font-semibold text-fg ">
                   {nota.asunto}
                 </h3>
-                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                <p className="text-xs text-fg-soft leading-relaxed">
                   {nota.contenido}
                 </p>
 
-                <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400">
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-line text-[11px] text-fg-muted">
                   <span>
-                    Firmado por <strong className="text-slate-700 dark:text-slate-200">{nota.autor}</strong>{' '}
+                    Firmado por <strong className="text-fg-soft ">{nota.autor}</strong>{' '}
                     ({nota.rolAutor})
                   </span>
                   {nota.evidencias.length > 0 && (
-                    <span className="text-brand font-medium">
+                    <span className="text-accent font-medium">
                       {nota.evidencias.length} evidencia(s) adjunta(s)
                     </span>
                   )}
@@ -414,7 +414,7 @@ export const BitacoraPage: React.FC = () => {
           </div>
 
           {/* Paginación (RNF-REN-03 / RN-DIR-03.2) */}
-          <div className="flex items-center justify-between text-xs text-slate-500">
+          <div className="flex items-center justify-between text-xs text-fg-muted">
             <span>
               Página {page} de {Math.max(1, Math.ceil(notas.length / pageSize))}
             </span>
@@ -423,7 +423,7 @@ export const BitacoraPage: React.FC = () => {
                 type="button"
                 disabled={page === 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-40 cursor-pointer"
+                className="px-3 py-1.5 rounded-lg border border-line-strong disabled:opacity-40 cursor-pointer"
               >
                 Anterior
               </button>
@@ -431,7 +431,7 @@ export const BitacoraPage: React.FC = () => {
                 type="button"
                 disabled={page * pageSize >= notas.length}
                 onClick={() => setPage((p) => p + 1)}
-                className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-40 cursor-pointer"
+                className="px-3 py-1.5 rounded-lg border border-line-strong disabled:opacity-40 cursor-pointer"
               >
                 Siguiente
               </button>
@@ -444,12 +444,12 @@ export const BitacoraPage: React.FC = () => {
       {subTab === 'reportes' && (
         <div className="space-y-5">
           {isSupervisor && (
-            <div className="bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl p-5 space-y-4">
+            <div className="bg-surface border border-line rounded-xl p-5 space-y-4">
               <div>
-                <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
+                <h2 className="text-sm font-semibold text-fg ">
                   Registrar Reporte Diario de Supervisión (RF-SUP-03)
                 </h2>
-                <p className="text-[11px] text-slate-400 mt-0.5">
+                <p className="text-[11px] text-fg-muted mt-0.5">
                   Puedes guardar en BORRADOR (parcial), pasar a ENVIADO o firmar electrónicamente para
                   actualizar el Avance Físico Real (mínimo actual: {ultimoAvanceOficial}%).
                 </p>
@@ -460,14 +460,14 @@ export const BitacoraPage: React.FC = () => {
                   type="date"
                   value={repForm.fecha}
                   onChange={(e) => setRepForm({ ...repForm, fecha: e.target.value })}
-                  className="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+                  className="px-3 py-2 rounded-lg border border-line-strong bg-canvas "
                 />
                 <input
                   type="text"
                   placeholder="Condiciones de clima"
                   value={repForm.clima}
                   onChange={(e) => setRepForm({ ...repForm, clima: e.target.value })}
-                  className="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+                  className="px-3 py-2 rounded-lg border border-line-strong bg-canvas "
                 />
                 <input
                   type="number"
@@ -477,7 +477,7 @@ export const BitacoraPage: React.FC = () => {
                   placeholder="Avance físico (%)"
                   value={repForm.avanceReportado}
                   onChange={(e) => setRepForm({ ...repForm, avanceReportado: e.target.value })}
-                  className="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+                  className="px-3 py-2 rounded-lg border border-line-strong bg-canvas "
                 />
               </div>
 
@@ -487,14 +487,14 @@ export const BitacoraPage: React.FC = () => {
                   placeholder="Estado de fuerza de trabajo (ej. 40 trabajadores)"
                   value={repForm.fuerzaTrabajo}
                   onChange={(e) => setRepForm({ ...repForm, fuerzaTrabajo: e.target.value })}
-                  className="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+                  className="px-3 py-2 rounded-lg border border-line-strong bg-canvas "
                 />
                 <input
                   type="text"
                   placeholder="Maquinaria activa en sitio"
                   value={repForm.maquinaria}
                   onChange={(e) => setRepForm({ ...repForm, maquinaria: e.target.value })}
-                  className="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+                  className="px-3 py-2 rounded-lg border border-line-strong bg-canvas "
                 />
               </div>
 
@@ -503,11 +503,11 @@ export const BitacoraPage: React.FC = () => {
                 placeholder="Incidencias relevantes y dictámenes de calidad"
                 value={repForm.incidencias}
                 onChange={(e) => setRepForm({ ...repForm, incidencias: e.target.value })}
-                className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+                className="w-full px-3 py-2 text-xs rounded-lg border border-line-strong bg-canvas "
               />
 
               {repError && (
-                <div className="flex items-center gap-2 p-2.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-200 text-xs">
+                <div className="flex items-center gap-2 p-2.5 rounded-lg bg-danger-bg border border-danger-line text-danger-fg text-xs">
                   <AlertTriangle className="w-4 h-4 shrink-0" />
                   <span>{repError}</span>
                 </div>
@@ -517,7 +517,7 @@ export const BitacoraPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => handleSaveReporte('BORRADOR')}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-medium cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-line-strong text-xs font-medium cursor-pointer"
                 >
                   <Save className="w-3.5 h-3.5" />
                   <span>Guardar borrador</span>
@@ -539,20 +539,20 @@ export const BitacoraPage: React.FC = () => {
             {reportes.map((rep) => (
               <div
                 key={rep.id}
-                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs"
+                className="bg-surface border border-line rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs"
               >
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-slate-900 dark:text-white">
+                    <span className="font-semibold text-fg ">
                       Reporte del {rep.fecha}
                     </span>
                     <StatusBadge status={rep.estatus} />
-                    <span className="font-bold text-brand">Avance: {rep.avanceReportado}%</span>
+                    <span className="font-bold text-accent">Avance: {rep.avanceReportado}%</span>
                   </div>
-                  <p className="text-slate-500 dark:text-slate-400">
+                  <p className="text-fg-muted ">
                     Clima: {rep.clima} · Personal: {rep.fuerzaTrabajo} · Maquinaria: {rep.maquinaria}
                   </p>
-                  <p className="text-slate-600 dark:text-slate-300">{rep.incidencias}</p>
+                  <p className="text-fg-soft ">{rep.incidencias}</p>
                 </div>
 
                 <div className="shrink-0">
@@ -560,17 +560,17 @@ export const BitacoraPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setReportToSign(rep)}
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-ok-solid hover:bg-emerald-700 text-white text-xs font-semibold cursor-pointer"
                     >
                       <ShieldCheck className="w-4 h-4" />
                       <span>Firmar reporte</span>
                     </button>
                   ) : rep.selloDigital ? (
-                    <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-1 rounded">
+                    <span className="text-[10px] font-mono text-ok-fg bg-ok-bg px-2.5 py-1 rounded">
                       {rep.selloDigital}
                     </span>
                   ) : (
-                    <span className="text-[11px] text-slate-400">Preliminar (no afecta avance oficial)</span>
+                    <span className="text-[11px] text-fg-muted">Preliminar (no afecta avance oficial)</span>
                   )}
                 </div>
               </div>
@@ -588,21 +588,21 @@ export const BitacoraPage: React.FC = () => {
           <form
             onSubmit={handleValidateNote}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl max-w-lg w-full p-5 space-y-3.5 shadow-xl max-h-[90vh] overflow-y-auto"
+            className="bg-surface border border-line rounded-xl max-w-lg w-full p-5 space-y-3.5 shadow-xl max-h-[90vh] overflow-y-auto"
           >
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+              <h3 className="text-sm font-semibold text-fg ">
                 Nueva nota de bitácora ({user?.rol})
               </h3>
               {draftSavedAt && (
-                <span className="text-[10px] text-slate-400">
+                <span className="text-[10px] text-fg-muted">
                   Borrador autoguardado ({draftSavedAt})
                 </span>
               )}
             </div>
 
             <div className="space-y-1">
-              <label className="text-[11px] font-medium text-slate-600 dark:text-slate-300">
+              <label className="text-[11px] font-medium text-fg-soft ">
                 Tipo de nota permitido para tu rol
               </label>
               <select
@@ -611,7 +611,7 @@ export const BitacoraPage: React.FC = () => {
                   setNoteType(e.target.value);
                   setNoteError(null);
                 }}
-                className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 cursor-pointer"
+                className="w-full px-3 py-2 text-xs rounded-lg border border-line-strong bg-canvas cursor-pointer"
               >
                 {allowedTypes.map((t) => (
                   <option key={t} value={t}>
@@ -626,7 +626,7 @@ export const BitacoraPage: React.FC = () => {
               placeholder="Asunto de la nota"
               value={asunto}
               onChange={(e) => setAsunto(e.target.value)}
-              className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+              className="w-full px-3 py-2 text-xs rounded-lg border border-line-strong bg-canvas "
             />
 
             <textarea
@@ -634,7 +634,7 @@ export const BitacoraPage: React.FC = () => {
               placeholder="Redacción técnica detallada..."
               value={contenido}
               onChange={(e) => setContenido(e.target.value)}
-              className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+              className="w-full px-3 py-2 text-xs rounded-lg border border-line-strong bg-canvas "
             />
 
             <FileDropzone
@@ -651,14 +651,14 @@ export const BitacoraPage: React.FC = () => {
             />
 
             {noteError && (
-              <p className="text-xs text-rose-600 dark:text-rose-400 font-medium">{noteError}</p>
+              <p className="text-xs text-danger-fg font-medium">{noteError}</p>
             )}
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex justify-end gap-2 pt-2 border-t border-line ">
               <button
                 type="button"
                 onClick={() => setShowNewNote(false)}
-                className="px-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer"
+                className="px-3 py-1.5 text-xs rounded-lg border border-line-strong cursor-pointer"
               >
                 Cancelar
               </button>

@@ -113,12 +113,12 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
     <div className="space-y-6">
       {/* Encabezado general de la obra */}
       <div className="space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-fg-muted ">
           <span className="font-semibold uppercase tracking-wider">Seguimiento de obra</span>
           <button
             type="button"
             onClick={handleRefresh}
-            className="inline-flex items-center gap-1.5 hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 hover:text-fg transition-colors cursor-pointer"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
             <span>{lastUpdated}</span>
@@ -126,11 +126,11 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
         </div>
 
         <div className="space-y-2.5">
-          <h1 className="text-2xl font-normal text-slate-900 dark:text-white hc:text-black tracking-tight">
+          <h1 className="text-2xl font-normal text-fg tracking-tight">
             {OBRA_DETAIL_MOCK.nombre}
           </h1>
-          <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
-            <span className="px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-semibold">
+          <div className="flex flex-wrap items-center gap-4 text-xs text-fg-muted ">
+            <span className="px-2.5 py-1 rounded-md bg-ok-bg text-ok-fg font-semibold">
               {OBRA_DETAIL_MOCK.estadoEtiqueta}
             </span>
             <span className="inline-flex items-center gap-1.5">
@@ -144,77 +144,77 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
 
       {/* 4 Tarjetas KPI */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl p-4 flex flex-col justify-between gap-2">
-          <div className="flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
+        <div className="bg-surface border border-line rounded-xl p-4 flex flex-col justify-between gap-2">
+          <div className="flex items-center justify-between text-xs font-medium text-fg-muted ">
             <span>Obras activas</span>
-            <Building2 className="w-4 h-4 text-slate-400" />
+            <Building2 className="w-4 h-4 text-fg-muted" />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-normal text-slate-900 dark:text-white hc:text-black">
+            <span className="text-3xl font-normal text-fg ">
               0{OBRA_DETAIL_MOCK.obrasActivas}
             </span>
-            <span className="text-xs text-slate-400">
+            <span className="text-xs text-fg-muted">
               de {OBRA_DETAIL_MOCK.obrasRegistradas} registradas
             </span>
           </div>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+          <p className="text-[11px] text-fg-muted ">
             {OBRA_DETAIL_MOCK.obrasPorConcluir} obras próximas a concluir
           </p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl p-4 flex flex-col justify-between gap-2">
-          <div className="flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
+        <div className="bg-surface border border-line rounded-xl p-4 flex flex-col justify-between gap-2">
+          <div className="flex items-center justify-between text-xs font-medium text-fg-muted ">
             <span>Avance físico</span>
-            <TrendingUp className="w-4 h-4 text-brand" />
+            <TrendingUp className="w-4 h-4 text-accent" />
           </div>
-          <div className="text-3xl font-normal text-brand">{OBRA_DETAIL_MOCK.avanceFisico}%</div>
-          <div className="w-full h-1.5 bg-blue-100 dark:bg-slate-800 rounded-full overflow-hidden">
+          <div className="text-3xl font-normal text-accent">{OBRA_DETAIL_MOCK.avanceFisico}%</div>
+          <div className="w-full h-1.5 bg-info-bg rounded-full overflow-hidden">
             <div
               className="h-full bg-brand rounded-full"
               style={{ width: `${OBRA_DETAIL_MOCK.avanceFisico}%` }}
             />
           </div>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+          <p className="text-[11px] text-fg-muted ">
             Programado: {OBRA_DETAIL_MOCK.avanceProgramado}% · Desviación: −3 pp
           </p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl p-4 flex flex-col justify-between gap-2">
-          <div className="flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
+        <div className="bg-surface border border-line rounded-xl p-4 flex flex-col justify-between gap-2">
+          <div className="flex items-center justify-between text-xs font-medium text-fg-muted ">
             <span>Avance financiero</span>
-            <Wallet className="w-4 h-4 text-slate-400" />
+            <Wallet className="w-4 h-4 text-fg-muted" />
           </div>
           <div
             className={`text-3xl font-normal ${
               presupuestoEnRegla
-                ? 'text-slate-900 dark:text-white hc:text-black'
-                : 'text-rose-600'
+                ? 'text-fg '
+                : 'text-danger-fg'
             }`}
           >
             {OBRA_DETAIL_MOCK.avanceFinanciero}%
           </div>
-          <div className="w-full h-1.5 bg-blue-100 dark:bg-slate-800 rounded-full overflow-hidden">
+          <div className="w-full h-1.5 bg-info-bg rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full ${
-                presupuestoEnRegla ? 'bg-blue-300 dark:bg-blue-500' : 'bg-rose-600'
+                presupuestoEnRegla ? 'bg-fg-muted ' : 'bg-danger-solid'
               }`}
               style={{ width: `${OBRA_DETAIL_MOCK.avanceFinanciero}%` }}
             />
           </div>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+          <p className="text-[11px] text-fg-muted ">
             $14.5 M de $25.0 M contratados
           </p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl p-4 flex flex-col justify-between gap-2">
-          <div className="flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
+        <div className="bg-surface border border-line rounded-xl p-4 flex flex-col justify-between gap-2">
+          <div className="flex items-center justify-between text-xs font-medium text-fg-muted ">
             <span>Pendientes</span>
-            <ClipboardList className="w-4 h-4 text-amber-600" />
+            <ClipboardList className="w-4 h-4 text-warn-fg" />
           </div>
-          <div className="text-3xl font-normal text-slate-900 dark:text-white hc:text-black">
+          <div className="text-3xl font-normal text-fg ">
             0{pendingAttentionCount}
           </div>
-          <p className="text-[11px] text-amber-700 dark:text-amber-400 font-medium">
+          <p className="text-[11px] text-warn-fg font-medium">
             {pendingAttentionCount > 0
               ? 'Requieren atención esta semana'
               : 'Sin pendientes urgentes'}
@@ -226,7 +226,7 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
       <div
         role="tablist"
         aria-label="Vista rápida de secciones"
-        className="border-b border-slate-200 dark:border-slate-800 flex items-center gap-6 overflow-x-auto"
+        className="border-b border-line flex items-center gap-6 overflow-x-auto"
       >
         {PREVIEW_TABS.map((tab) => {
           const isActive = previewTab === tab.id;
@@ -239,8 +239,8 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
               onClick={() => setPreviewTab(tab.id)}
               className={`pb-3 text-xs font-medium border-b-2 whitespace-nowrap transition-colors cursor-pointer ${
                 isActive
-                  ? 'border-brand text-brand font-semibold'
-                  : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'
+                  ? 'border-brand text-accent font-semibold'
+                  : 'border-transparent text-fg-muted hover:text-fg '
               }`}
             >
               {tab.label}
@@ -253,13 +253,13 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
       {previewTab === 'resumen' && (
         <div className="space-y-5">
           <div className="flex flex-col xl:flex-row gap-5 items-stretch">
-            <div className="flex-1 bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl p-5 flex flex-col justify-between gap-4 min-w-0">
+            <div className="flex-1 bg-surface border border-line rounded-xl p-5 flex flex-col justify-between gap-4 min-w-0">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-sm font-semibold text-slate-900 dark:text-white hc:text-black">
+                  <h2 className="text-sm font-semibold text-fg ">
                     Avance físico acumulado
                   </h2>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-fg-muted mt-0.5">
                     Comparativo de ejecución respecto al programa de obra
                   </p>
                 </div>
@@ -268,14 +268,14 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
                   <button
                     type="button"
                     onClick={() => setPeriodMenuOpen((prev) => !prev)}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
+                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-line-strong text-xs text-fg-soft hover:bg-subtle cursor-pointer"
                   >
                     <span>{currentPeriod.label}</span>
-                    <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                    <ChevronDown className="w-3.5 h-3.5 text-fg-muted" />
                   </button>
 
                   {periodMenuOpen && (
-                    <div className="absolute right-0 mt-1 w-40 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg py-1 z-20">
+                    <div className="absolute right-0 mt-1 w-40 bg-surface border border-line-strong rounded-lg shadow-lg py-1 z-20">
                       {PROGRESS_PERIODS.map((p) => (
                         <button
                           key={p.id}
@@ -284,10 +284,10 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
                             setSelectedPeriodId(p.id);
                             setPeriodMenuOpen(false);
                           }}
-                          className={`w-full text-left px-3 py-1.5 text-xs hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer ${
+                          className={`w-full text-left px-3 py-1.5 text-xs hover:bg-subtle  cursor-pointer ${
                             p.id === selectedPeriodId
-                              ? 'font-semibold text-brand'
-                              : 'text-slate-700 dark:text-slate-300'
+                              ? 'font-semibold text-accent'
+                              : 'text-fg-soft '
                           }`}
                         >
                           {p.label}
@@ -298,20 +298,20 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
                 </div>
               </div>
 
-              <div className="flex items-center gap-5 text-[11px] text-slate-500 dark:text-slate-400">
+              <div className="flex items-center gap-5 text-[11px] text-fg-muted ">
                 <span className="inline-flex items-center gap-1.5">
                   <span className="w-3.5 h-0.5 bg-brand rounded" />
                   Avance real
                 </span>
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="w-3.5 h-0.5 bg-blue-300 rounded" />
+                  <span className="w-3.5 h-0.5 bg-fg-muted rounded" />
                   Avance programado
                 </span>
               </div>
 
               <div className="w-full overflow-x-auto">
                 <div className="min-w-130 flex gap-3">
-                  <div className="flex flex-col justify-between h-35 text-[10px] text-slate-400 shrink-0">
+                  <div className="flex flex-col justify-between h-35 text-[10px] text-fg-muted shrink-0">
                     <span>80%</span>
                     <span>60%</span>
                     <span>40%</span>
@@ -332,33 +332,33 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
                           x2={chartWidth}
                           y2={y}
                           stroke="currentColor"
-                          className="text-slate-200 dark:text-slate-800"
+                          className="text-line "
                           strokeWidth="1"
                         />
                       ))}
 
-                      <path d={realAreaPath} fill="#2563EB" fillOpacity="0.08" />
+                      <path d={realAreaPath} className="fill-accent" fillOpacity="0.08" />
                       <path
                         d={progPath}
                         fill="none"
-                        stroke="#93C5FD"
+                        className="stroke-fg-muted"
                         strokeWidth="2"
                         strokeDasharray="4 4"
                       />
-                      <path d={realPath} fill="none" stroke="#2563EB" strokeWidth="2.5" />
-                      <circle cx={lastRealPoint.x} cy={lastRealPoint.y} r="4.5" fill="#2563EB" />
+                      <path d={realPath} fill="none" className="stroke-accent" strokeWidth="2.5" />
+                      <circle cx={lastRealPoint.x} cy={lastRealPoint.y} r="4.5" className="fill-accent" />
                       <g
                         transform={`translate(${Math.max(0, lastRealPoint.x - 36)}, ${Math.max(
                           4,
                           lastRealPoint.y - 26
                         )})`}
                       >
-                        <rect width="34" height="18" rx="4" fill="#2563EB" />
+                        <rect width="34" height="18" rx="4" className="fill-accent" />
                         <text
                           x="17"
                           y="12"
                           textAnchor="middle"
-                          fill="#FFFFFF"
+                          className="fill-surface"
                           fontSize="10"
                           fontWeight="600"
                         >
@@ -367,7 +367,7 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
                       </g>
                     </svg>
 
-                    <div className="flex justify-between text-[10px] text-slate-400 mt-2">
+                    <div className="flex justify-between text-[10px] text-fg-muted mt-2">
                       {currentPeriod.months.map((m) => (
                         <span key={m}>{m}</span>
                       ))}
@@ -376,36 +376,36 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
                 </div>
               </div>
 
-              <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+              <div className="flex items-center gap-1.5 text-[11px] text-fg-muted ">
                 <Info className="w-3.5 h-3.5 shrink-0" />
                 <span>{currentPeriod.note}</span>
               </div>
             </div>
 
             {/* Ficha de la obra */}
-            <div className="w-full xl:w-90 shrink-0 bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl p-5 flex flex-col justify-between gap-4">
+            <div className="w-full xl:w-90 shrink-0 bg-surface border border-line rounded-xl p-5 flex flex-col justify-between gap-4">
               <div className="flex items-center justify-between relative">
-                <h2 className="text-sm font-semibold text-slate-900 dark:text-white hc:text-black">
+                <h2 className="text-sm font-semibold text-fg ">
                   Información de la obra
                 </h2>
                 <button
                   type="button"
                   aria-label="Opciones de ficha"
                   onClick={() => setInfoMenuOpen((prev) => !prev)}
-                  className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 cursor-pointer"
+                  className="p-1 rounded hover:bg-subtle text-fg-muted cursor-pointer"
                 >
                   <MoreHorizontal className="w-4 h-4" />
                 </button>
 
                 {infoMenuOpen && (
-                  <div className="absolute right-0 top-7 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg py-1 z-20 text-xs">
+                  <div className="absolute right-0 top-7 w-48 bg-surface border border-line-strong rounded-lg shadow-lg py-1 z-20 text-xs">
                     <button
                       type="button"
                       onClick={() => {
                         setInfoMenuOpen(false);
                         onNavigateSection('catalogo');
                       }}
-                      className="w-full text-left px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
+                      className="w-full text-left px-3 py-1.5 hover:bg-subtle cursor-pointer"
                     >
                       Ir a Catálogo completo
                     </button>
@@ -415,7 +415,7 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
                         setInfoMenuOpen(false);
                         onNavigateSection('estimaciones');
                       }}
-                      className="w-full text-left px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
+                      className="w-full text-left px-3 py-1.5 hover:bg-subtle cursor-pointer"
                     >
                       Ir a Estimaciones
                     </button>
@@ -425,46 +425,46 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
 
               <div className="space-y-3 text-xs">
                 <div>
-                  <p className="text-[11px] text-slate-400">Contratista</p>
-                  <p className="font-medium text-slate-800 dark:text-slate-100 mt-0.5">
+                  <p className="text-[11px] text-fg-muted">Contratista</p>
+                  <p className="font-medium text-fg mt-0.5">
                     {OBRA_DETAIL_MOCK.contratista}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-[11px] text-slate-400">Inicio de obra</p>
-                    <p className="font-medium text-slate-800 dark:text-slate-100 mt-0.5">
+                    <p className="text-[11px] text-fg-muted">Inicio de obra</p>
+                    <p className="font-medium text-fg mt-0.5">
                       {OBRA_DETAIL_MOCK.fechaInicio}
                     </p>
                   </div>
                   <div>
-                    <p className="text-[11px] text-slate-400">Término contractual</p>
-                    <p className="font-medium text-slate-800 dark:text-slate-100 mt-0.5">
+                    <p className="text-[11px] text-fg-muted">Término contractual</p>
+                    <p className="font-medium text-fg mt-0.5">
                       {OBRA_DETAIL_MOCK.fechaTermino}
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="border-t border-slate-200 dark:border-slate-800 pt-3 space-y-3">
+              <div className="border-t border-line pt-3 space-y-3">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500 dark:text-slate-400">Monto contratado</span>
-                  <span className="font-semibold text-sm text-slate-900 dark:text-white">
-                    $25,000,000 <span className="text-[10px] text-slate-400">MXN</span>
+                  <span className="text-fg-muted ">Monto contratado</span>
+                  <span className="font-semibold text-sm text-fg ">
+                    $25,000,000 <span className="text-[10px] text-fg-muted">MXN</span>
                   </span>
                 </div>
 
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-slate-400">Plazo transcurrido</span>
-                    <span className="font-medium text-slate-700 dark:text-slate-200">
+                    <span className="text-fg-muted">Plazo transcurrido</span>
+                    <span className="font-medium text-fg-soft ">
                       {OBRA_DETAIL_MOCK.diasTranscurridos} de {OBRA_DETAIL_MOCK.diasTotales} días
                     </span>
                   </div>
-                  <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                  <div className="w-full h-1.5 bg-subtle rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-slate-400 rounded-full"
+                      className="h-full bg-fg-muted rounded-full"
                       style={{
                         width: `${
                           (OBRA_DETAIL_MOCK.diasTranscurridos / OBRA_DETAIL_MOCK.diasTotales) *
@@ -479,15 +479,15 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
           </div>
 
           <div className="flex flex-col xl:flex-row gap-5 items-stretch">
-            <div className="flex-1 bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl overflow-hidden min-w-0">
+            <div className="flex-1 bg-surface border border-line rounded-xl overflow-hidden min-w-0">
               <div className="px-5 py-4 flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-slate-900 dark:text-white hc:text-black">
+                <h2 className="text-sm font-semibold text-fg ">
                   Actividades de la semana
                 </h2>
                 <button
                   type="button"
                   onClick={() => onNavigateSection('programa')}
-                  className="inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline cursor-pointer"
+                  className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline cursor-pointer"
                 >
                   <span>Abrir programa completo</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />
@@ -497,34 +497,34 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-130">
                   <thead>
-                    <tr className="bg-slate-50 dark:bg-slate-950/60 text-[10px] font-medium text-slate-500 uppercase border-y border-slate-200 dark:border-slate-800">
+                    <tr className="bg-canvas text-[10px] font-medium text-fg-muted uppercase border-y border-line ">
                       <th className="py-2 px-5">Actividad</th>
                       <th className="py-2 px-3">Fecha fin</th>
                       <th className="py-2 px-3">Avance</th>
                       <th className="py-2 px-5">Estado</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+                  <tbody className="divide-y divide-line text-xs">
                     {WEEKLY_ACTIVITIES.map((act) => (
-                      <tr key={act.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40">
+                      <tr key={act.id} className="hover:bg-subtle/60 ">
                         <td className="py-3 px-5">
-                          <p className="font-medium text-slate-800 dark:text-slate-100">
+                          <p className="font-medium text-fg ">
                             {act.title}
                           </p>
-                          <p className="text-[10px] text-slate-400">{act.subtitle}</p>
+                          <p className="text-[10px] text-fg-muted">{act.subtitle}</p>
                         </td>
-                        <td className="py-3 px-3 text-slate-500 dark:text-slate-400">
+                        <td className="py-3 px-3 text-fg-muted ">
                           {act.endDate}
                         </td>
                         <td className="py-3 px-3">
                           <div className="flex items-center gap-2">
-                            <div className="w-14 h-1.5 bg-blue-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                            <div className="w-14 h-1.5 bg-info-bg rounded-full overflow-hidden">
                               <div
                                 className="h-full bg-brand rounded-full"
                                 style={{ width: `${act.progress}%` }}
                               />
                             </div>
-                            <span className="text-[11px] text-slate-700 dark:text-slate-300">
+                            <span className="text-[11px] text-fg-soft ">
                               {act.progress}%
                             </span>
                           </div>
@@ -533,8 +533,8 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
                           <span
                             className={`px-2.5 py-1 rounded-md text-[11px] font-semibold ${
                               act.status === 'Concluida'
-                                ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300'
-                                : 'bg-blue-50 dark:bg-blue-950/60 text-brand dark:text-blue-300'
+                                ? 'bg-ok-bg text-ok-fg '
+                                : 'bg-info-bg text-accent '
                             }`}
                           >
                             {act.status}
@@ -547,12 +547,12 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
               </div>
             </div>
 
-            <div className="w-full xl:w-90 shrink-0 bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl p-5 flex flex-col gap-4">
+            <div className="w-full xl:w-90 shrink-0 bg-surface border border-line rounded-xl p-5 flex flex-col gap-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-slate-900 dark:text-white hc:text-black">
+                <h2 className="text-sm font-semibold text-fg ">
                   Requieren tu atención
                 </h2>
-                <span className="px-2.5 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 text-xs font-semibold">
+                <span className="px-2.5 py-0.5 rounded-md bg-warn-bg text-warn-fg text-xs font-semibold">
                   {pendingAttentionCount}
                 </span>
               </div>
@@ -566,34 +566,34 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
                       key={item.id}
                       type="button"
                       onClick={() => setSelectedAttention(item)}
-                      className={`w-full flex items-start gap-3 p-2 -mx-2 rounded-lg text-left hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer ${
+                      className={`w-full flex items-start gap-3 p-2 -mx-2 rounded-lg text-left hover:bg-subtle  transition-colors cursor-pointer ${
                         isResolved ? 'opacity-55' : ''
                       }`}
                     >
                       <div
                         className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                           item.urgent
-                            ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300'
-                            : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
+                            ? 'bg-warn-bg text-warn-fg '
+                            : 'bg-subtle text-fg-soft '
                         }`}
                       >
                         <Icon className="w-4 h-4" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-slate-800 dark:text-slate-100">
+                        <p className="text-xs font-medium text-fg ">
                           {item.title}
                         </p>
                         <p
                           className={`text-[10px] mt-0.5 ${
                             item.urgent
-                              ? 'text-amber-700 dark:text-amber-400'
-                              : 'text-slate-400'
+                              ? 'text-warn-fg '
+                              : 'text-fg-muted'
                           }`}
                         >
                           {isResolved ? 'Atendido' : item.subtitle}
                         </p>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                      <ChevronRight className="w-4 h-4 text-fg-muted shrink-0 mt-0.5" />
                     </button>
                   );
                 })}
@@ -601,10 +601,10 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-fg-muted">
             <span>Información reportada por la residencia de obra.</span>
             <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <ShieldCheck className="w-3.5 h-3.5 text-ok-fg" />
               Datos guardados y sincronizados
             </span>
           </div>
@@ -613,13 +613,13 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
 
       {/* 2. MINI-RESUMEN CATÁLOGO */}
       {previewTab === 'catalogo' && (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-4">
+        <div className="bg-surface border border-line rounded-xl p-5 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
+              <h2 className="text-sm font-semibold text-fg ">
                 Síntesis del Catálogo de Conceptos
               </h2>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-fg-muted">
                 3 partidas principales activas · $9,215,000 MXN en frentes abiertos
               </p>
             </div>
@@ -633,14 +633,14 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
             </button>
           </div>
 
-          <div className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+          <div className="divide-y divide-line text-xs">
             {CATALOG_CONCEPTS.slice(0, 3).map((item) => (
               <div key={item.clave} className="py-2.5 flex items-center justify-between gap-4">
                 <div className="min-w-0">
-                  <span className="font-semibold text-brand mr-2">{item.clave}</span>
-                  <span className="text-slate-700 dark:text-slate-200">{item.concepto}</span>
+                  <span className="font-semibold text-accent mr-2">{item.clave}</span>
+                  <span className="text-fg-soft ">{item.concepto}</span>
                 </div>
-                <span className="font-semibold text-slate-800 dark:text-slate-100 shrink-0">
+                <span className="font-semibold text-fg shrink-0">
                   {item.importe}
                 </span>
               </div>
@@ -651,13 +651,13 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
 
       {/* 3. MINI-RESUMEN PROGRAMA */}
       {previewTab === 'programa' && (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-4">
+        <div className="bg-surface border border-line rounded-xl p-5 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
+              <h2 className="text-sm font-semibold text-fg ">
                 Síntesis del Programa de Ejecución
               </h2>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-fg-muted">
                 1 frente concluido · 2 frentes en ejecución esta semana
               </p>
             </div>
@@ -675,14 +675,14 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
             {WEEKLY_ACTIVITIES.map((act) => (
               <div
                 key={act.id}
-                className="p-3 rounded-lg border border-slate-200 dark:border-slate-800 space-y-1.5"
+                className="p-3 rounded-lg border border-line space-y-1.5"
               >
-                <p className="font-medium text-slate-800 dark:text-slate-100 truncate">
+                <p className="font-medium text-fg truncate">
                   {act.title}
                 </p>
-                <div className="flex items-center justify-between text-[11px] text-slate-400">
+                <div className="flex items-center justify-between text-[11px] text-fg-muted">
                   <span>Fin: {act.endDate}</span>
-                  <span className="font-semibold text-brand">{act.progress}%</span>
+                  <span className="font-semibold text-accent">{act.progress}%</span>
                 </div>
               </div>
             ))}
@@ -692,13 +692,13 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
 
       {/* 4. MINI-RESUMEN BITÁCORA */}
       {previewTab === 'bitacora' && (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-4">
+        <div className="bg-surface border border-line rounded-xl p-5 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
+              <h2 className="text-sm font-semibold text-fg ">
                 Últimas notas de Bitácora
               </h2>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-fg-muted">
                 42 notas registradas · 1 pendiente de firma por supervisión
               </p>
             </div>
@@ -712,17 +712,17 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
             </button>
           </div>
 
-          <div className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+          <div className="divide-y divide-line text-xs">
             {BITACORA_ENTRIES.slice(0, 2).map((nota) => (
               <div key={nota.folio} className="py-2.5 flex items-center justify-between gap-4">
                 <div>
-                  <span className="font-semibold text-brand mr-2">{nota.folio}</span>
-                  <span className="text-slate-700 dark:text-slate-200">{nota.asunto}</span>
-                  <p className="text-[10px] text-slate-400 mt-0.5">
+                  <span className="font-semibold text-accent mr-2">{nota.folio}</span>
+                  <span className="text-fg-soft ">{nota.asunto}</span>
+                  <p className="text-[10px] text-fg-muted mt-0.5">
                     {nota.fecha} · {nota.autor}
                   </p>
                 </div>
-                <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-[11px] font-medium shrink-0">
+                <span className="px-2 py-0.5 rounded bg-subtle text-[11px] font-medium shrink-0">
                   {nota.estado}
                 </span>
               </div>
@@ -733,13 +733,13 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
 
       {/* 5. MINI-RESUMEN ESTIMACIONES */}
       {previewTab === 'estimaciones' && (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-4">
+        <div className="bg-surface border border-line rounded-xl p-5 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
+              <h2 className="text-sm font-semibold text-fg ">
                 Resumen de Estimaciones
               </h2>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-fg-muted">
                 5 estimaciones pagadas · Estimación N.º 06 en revisión ($2,350,000 MXN)
               </p>
             </div>
@@ -753,16 +753,16 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
             </button>
           </div>
 
-          <div className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+          <div className="divide-y divide-line text-xs">
             {ESTIMACIONES_LIST.slice(0, 2).map((est) => (
               <div key={est.numero} className="py-2.5 flex items-center justify-between gap-4">
                 <div>
-                  <p className="font-medium text-slate-800 dark:text-slate-100">{est.numero}</p>
-                  <p className="text-[10px] text-slate-400">{est.periodo}</p>
+                  <p className="font-medium text-fg ">{est.numero}</p>
+                  <p className="text-[10px] text-fg-muted">{est.periodo}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="font-semibold">{est.monto}</span>
-                  <span className="text-[11px] text-slate-500">{est.estado}</span>
+                  <span className="text-[11px] text-fg-muted">{est.estado}</span>
                 </div>
               </div>
             ))}
@@ -772,13 +772,13 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
 
       {/* 6. MINI-RESUMEN DOCUMENTOS Y CIERRE */}
       {previewTab === 'cierre' && (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-4">
+        <div className="bg-surface border border-line rounded-xl p-5 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
+              <h2 className="text-sm font-semibold text-fg ">
                 Expediente Documental y Cierre
               </h2>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-fg-muted">
                 3 documentos base validados · Etapa de finiquito pendiente de cierre físico
               </p>
             </div>
@@ -792,16 +792,16 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
             </button>
           </div>
 
-          <div className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+          <div className="divide-y divide-line text-xs">
             {DOCUMENTOS_OBRA.slice(0, 2).map((doc) => (
               <div key={doc.nombre} className="py-2.5 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-2 min-w-0">
-                  <FileText className="w-4 h-4 text-brand shrink-0" />
-                  <span className="truncate text-slate-700 dark:text-slate-200">
+                  <FileText className="w-4 h-4 text-accent shrink-0" />
+                  <span className="truncate text-fg-soft ">
                     {doc.nombre}
                   </span>
                 </div>
-                <span className="text-[11px] text-emerald-600 font-semibold shrink-0">
+                <span className="text-[11px] text-ok-fg font-semibold shrink-0">
                   {doc.estado}
                 </span>
               </div>
@@ -817,38 +817,38 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
           onClick={() => setSelectedAttention(null)}
         >
           <div
-            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl max-w-md w-full p-5 shadow-xl space-y-4"
+            className="bg-surface border border-line rounded-xl max-w-md w-full p-5 shadow-xl space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-[10px] font-semibold uppercase text-slate-400">
+                <p className="text-[10px] font-semibold uppercase text-fg-muted">
                   Folio {selectedAttention.folio}
                 </p>
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mt-1">
+                <h3 className="text-sm font-semibold text-fg mt-1">
                   {selectedAttention.title}
                 </h3>
               </div>
               <span
                 className={`px-2 py-0.5 rounded text-[10px] font-semibold shrink-0 ${
                   selectedAttention.urgent
-                    ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300'
-                    : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
+                    ? 'bg-warn-bg text-warn-fg '
+                    : 'bg-subtle text-fg-soft '
                 }`}
               >
                 {selectedAttention.urgent ? 'Urgente' : 'Pendiente'}
               </span>
             </div>
 
-            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+            <p className="text-xs text-fg-soft leading-relaxed">
               {selectedAttention.detail}
             </p>
 
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-line ">
               <button
                 type="button"
                 onClick={() => setSelectedAttention(null)}
-                className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
+                className="px-3 py-1.5 rounded-lg border border-line-strong text-xs font-medium text-fg-soft hover:bg-subtle cursor-pointer"
               >
                 Cerrar
               </button>

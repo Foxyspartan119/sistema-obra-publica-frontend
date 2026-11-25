@@ -180,7 +180,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3">
-        <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+        <div className="flex items-center justify-between text-[11px] font-semibold text-fg-muted ">
           <span className="uppercase tracking-wider">Administración del sistema</span>
           <span className="inline-flex items-center gap-1.5 font-normal">
             <RefreshCw className="w-3 h-3" />
@@ -189,11 +189,11 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
         </div>
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="space-y-2.5">
-            <h1 className="text-2xl font-normal text-slate-900 dark:text-white tracking-tight">
+            <h1 className="text-2xl font-normal text-fg tracking-tight">
               Administración de usuarios y accesos
             </h1>
-            <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
-              <span className="px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-950/60 text-brand dark:text-blue-300 font-semibold">
+            <div className="flex flex-wrap items-center gap-4 text-xs text-fg-muted ">
+              <span className="px-2.5 py-1 rounded-md bg-info-bg text-accent font-semibold">
                 {totalRegistrados} usuarios registrados
               </span>
               <span className="inline-flex items-center gap-1">
@@ -223,16 +223,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
       {feedbackError && (
         <div
           role="alert"
-          className="flex items-start justify-between gap-3 p-3 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-xs"
+          className="flex items-start justify-between gap-3 p-3 rounded-lg bg-danger-bg border border-danger-line text-danger-fg text-xs"
         >
           <div className="flex items-center gap-2">
-            <ShieldAlert className="w-4 h-4 shrink-0 text-rose-600" />
+            <ShieldAlert className="w-4 h-4 shrink-0 text-danger-fg" />
             <span>{feedbackError}</span>
           </div>
           <button
             type="button"
             onClick={() => setFeedbackError(null)}
-            className="text-rose-600 hover:underline font-medium shrink-0 cursor-pointer"
+            className="text-danger-fg hover:underline font-medium shrink-0 cursor-pointer"
           >
             Cerrar
           </button>
@@ -243,7 +243,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
         <>
           <div className="flex flex-col lg:flex-row lg:items-center gap-3">
             <div className="relative flex-1 max-w-md">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-fg-muted absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={searchTerm}
@@ -252,24 +252,24 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
                   setPage(1);
                 }}
                 placeholder="Buscar usuario, correo o proyecto"
-                className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-brand"
+                className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-surface border border-line text-fg placeholder:text-fg-muted focus:border-brand"
               />
             </div>
 
-            <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400">
-              <Info className="w-3.5 h-3.5 shrink-0 text-slate-400" />
+            <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-surface border border-line text-xs text-fg-muted ">
+              <Info className="w-3.5 h-3.5 shrink-0 text-fg-muted" />
               <span>
                 Roles disponibles: Residente, Supervisor, Superintendente, Directivo
               </span>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-            <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
-              <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+          <div className="bg-surface rounded-xl border border-line overflow-hidden">
+            <div className="px-5 py-4 flex items-center justify-between border-b border-line ">
+              <h2 className="text-sm font-semibold text-fg ">
                 Listado de usuarios
               </h2>
-              <span className="text-xs text-slate-400">
+              <span className="text-xs text-fg-muted">
                 {totalRegistrados} usuarios registrados
               </span>
             </div>
@@ -277,7 +277,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-50/80 dark:bg-slate-950/60 text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">
+                  <tr className="bg-canvas/80 text-[10px] font-medium text-fg-muted uppercase tracking-wider border-b border-line ">
                     <th className="py-2.5 px-5">Usuario</th>
                     <th className="py-2.5 px-4">Correo</th>
                     <th className="py-2.5 px-4">Rol Único</th>
@@ -286,7 +286,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
                     <th className="py-2.5 px-5 text-right">Acciones</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+                <tbody className="divide-y divide-line text-xs">
                   {filteredUsers.map((row) => {
                     const isCurrentAdmin = user?.id === row.id;
                     const roleLocked =
@@ -299,22 +299,22 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
                     return (
                       <tr
                         key={row.id}
-                        className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors"
+                        className="hover:bg-subtle/60 transition-colors"
                       >
                         <td className="py-2.5 px-5">
-                          <div className="font-medium text-slate-800 dark:text-slate-100">
+                          <div className="font-medium text-fg ">
                             {row.nombre}
                           </div>
-                          <div className="text-[10px] text-slate-400">{row.area}</div>
+                          <div className="text-[10px] text-fg-muted">{row.area}</div>
                         </td>
 
-                        <td className="py-2.5 px-4 text-slate-500 dark:text-slate-400">
+                        <td className="py-2.5 px-4 text-fg-muted ">
                           {row.correo}
                         </td>
 
                         <td className="py-2.5 px-4">
                           {row.rol === 'ADMINISTRADOR' ? (
-                            <span className="font-semibold text-slate-900 dark:text-white">
+                            <span className="font-semibold text-fg ">
                               Administrador
                             </span>
                           ) : (
@@ -328,8 +328,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
                                 }
                                 className={`w-full appearance-none rounded-md border px-2.5 py-1.5 pr-7 text-xs font-medium transition-colors ${
                                   roleLocked
-                                    ? 'bg-slate-100 dark:bg-slate-800/70 border-slate-200 dark:border-slate-700 text-slate-500 cursor-not-allowed'
-                                    : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 cursor-pointer hover:border-slate-300'
+                                    ? 'bg-subtle border-line-strong text-fg-muted cursor-not-allowed'
+                                    : 'bg-canvas border-line-strong text-fg cursor-pointer hover:border-line-strong'
                                 }`}
                               >
                                 {OPERATIONAL_ROLES.map((r) => (
@@ -339,9 +339,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
                                 ))}
                               </select>
                               {roleLocked ? (
-                                <Lock className="w-3 h-3 text-slate-400 pointer-events-none absolute right-2" />
+                                <Lock className="w-3 h-3 text-fg-muted pointer-events-none absolute right-2" />
                               ) : (
-                                <ChevronDown className="w-3.5 h-3.5 text-slate-400 pointer-events-none absolute right-2" />
+                                <ChevronDown className="w-3.5 h-3.5 text-fg-muted pointer-events-none absolute right-2" />
                               )}
                             </div>
                           )}
@@ -349,7 +349,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
 
                         <td className="py-2.5 px-4">
                           {row.obrasAsignadas.length === 0 ? (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/60 text-brand dark:text-blue-300 text-[11px] font-medium">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded bg-info-bg text-accent text-[11px] font-medium">
                               -
                             </span>
                           ) : (
@@ -357,7 +357,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
                               {row.obrasAsignadas.map((obra) => (
                                 <span
                                   key={obra}
-                                  className="inline-flex items-center px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/60 text-brand dark:text-blue-300 text-[11px] font-medium"
+                                  className="inline-flex items-center px-2 py-0.5 rounded bg-info-bg text-accent text-[11px] font-medium"
                                 >
                                   {obra}
                                 </span>
@@ -368,15 +368,15 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
 
                         <td className="py-2.5 px-4">
                           {row.rol === 'ADMINISTRADOR' ? (
-                            <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 text-[11px] font-semibold">
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-ok-bg text-ok-fg text-[11px] font-semibold">
                               Activo
                             </span>
                           ) : (
                             <div
                               className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-[11px] font-semibold ${
                                 isActive
-                                  ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300'
-                                  : 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300'
+                                  ? 'bg-ok-bg text-ok-fg '
+                                  : 'bg-danger-bg text-danger-fg '
                               }`}
                             >
                               <span>{isActive ? 'Activo' : 'Suspendido'}</span>
@@ -389,7 +389,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
                                 onClick={() => handleToggleStatus(row)}
                                 className={`w-7 h-4 rounded-full p-0.5 transition-colors flex items-center ${
                                   isActive
-                                    ? 'bg-emerald-600 justify-end'
+                                    ? 'bg-ok-solid justify-end'
                                     : 'bg-rose-300 justify-start'
                                 } ${
                                   isCurrentAdmin
@@ -397,7 +397,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
                                     : 'cursor-pointer'
                                 }`}
                               >
-                                <span className="w-3 h-3 rounded-full bg-white block" />
+                                <span className="w-3 h-3 rounded-full bg-surface block" />
                               </button>
                             </div>
                           )}
@@ -411,26 +411,26 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
                                 prev === row.id ? null : row.id
                               )
                             }
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-[11px] font-medium text-slate-700 dark:text-slate-200 cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-line-strong bg-surface hover:bg-subtle text-[11px] font-medium text-fg-soft cursor-pointer"
                           >
                             <span>Acciones</span>
                             <ChevronDown
-                              className={`w-3 h-3 text-slate-400 transition-transform ${
+                              className={`w-3 h-3 text-fg-muted transition-transform ${
                                 isMenuOpen ? 'rotate-180' : ''
                               }`}
                             />
                           </button>
 
                           {isMenuOpen && (
-                            <div className="absolute right-5 mt-1 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg py-1 z-30 text-left text-xs">
+                            <div className="absolute right-5 mt-1 w-48 bg-surface border border-line-strong rounded-lg shadow-lg py-1 z-30 text-left text-xs">
                               {row.rol !== 'ADMINISTRADOR' && !isCurrentAdmin ? (
                                 <button
                                   type="button"
                                   onClick={() => handleToggleStatus(row)}
-                                  className={`w-full text-left px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer font-medium ${
+                                  className={`w-full text-left px-3 py-1.5 hover:bg-subtle  cursor-pointer font-medium ${
                                     isActive
-                                      ? 'text-rose-600 dark:text-rose-400'
-                                      : 'text-emerald-600 dark:text-emerald-400'
+                                      ? 'text-danger-fg '
+                                      : 'text-ok-fg '
                                   }`}
                                 >
                                   {isActive
@@ -438,7 +438,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
                                     : 'Reactivar cuenta'}
                                 </button>
                               ) : (
-                                <span className="block px-3 py-1.5 text-[11px] text-slate-400">
+                                <span className="block px-3 py-1.5 text-[11px] text-fg-muted">
                                   Cuenta protegida
                                 </span>
                               )}
@@ -449,7 +449,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
                                   setOpenMenuUserId(null);
                                   setActiveTab('vinculacion');
                                 }}
-                                className="w-full text-left px-3 py-1.5 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
+                                className="w-full text-left px-3 py-1.5 text-fg-soft hover:bg-subtle cursor-pointer"
                               >
                                 Gestionar obras asignadas
                               </button>
@@ -463,7 +463,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
               </table>
             </div>
 
-            <div className="px-5 py-3.5 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+            <div className="px-5 py-3.5 border-t border-line flex items-center justify-between text-xs text-fg-muted ">
               <span>
                 Mostrando 1–{Math.min(pageSize, filteredUsers.length)} de{' '}
                 {totalRegistrados} usuarios
@@ -473,14 +473,14 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
                   type="button"
                   disabled={page === 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="px-3 py-1.5 rounded-md border border-slate-200 dark:border-slate-700 text-slate-400 disabled:opacity-50 cursor-pointer"
+                  className="px-3 py-1.5 rounded-md border border-line-strong text-fg-muted disabled:opacity-50 cursor-pointer"
                 >
                   Anterior
                 </button>
                 <button
                   type="button"
                   onClick={() => setPage((p) => p + 1)}
-                  className="px-3 py-1.5 rounded-md border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
+                  className="px-3 py-1.5 rounded-md border border-line-strong text-fg-soft hover:bg-subtle cursor-pointer"
                 >
                   Siguiente
                 </button>
@@ -488,39 +488,39 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 space-y-3">
+          <div className="bg-surface rounded-xl border border-line p-5 space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+              <h3 className="text-sm font-semibold text-fg ">
                 Vista previa de trazabilidad / logs
               </h3>
-              <span className="px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-950/60 text-brand dark:text-blue-300 text-[11px] font-semibold">
+              <span className="px-2.5 py-1 rounded-md bg-info-bg text-accent text-[11px] font-semibold">
                 Inmutable
               </span>
             </div>
 
-            <div className="divide-y divide-slate-100 dark:divide-slate-800/70 text-xs">
+            <div className="divide-y divide-line text-xs">
               {logs.map((entry) => (
                 <div
                   key={entry.id}
                   className="py-2.5 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4"
                 >
-                  <span className="w-44 text-[11px] text-slate-400 shrink-0">
+                  <span className="w-44 text-[11px] text-fg-muted shrink-0">
                     {entry.fechaHora}
                   </span>
-                  <span className="w-44 font-medium text-slate-800 dark:text-slate-200 shrink-0">
+                  <span className="w-44 font-medium text-fg shrink-0">
                     {entry.actor}
                   </span>
-                  <span className="w-28 font-medium text-slate-700 dark:text-slate-300 shrink-0">
+                  <span className="w-28 font-medium text-fg-soft shrink-0">
                     {entry.accion}
                   </span>
-                  <span className="flex-1 text-slate-500 dark:text-slate-400">
+                  <span className="flex-1 text-fg-muted ">
                     {entry.detalle}
                   </span>
                 </div>
               ))}
             </div>
 
-            <div className="pt-1 flex items-center gap-1.5 text-[11px] text-slate-400">
+            <div className="pt-1 flex items-center gap-1.5 text-[11px] text-fg-muted">
               <Info className="w-3.5 h-3.5 shrink-0" />
               <span>
                 Esta vista muestra registros inmutables de la trazabilidad del sistema.

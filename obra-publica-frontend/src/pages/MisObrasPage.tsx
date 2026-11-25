@@ -136,14 +136,14 @@ export const MisObrasPage: React.FC<MisObrasPageProps> = ({
     <div className="space-y-5">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-fg-muted ">
             {isGlobalViewer ? 'Portafolio institucional global' : 'Obras asignadas'}
           </p>
-          <h1 className="text-2xl font-normal text-slate-900 dark:text-white hc:text-black tracking-tight mt-0.5">
+          <h1 className="text-2xl font-normal text-fg tracking-tight mt-0.5">
             Mis Obras
           </h1>
         </div>
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-brand dark:text-blue-300 text-xs font-semibold self-start">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-info-bg text-accent text-xs font-semibold self-start">
           <Building2 className="w-4 h-4" />
           <span>{visibleObras.length} obra(s) disponibles</span>
         </div>
@@ -152,13 +152,13 @@ export const MisObrasPage: React.FC<MisObrasPageProps> = ({
       {/* Filtros */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-fg-muted absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar por clave, contrato, nombre o ubicación"
-            className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-brand"
+            className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-surface border border-line text-fg focus:border-brand"
           />
         </div>
 
@@ -166,7 +166,7 @@ export const MisObrasPage: React.FC<MisObrasPageProps> = ({
           aria-label="Filtrar por estatus"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-3 py-2 text-xs rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 cursor-pointer"
+          className="px-3 py-2 text-xs rounded-lg bg-surface border border-line text-fg-soft cursor-pointer"
         >
           <option value="TODAS">Todos los estatus</option>
           <option value="EN_EJECUCION">En ejecución</option>
@@ -184,25 +184,25 @@ export const MisObrasPage: React.FC<MisObrasPageProps> = ({
           return (
             <div
               key={obra.id}
-              className={`bg-white dark:bg-slate-900 hc:bg-white rounded-xl p-5 border transition-colors flex flex-col justify-between gap-4 ${
+              className={`bg-surface  rounded-xl p-5 border transition-colors flex flex-col justify-between gap-4 ${
                 isSelected
-                  ? 'border-brand ring-1 ring-brand/30 hc:border-2 hc:border-black'
-                  : 'border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black'
+                  ? 'border-brand ring-1 ring-brand/30 '
+                  : 'border-line '
               }`}
             >
               <div className="space-y-2.5">
                 <div className="flex items-start justify-between gap-3">
-                  <span className="text-[11px] font-semibold text-brand">
+                  <span className="text-[11px] font-semibold text-accent">
                     {obra.id} · {obra.contrato}
                   </span>
                   <StatusBadge status={obra.estado} />
                 </div>
 
-                <h2 className="text-sm font-semibold text-slate-900 dark:text-white hc:text-black">
+                <h2 className="text-sm font-semibold text-fg ">
                   {obra.nombre}
                 </h2>
 
-                <div className="flex flex-wrap items-center gap-4 text-[11px] text-slate-500 dark:text-slate-400">
+                <div className="flex flex-wrap items-center gap-4 text-[11px] text-fg-muted ">
                   <span className="inline-flex items-center gap-1">
                     <MapPin className="w-3.5 h-3.5" />
                     {obra.ubicacion}
@@ -211,13 +211,13 @@ export const MisObrasPage: React.FC<MisObrasPageProps> = ({
                     <Calendar className="w-3.5 h-3.5" />
                     Término: {obra.fechaTermino}
                   </span>
-                  <span className="font-medium text-slate-700 dark:text-slate-300">
+                  <span className="font-medium text-fg-soft ">
                     {obra.montoLabel} MXN
                   </span>
                 </div>
 
                 {obra.estado === 'ALERTA_VACANTE_OPERATIVA' && (
-                  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-[11px] text-rose-700 dark:text-rose-200">
+                  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-danger-bg border border-danger-line text-[11px] text-danger-fg ">
                     <AlertTriangle className="w-4 h-4 shrink-0" />
                     <span>
                       Requiere suplente de <strong>{obra.vacanteRol}</strong>. Trámites pausados
@@ -227,14 +227,14 @@ export const MisObrasPage: React.FC<MisObrasPageProps> = ({
                 )}
               </div>
 
-              <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <div className="space-y-3 pt-3 border-t border-line ">
                 <div className="grid grid-cols-2 gap-4 text-[11px]">
                   <div>
                     <div className="flex justify-between mb-1">
-                      <span className="text-slate-400">Avance físico</span>
-                      <span className="font-semibold text-brand">{obra.avanceFisico}%</span>
+                      <span className="text-fg-muted">Avance físico</span>
+                      <span className="font-semibold text-accent">{obra.avanceFisico}%</span>
                     </div>
-                    <div className="h-1.5 bg-blue-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-info-bg rounded-full overflow-hidden">
                       <div
                         className="h-full bg-brand rounded-full"
                         style={{ width: `${obra.avanceFisico}%` }}
@@ -243,14 +243,14 @@ export const MisObrasPage: React.FC<MisObrasPageProps> = ({
                   </div>
                   <div>
                     <div className="flex justify-between mb-1">
-                      <span className="text-slate-400">Avance financiero</span>
-                      <span className="font-semibold text-slate-700 dark:text-slate-200">
+                      <span className="text-fg-muted">Avance financiero</span>
+                      <span className="font-semibold text-fg-soft ">
                         {obra.avanceFinanciero}%
                       </span>
                     </div>
-                    <div className="h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-subtle rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-slate-400 rounded-full"
+                        className="h-full bg-fg-muted rounded-full"
                         style={{ width: `${obra.avanceFinanciero}%` }}
                       />
                     </div>
@@ -258,7 +258,7 @@ export const MisObrasPage: React.FC<MisObrasPageProps> = ({
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-slate-400 truncate">
+                  <span className="text-[11px] text-fg-muted truncate">
                     {obra.contratista}
                   </span>
                   <button

@@ -268,10 +268,10 @@ export const CatalogoPage: React.FC = () => {
       {/* Encabezado */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-fg-muted ">
             Contrato SOP-LP-024/2024 · Presupuesto base y conceptos no previstos
           </p>
-          <h1 className="text-2xl font-normal text-slate-900 dark:text-white hc:text-black tracking-tight mt-0.5">
+          <h1 className="text-2xl font-normal text-fg tracking-tight mt-0.5">
             Catálogo de conceptos
           </h1>
         </div>
@@ -282,7 +282,7 @@ export const CatalogoPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setLineaBaseCongelada((prev) => !prev)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-medium text-slate-600 dark:text-slate-300 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-line-strong bg-surface text-xs font-medium text-fg-soft cursor-pointer"
             >
               {lineaBaseCongelada ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
               <span>{lineaBaseCongelada ? 'Línea base congelada' : 'Fase inicial (editable)'}</span>
@@ -299,7 +299,7 @@ export const CatalogoPage: React.FC = () => {
               }}
               className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors ${
                 lineaBaseCongelada
-                  ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
+                  ? 'bg-line text-fg-muted cursor-not-allowed'
                   : 'bg-brand hover:bg-brand-hover text-white cursor-pointer'
               }`}
             >
@@ -325,24 +325,24 @@ export const CatalogoPage: React.FC = () => {
       </div>
 
       {/* Tarjeta de tope presupuestal (RN-SUPT-01.1) */}
-      <div className="bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl p-4 space-y-2.5">
+      <div className="bg-surface border border-line rounded-xl p-4 space-y-2.5">
         <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-800 dark:text-slate-100">
+            <span className="font-semibold text-fg ">
               Control de tope presupuestal (Catálogo Ordinario)
             </span>
             {lineaBaseCongelada && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-subtle text-[10px] font-semibold text-fg-soft ">
                 <Lock className="w-3 h-3" /> Inmutable tras apertura
               </span>
             )}
           </div>
-          <span className="text-slate-600 dark:text-slate-300">
+          <span className="text-fg-soft ">
             <strong>{formatMXN(importeOrdinarioTotal)}</strong> de{' '}
             <strong>{formatMXN(MONTO_CONTRATO)}</strong> contratados ({porcentajeAsignado.toFixed(1)}%)
           </span>
         </div>
-        <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+        <div className="h-2 bg-subtle rounded-full overflow-hidden">
           <div className="h-full bg-brand rounded-full" style={{ width: `${porcentajeAsignado}%` }} />
         </div>
       </div>
@@ -351,7 +351,7 @@ export const CatalogoPage: React.FC = () => {
       {errorMsg && (
         <div
           role="alert"
-          className="flex items-start justify-between gap-3 p-3 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-xs"
+          className="flex items-start justify-between gap-3 p-3 rounded-lg bg-danger-bg border border-danger-line text-danger-fg text-xs"
         >
           <div className="flex items-center gap-2">
             <ShieldAlert className="w-4 h-4 shrink-0" />
@@ -364,7 +364,7 @@ export const CatalogoPage: React.FC = () => {
       )}
 
       {successMsg && (
-        <div className="flex items-start justify-between gap-3 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-xs">
+        <div className="flex items-start justify-between gap-3 p-3 rounded-lg bg-ok-bg border border-ok-line text-ok-fg text-xs">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>{successMsg}</span>
@@ -378,20 +378,20 @@ export const CatalogoPage: React.FC = () => {
       {/* Filtros */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-fg-muted absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar por clave, concepto o unidad"
-            className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-brand"
+            className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-surface border border-line text-fg focus:border-brand"
           />
         </div>
         <select
           aria-label="Filtrar por tipo de concepto"
           value={tipoFilter}
           onChange={(e) => setTipoFilter(e.target.value as 'TODOS' | 'ORDINARIO' | 'EXTRAORDINARIO')}
-          className="px-3 py-2 text-xs rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 cursor-pointer"
+          className="px-3 py-2 text-xs rounded-lg bg-surface border border-line text-fg-soft cursor-pointer"
         >
           <option value="TODOS">Todos los tipos</option>
           <option value="ORDINARIO">Ordinarios</option>
@@ -400,11 +400,11 @@ export const CatalogoPage: React.FC = () => {
       </div>
 
       {/* Tabla */}
-      <div className="bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl overflow-hidden">
+      <div className="bg-surface border border-line rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-195 text-xs">
             <thead>
-              <tr className="bg-slate-50 dark:bg-slate-950/60 text-[10px] font-semibold uppercase text-slate-500 border-b border-slate-200 dark:border-slate-800">
+              <tr className="bg-canvas text-[10px] font-semibold uppercase text-fg-muted border-b border-line ">
                 <th className="py-3 px-4">Clave</th>
                 <th className="py-3 px-3">Concepto</th>
                 <th className="py-3 px-3">Tipo</th>
@@ -416,34 +416,34 @@ export const CatalogoPage: React.FC = () => {
                 {isResidente && <th className="py-3 px-4 text-right">Acción</th>}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            <tbody className="divide-y divide-line ">
               {filtered.map((c) => {
                 const importe = (c.cantidadPresupuestada + c.cantidadAdicionalAutorizada) * c.precioUnitario;
                 return (
-                  <tr key={c.clave} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40">
-                    <td className="py-3.5 px-4 font-semibold text-brand whitespace-nowrap">{c.clave}</td>
+                  <tr key={c.clave} className="hover:bg-subtle/60 ">
+                    <td className="py-3.5 px-4 font-semibold text-accent whitespace-nowrap">{c.clave}</td>
                     <td className="py-3.5 px-3">
-                      <p className="font-medium text-slate-800 dark:text-slate-100">{c.descripcion}</p>
+                      <p className="font-medium text-fg ">{c.descripcion}</p>
                       {c.dictamenApuNombre && (
-                        <p className="text-[10px] text-slate-400 mt-0.5">APU: {c.dictamenApuNombre}</p>
+                        <p className="text-[10px] text-fg-muted mt-0.5">APU: {c.dictamenApuNombre}</p>
                       )}
                     </td>
                     <td className="py-3.5 px-3">
                       <span
                         className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
                           c.tipo === 'EXTRAORDINARIO'
-                            ? 'bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'
-                            : 'bg-blue-50 text-brand dark:bg-blue-950/60 dark:text-blue-300'
+                            ? 'bg-warn-bg text-warn-fg '
+                            : 'bg-info-bg text-accent '
                         }`}
                       >
                         {c.tipo}
                       </span>
                     </td>
-                    <td className="py-3.5 px-3 text-slate-500">{c.unidad}</td>
+                    <td className="py-3.5 px-3 text-fg-muted">{c.unidad}</td>
                     <td className="py-3.5 px-3 text-right whitespace-nowrap">
                       <span>{c.cantidadPresupuestada.toLocaleString('es-MX')}</span>
                       {c.cantidadAdicionalAutorizada > 0 && (
-                        <span className="ml-1 text-[10px] font-semibold text-emerald-600">
+                        <span className="ml-1 text-[10px] font-semibold text-ok-fg">
                           (+{c.cantidadAdicionalAutorizada})
                         </span>
                       )}
@@ -462,12 +462,12 @@ export const CatalogoPage: React.FC = () => {
                               setAdicionalTarget(c);
                               setAdicionalDelta('');
                             }}
-                            className="px-2.5 py-1 rounded border border-slate-200 dark:border-slate-700 hover:border-brand text-[11px] font-medium text-slate-700 dark:text-slate-200 cursor-pointer"
+                            className="px-2.5 py-1 rounded border border-line-strong hover:border-brand text-[11px] font-medium text-fg-soft cursor-pointer"
                           >
                             + Adicional
                           </button>
                         ) : (
-                          <span className="text-[10px] text-slate-400">Autorizado</span>
+                          <span className="text-[10px] text-fg-muted">Autorizado</span>
                         )}
                       </td>
                     )}
@@ -488,9 +488,9 @@ export const CatalogoPage: React.FC = () => {
           <form
             onSubmit={handleSaveOrdinario}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl max-w-md w-full p-5 space-y-3 shadow-xl"
+            className="bg-surface border border-line rounded-xl max-w-md w-full p-5 space-y-3 shadow-xl"
           >
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+            <h3 className="text-sm font-semibold text-fg ">
               Nuevo concepto del catálogo original
             </h3>
             <div className="grid grid-cols-2 gap-3">
@@ -499,14 +499,14 @@ export const CatalogoPage: React.FC = () => {
                 placeholder="Clave (ej. EST-002)"
                 value={ordForm.clave}
                 onChange={(e) => setOrdForm({ ...ordForm, clave: e.target.value })}
-                className="px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+                className="px-3 py-2 text-xs rounded-lg border border-line-strong bg-canvas "
               />
               <input
                 type="text"
                 placeholder="Unidad (m³, kg, pza)"
                 value={ordForm.unidad}
                 onChange={(e) => setOrdForm({ ...ordForm, unidad: e.target.value })}
-                className="px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+                className="px-3 py-2 text-xs rounded-lg border border-line-strong bg-canvas "
               />
             </div>
             <textarea
@@ -514,7 +514,7 @@ export const CatalogoPage: React.FC = () => {
               placeholder="Descripción técnica del concepto"
               value={ordForm.descripcion}
               onChange={(e) => setOrdForm({ ...ordForm, descripcion: e.target.value })}
-              className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+              className="w-full px-3 py-2 text-xs rounded-lg border border-line-strong bg-canvas "
             />
             <div className="grid grid-cols-2 gap-3">
               <input
@@ -523,7 +523,7 @@ export const CatalogoPage: React.FC = () => {
                 placeholder="Cantidad presupuestada"
                 value={ordForm.cantidad}
                 onChange={(e) => setOrdForm({ ...ordForm, cantidad: e.target.value })}
-                className="px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+                className="px-3 py-2 text-xs rounded-lg border border-line-strong bg-canvas "
               />
               <input
                 type="number"
@@ -531,14 +531,14 @@ export const CatalogoPage: React.FC = () => {
                 placeholder="Precio unitario (MXN)"
                 value={ordForm.precioUnitario}
                 onChange={(e) => setOrdForm({ ...ordForm, precioUnitario: e.target.value })}
-                className="px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+                className="px-3 py-2 text-xs rounded-lg border border-line-strong bg-canvas "
               />
             </div>
-            <div className="flex justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex justify-end gap-2 pt-2 border-t border-line ">
               <button
                 type="button"
                 onClick={() => setShowAddOrdModal(false)}
-                className="px-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer"
+                className="px-3 py-1.5 text-xs rounded-lg border border-line-strong cursor-pointer"
               >
                 Cancelar
               </button>
@@ -562,12 +562,12 @@ export const CatalogoPage: React.FC = () => {
           <form
             onSubmit={handleRequestExtraordinario}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl max-w-lg w-full p-5 space-y-3 shadow-xl max-h-[90vh] overflow-y-auto"
+            className="bg-surface border border-line rounded-xl max-w-lg w-full p-5 space-y-3 shadow-xl max-h-[90vh] overflow-y-auto"
           >
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+            <h3 className="text-sm font-semibold text-fg ">
               Inyectar Concepto Extraordinario (RF-RES-04)
             </h3>
-            <p className="text-[11px] text-slate-500">
+            <p className="text-[11px] text-fg-muted">
               Requiere adjuntar el Análisis de Precio Unitario (APU) en PDF y validar tu firma electrónica.
             </p>
             <div className="grid grid-cols-2 gap-3">
@@ -576,14 +576,14 @@ export const CatalogoPage: React.FC = () => {
                 placeholder="Clave (ej. EXT-001)"
                 value={extForm.clave}
                 onChange={(e) => setExtForm({ ...extForm, clave: e.target.value })}
-                className="px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+                className="px-3 py-2 text-xs rounded-lg border border-line-strong bg-canvas "
               />
               <input
                 type="text"
                 placeholder="Unidad (m³, lote, pza)"
                 value={extForm.unidad}
                 onChange={(e) => setExtForm({ ...extForm, unidad: e.target.value })}
-                className="px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+                className="px-3 py-2 text-xs rounded-lg border border-line-strong bg-canvas "
               />
             </div>
             <textarea
@@ -591,7 +591,7 @@ export const CatalogoPage: React.FC = () => {
               placeholder="Descripción del trabajo no previsto"
               value={extForm.descripcion}
               onChange={(e) => setExtForm({ ...extForm, descripcion: e.target.value })}
-              className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+              className="w-full px-3 py-2 text-xs rounded-lg border border-line-strong bg-canvas "
             />
             <div className="grid grid-cols-2 gap-3">
               <input
@@ -600,7 +600,7 @@ export const CatalogoPage: React.FC = () => {
                 placeholder="Cantidad autorizada"
                 value={extForm.cantidad}
                 onChange={(e) => setExtForm({ ...extForm, cantidad: e.target.value })}
-                className="px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+                className="px-3 py-2 text-xs rounded-lg border border-line-strong bg-canvas "
               />
               <input
                 type="number"
@@ -608,7 +608,7 @@ export const CatalogoPage: React.FC = () => {
                 placeholder="P.U. autorizado (MXN)"
                 value={extForm.precioUnitario}
                 onChange={(e) => setExtForm({ ...extForm, precioUnitario: e.target.value })}
-                className="px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+                className="px-3 py-2 text-xs rounded-lg border border-line-strong bg-canvas "
               />
             </div>
 
@@ -620,11 +620,11 @@ export const CatalogoPage: React.FC = () => {
               helperText="Adjunta el dictamen técnico y APU autorizado (PDF, máx. 10 MB)"
             />
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex justify-end gap-2 pt-2 border-t border-line ">
               <button
                 type="button"
                 onClick={() => setShowAddExtModal(false)}
-                className="px-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer"
+                className="px-3 py-1.5 text-xs rounded-lg border border-line-strong cursor-pointer"
               >
                 Cancelar
               </button>
@@ -648,12 +648,12 @@ export const CatalogoPage: React.FC = () => {
           <form
             onSubmit={handleAutorizarAdicional}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl max-w-sm w-full p-5 space-y-3 shadow-xl"
+            className="bg-surface border border-line rounded-xl max-w-sm w-full p-5 space-y-3 shadow-xl"
           >
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+            <h3 className="text-sm font-semibold text-fg ">
               Autorizar volumen adicional · {adicionalTarget.clave}
             </h3>
-            <p className="text-[11px] text-slate-500">
+            <p className="text-[11px] text-fg-muted">
               Habilita al Superintendente para cobrar excedentes mediante Estimación de Cantidades
               Adicionales al mismo P.U. ({formatMXN(adicionalTarget.precioUnitario)}).
             </p>
@@ -663,13 +663,13 @@ export const CatalogoPage: React.FC = () => {
               placeholder={`Cantidad adicional en ${adicionalTarget.unidad}`}
               value={adicionalDelta}
               onChange={(e) => setAdicionalDelta(e.target.value)}
-              className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+              className="w-full px-3 py-2 text-xs rounded-lg border border-line-strong bg-canvas "
             />
-            <div className="flex justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex justify-end gap-2 pt-2 border-t border-line ">
               <button
                 type="button"
                 onClick={() => setAdicionalTarget(null)}
-                className="px-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer"
+                className="px-3 py-1.5 text-xs rounded-lg border border-line-strong cursor-pointer"
               >
                 Cancelar
               </button>

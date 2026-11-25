@@ -1,40 +1,203 @@
 @import "tailwindcss";
 
-/* 1. Variantes de tema activadas por clase en <html> */
 @custom-variant dark (&:where(.dark, .dark *));
 @custom-variant hc (&:where(.high-contrast, .high-contrast *));
 
-/* 2. Tokens de color institucionales */
-@theme {
-  --color-sidebar: #0F172A;
-  --color-brand: #2563EB;
-  --color-brand-hover: #1D4ED8;
+:root {
+  --surface: #FFFFFF;
+  --canvas: #F8FAFC;
+  --subtle: #F1F5F9;
+  --fg: #0F172A;
+  --fg-soft: #334155;
+  --fg-muted: #52627A;
+  --line: #E2E8F0;
+  --line-strong: #CBD5E1;
+  --accent: #1D4ED8;
+  --ring: #2563EB;
+  --brand: #2563EB;
+  --brand-hover: #1D4ED8;
+  --ok-bg: #ECFDF5;
+  --ok-fg: #047857;
+  --ok-line: #A7F4D0;
+  --ok-solid: #059669;
+  --warn_bg: #FFFBEB;
+  --warn-fg: #92400E;
+  --warn-line: #FDE68A;
+  --warn-solid: #d97706;
+  --danger-bg: #FFF1F2;
+  --danger-fg: #BE123C;
+  --danger-line: #FECDD3;
+  --danger-solid: #E11D48;
+  --info-bg: #EFF6FF;
+  --info-fg: #1D4ED8;
+  --info-line: #BFDBFE;
+  --info-solid: #2563EB;
+  --sidebar: #0F172A;
+  --sidebar-fg: #CBD5E1;
+  --sidebar-muted: #94A3B8;
+  --sidebar-line: #1E293B;
+  --sidebar-panel: #0B1220;
+  --sidebar-hover: #1E293B;
+  --active-bg: #2563EB;
+  --active-fg: #FFFFFF;
 }
 
-/* 3. Reglas globales para Modo Alto Contraste (Exteriores) */
-.high-contrast body {
-  background-color: #FFFFFF !important;
-  color: #000000 !important;
+/*dark*/
+.dark {
+  color-scheme: dark;
+  --surface: #0F172A;
+  --canvas: #020617;
+  --subtle: #1E293B;
+  --fg: #F8FAFC;
+  --fg-soft: #E2E8F0;
+  --fg-muted: #A3B1C6;
+  --line: #1E293B;
+  --line-strong: #334155;
+  --accent: #93C5FD;
+  --ring: #93C5FD;
+  --ok-bg: #022C22;
+  --ok-fg: #6EE7B7;
+  --ok-line: #065F46;
+  --ok-solid: #10B981;
+  --warn-bg: #451A03;
+  --warn-fg: #FCD34D;
+  --warn-line: #92400E;
+  --warn-solid: #F59E0B;
+  --danger-bg: #4C0519;
+  --danger-fg: #FDA4AF;
+  --danger-line: #9F1239;
+  --danger-solid: #F43F5E;
+  --info-bg: #172554;
+  --info-fg: #93C5FD;
+  --info-line: #1E40AF;
+  --info-solid: #3B82F6;
 }
 
-.high-contrast main,
-.high-contrast header {
-  background-color: #FFFFFF !important;
-  color: #000000 !important;
-  border-color: #000000 !important;
+/*Alto contraste claro*/
+.high-contrast {
+  --surface: #FFFFFF;
+  --canvas: #FFFFFF;
+  --subtle: #EFEFEF;
+  --fg: #000000;
+  --fg-soft: #000000;
+  --fg-muted: #1A1A1A;
+  --line: #000000;
+  --line-strong: #000000;
+  --accent: #1E3A8A;
+  --ring: #000000;
+  --brand: #1E3A8A;
+  --brand-hover: #172554;
+  --ok-bg: #FFFFFF;
+  --ok-fg: #064E3B;
+  --ok-line: #000000;
+  --ok-solid: #000000;
+  --warn-bg: #FFFFFF;
+  --warn-fg: #78350F;
+  --warn-line: #000000;
+  --warn-solid: #000000;
+  --danger-bg: #000000;
+  --danger-fg: #FFFFFF;
+  --danger-line: #000000;
+  --danger-solid: #000000;
+  --info-bg: #FFFFFF;
+  --info-fg: #1E3A8A;
+  --info-line: #000000;
+  --info-solid: #000000;
+  --sidebar: #000000;
+  --sidebar-fg: #FFFFFF;
+  --sidebar-muted: #E5E5E5;
+  --sidebar-line: #FFFFFF;
+  --sidebar-panel: #000000;
+  --sidebar-hover: #262626;
+  --active-bg: #FFFFFF;
+  --active-fg: #000000;
 }
 
-.high-contrast table,
-.high-contrast tr,
-.high-contrast td,
-.high-contrast th,
-.high-contrast input,
-.high-contrast select {
-  border-color: #0F172A !important;
-  color: #000000 !important;
+/*Alto contraste oscuro*/
+.high-contrast.dark {
+  --surface: #000000;
+  --canvas: #000000;
+  --subtle: #1A1A1A;
+  --fg: #FFFFFF;
+  --fg-soft: #FFFFFF;
+  --fg-muted: #E5E5E5;
+  --line: #FFFFFF;
+  --line-strong: #FFFFFF;
+  --accent: #BAE6FD;
+  --ring: #FFFFFF;
+  --brand: #1D4ED8;
+  --brand-hover: #1E40AF;
+  --ok-bg: #000000;
+  --ok-fg: #A7F3D0;
+  --ok-line: #FFFFFF;
+  --ok-solid: #FFFFFF;
+  --warn-bg: #000000;
+  --warn-fg: #FDE68A;
+  --warn-line: #FFFFFF;
+  --warn-solid: #FFFFFF;
+  --danger-bg: #FFFFFF;
+  --danger-fg: #000000;
+  --danger-line: #FFFFFF;
+  --danger-solid: #FFFFFF;
+  --info-bg: #000000;
+  --info-fg: #BAE6FD;
+  --info-line: #FFFFFF;
+  --info-solid: #FFFFFF;
+  --sidebar: #000000;
+  --sidebar-fg: #FFFFFF;
+  --sidebar-muted: #E5E5E5;
+  --sidebar-line: #FFFFFF;
+  --sidebar-panel: #000000;
+  --sidebar-hover: #262626;
+  --active-bg: #FFFFFF;
+  --active-fg: #000000;
 }
 
-.high-contrast aside {
-  background-color: #020617 !important;
-  border-right: 2px solid #000000 !important;
+@theme inline {
+  --color-surface: var(--surface);
+  --color-canvas: var(--canvas);
+  --color-subtle: var(--subtle);
+  --color-fg: var(--fg);
+  --color-fg-soft: var(--fg-soft);
+  --color-fg-muted: var(--fg-muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-ring: var(--ring);
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-fg: var(--sidebar-fg);
+  --color-sidebar-muted: var(--sidebar-muted);
+  --color-sidebar-line: var(--sidebar-line);
+  --color-sidebar-panel: var(--sidebar-panel);
+  --color-sidebar-hover: var(--sidebar-hover);
+  --color-active-bg: var(--active-bg);
+  --color-active-fg: var(--active-fg);
+  --color-ok-bg: var(--ok-bg);
+  --color-ok-fg: var(--ok-fg);
+  --color-ok-line: var(--ok-line);
+  --color-ok-solid: var(--ok-solid);
+  --color-warn-bg: var(--warn-bg);
+  --color-warn-fg: var(--warn-fg);
+  --color-warn-line: var(--warn-line);
+  --color-warn-solid: var(--warn-solid);
+  --color-danger-bg: var(--danger-bg);
+  --color-danger-fg: var(--danger-fg);
+  --color-danger-line: var(--danger-line);
+  --color-danger-solid: var(--danger-solid);
+  --color-info-bg: var(--info-bg);
+  --color-info-fg: var(--info-fg);
+  --color-info-line: var(--info-line);
+  --color-info-solid: var(--info-solid);
 }
+
+@layer base {
+  body { background-color: var(--canvas); color: var(--fg); }
+  :focus-visible { outline: 3px solid var(--ring); outline-offset: 2px; }
+}
+
+.high-contrast .border { border-width: 2px; }
+.high-contrast a:not([class*="bg-"]) { text-decoration: underline; }
+.high-contrast .bg-brand { box-shadow: inset 0 0 0 2px var(--fg); }
+.high-contrast ::placeholder { color: var(--fg-muted); opacity: 1; }

@@ -64,7 +64,7 @@ export const AdminLogsTab: React.FC = () => {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-fg-muted absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={query}
@@ -73,20 +73,20 @@ export const AdminLogsTab: React.FC = () => {
               setPage(1);
             }}
             placeholder="Filtrar bitácora de auditoría por usuario, rol, obra o acción"
-            className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
+            className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-surface border border-line "
           />
         </div>
-        <span className="inline-flex items-center gap-1.5 text-[11px] text-slate-400">
-          <ShieldAlert className="w-3.5 h-3.5 text-brand" />
+        <span className="inline-flex items-center gap-1.5 text-[11px] text-fg-muted">
+          <ShieldAlert className="w-3.5 h-3.5 text-accent" />
           Registros inmutables (retención ≥ 5 años · RNF-SEG-03)
         </span>
       </div>
 
-      <div className="bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl overflow-hidden">
+      <div className="bg-surface border border-line rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-180 text-xs">
             <thead>
-              <tr className="bg-slate-50 dark:bg-slate-950/60 text-[10px] font-semibold uppercase text-slate-500 border-b border-slate-200 dark:border-slate-800">
+              <tr className="bg-canvas text-[10px] font-semibold uppercase text-fg-muted border-b border-line ">
                 <th className="py-3 px-4">Marca UTC</th>
                 <th className="py-3 px-3">Usuario / Rol</th>
                 <th className="py-3 px-3">Obra</th>
@@ -94,17 +94,17 @@ export const AdminLogsTab: React.FC = () => {
                 <th className="py-3 px-4 text-right">IP Origen</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            <tbody className="divide-y divide-line ">
               {paged.map((log) => (
                 <tr key={log.id}>
-                  <td className="py-3 px-4 font-mono text-[11px] text-slate-500">{log.timestampUtc}</td>
+                  <td className="py-3 px-4 font-mono text-[11px] text-fg-muted">{log.timestampUtc}</td>
                   <td className="py-3 px-3">
-                    <span className="font-medium text-slate-800 dark:text-slate-100">{log.usuario}</span>{' '}
-                    <span className="text-[10px] text-brand font-semibold">({log.rol})</span>
+                    <span className="font-medium text-fg ">{log.usuario}</span>{' '}
+                    <span className="text-[10px] text-accent font-semibold">({log.rol})</span>
                   </td>
                   <td className="py-3 px-3 font-medium">{log.obra}</td>
                   <td className="py-3 px-3 font-mono text-[11px]">{log.accion}</td>
-                  <td className="py-3 px-4 text-right font-mono text-[11px] text-slate-500">
+                  <td className="py-3 px-4 text-right font-mono text-[11px] text-fg-muted">
                     {log.ipOrigen}
                   </td>
                 </tr>

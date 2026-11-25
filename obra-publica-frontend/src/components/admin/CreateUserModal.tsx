@@ -112,13 +112,13 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl max-w-md w-full p-5 shadow-xl"
+        className="bg-surface border border-line rounded-xl max-w-md w-full p-5 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3 mb-4">
           <div className="flex items-center gap-2">
-            <UserPlus className="w-4 h-4 text-brand shrink-0" />
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white hc:text-black">
+            <UserPlus className="w-4 h-4 text-accent shrink-0" />
+            <h3 className="text-sm font-semibold text-fg ">
               Registrar nueva cuenta de usuario (RF-ADM-01)
             </h3>
           </div>
@@ -126,7 +126,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
             type="button"
             onClick={onClose}
             aria-label="Cerrar modal"
-            className="text-slate-400 hover:text-slate-600 cursor-pointer"
+            className="text-fg-muted hover:text-fg-soft cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -134,7 +134,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-3 text-xs">
           <div>
-            <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-300 mb-1">
+            <label className="block text-[11px] font-medium text-fg-soft mb-1">
               Nombre completo *
             </label>
             <input
@@ -142,13 +142,13 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               placeholder="Ej. Ing. Patricia Morales"
-              className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+              className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas "
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-300 mb-1">
+              <label className="block text-[11px] font-medium text-fg-soft mb-1">
                 Rol único (1:1) *
               </label>
               <select
@@ -166,7 +166,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                     setArea(nextRole === 'SUPERVISOR' ? 'Supervisión' : 'Residencia');
                   }
                 }}
-                className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 cursor-pointer"
+                className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas cursor-pointer"
               >
                 {ALL_ROLES.map((r) => (
                   <option key={r} value={r}>
@@ -177,20 +177,20 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-300 mb-1">
+              <label className="block text-[11px] font-medium text-fg-soft mb-1">
                 Área / Dependencia
               </label>
               <input
                 type="text"
                 value={area}
                 onChange={(e) => setArea(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+                className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas "
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-300 mb-1">
+            <label className="block text-[11px] font-medium text-fg-soft mb-1">
               Correo electrónico ({rol === 'SUPERINTENDENTE' ? '@constructoradelnorte.mx' : '@obra.gob.mx'}) *
             </label>
             <input
@@ -202,13 +202,13 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                   ? 'nombre@constructoradelnorte.mx'
                   : 'nombre@obra.gob.mx'
               }
-              className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+              className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas "
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-300 mb-1">
+              <label className="block text-[11px] font-medium text-fg-soft mb-1">
                 Contraseña (mín. 8) *
               </label>
               <input
@@ -216,12 +216,12 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+                className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas "
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-medium text-slate-600 dark:text-slate-300 mb-1">
+              <label className="block text-[11px] font-medium text-fg-soft mb-1">
                 Firma electrónica (mín. 6) *
               </label>
               <input
@@ -229,7 +229,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                 value={firmaElectronica}
                 onChange={(e) => setFirmaElectronica(e.target.value)}
                 placeholder="••••••"
-                className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+                className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas "
               />
             </div>
           </div>
@@ -237,18 +237,18 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
           {error && (
             <div
               role="alert"
-              className="flex items-start gap-2 p-2.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-200"
+              className="flex items-start gap-2 p-2.5 rounded-lg bg-danger-bg border border-danger-line text-danger-fg "
             >
               <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
           )}
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+          <div className="flex justify-end gap-2 pt-3 border-t border-line ">
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-medium cursor-pointer"
+              className="px-3 py-1.5 rounded-lg border border-line-strong font-medium cursor-pointer"
             >
               Cancelar
             </button>

@@ -100,10 +100,10 @@ export const FileDropzone: React.FC<FileDropzoneProps> = ({
         onClick={() => !disabled && inputRef.current?.click()}
         className={`rounded-xl border-2 border-dashed p-5 text-center transition-colors ${
           disabled
-            ? 'opacity-60 cursor-not-allowed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900'
+            ? 'opacity-60 cursor-not-allowed border-line bg-canvas '
             : dragging
-            ? 'border-brand bg-blue-50/50 dark:bg-blue-950/30 cursor-pointer'
-            : 'border-slate-300 dark:border-slate-700 hc:border-black hover:border-brand cursor-pointer bg-slate-50/50 dark:bg-slate-950/40 hc:bg-white'
+            ? 'border-brand bg-info-bg/50 cursor-pointer'
+            : 'border-line-strong hover:border-brand cursor-pointer bg-canvas/50 '
         }`}
       >
         <input
@@ -116,11 +116,11 @@ export const FileDropzone: React.FC<FileDropzoneProps> = ({
           className="hidden"
         />
 
-        <Upload className="w-6 h-6 text-brand mx-auto mb-2" />
-        <p className="text-xs font-semibold text-slate-800 dark:text-slate-100 hc:text-black">
+        <Upload className="w-6 h-6 text-accent mx-auto mb-2" />
+        <p className="text-xs font-semibold text-fg ">
           Arrastra archivos aquí o haz clic para seleccionar
         </p>
-        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+        <p className="text-[11px] text-fg-muted mt-1">
           {helperText ??
             `Formatos: ${imagesOnly ? 'JPG, PNG' : 'PDF, JPG, PNG, XML'} · Máx. ${
               BUSINESS_CONSTANTS.MAX_FILE_SIZE_BYTES / (1024 * 1024)
@@ -129,7 +129,7 @@ export const FileDropzone: React.FC<FileDropzoneProps> = ({
       </div>
 
       {missingMinimum && (
-        <p className="text-[11px] font-medium text-amber-700 dark:text-amber-400">
+        <p className="text-[11px] font-medium text-warn-fg ">
           Faltan {minFiles - files.length} archivo(s) para cumplir el mínimo requerido ({files.length}/
           {minFiles}).
         </p>
@@ -138,7 +138,7 @@ export const FileDropzone: React.FC<FileDropzoneProps> = ({
       {error && (
         <div
           role="alert"
-          className="flex items-start gap-2 p-2.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-200 text-xs"
+          className="flex items-start gap-2 p-2.5 rounded-lg bg-danger-bg border border-danger-line text-danger-fg text-xs"
         >
           <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{error}</span>
@@ -152,18 +152,18 @@ export const FileDropzone: React.FC<FileDropzoneProps> = ({
             return (
               <li
                 key={`${file.name}-${idx}`}
-                className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hc:border-black text-xs"
+                className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-surface border border-line text-xs"
               >
                 <div className="flex items-center gap-2 min-w-0">
                   {isImg ? (
-                    <ImageIcon className="w-4 h-4 text-brand shrink-0" />
+                    <ImageIcon className="w-4 h-4 text-accent shrink-0" />
                   ) : (
-                    <FileText className="w-4 h-4 text-brand shrink-0" />
+                    <FileText className="w-4 h-4 text-accent shrink-0" />
                   )}
-                  <span className="truncate font-medium text-slate-800 dark:text-slate-100">
+                  <span className="truncate font-medium text-fg ">
                     {file.name}
                   </span>
-                  <span className="text-[10px] text-slate-400 shrink-0">
+                  <span className="text-[10px] text-fg-muted shrink-0">
                     {formatSize(file.size)}
                   </span>
                 </div>
@@ -172,7 +172,7 @@ export const FileDropzone: React.FC<FileDropzoneProps> = ({
                     type="button"
                     aria-label={`Quitar ${file.name}`}
                     onClick={() => handleRemove(idx)}
-                    className="p-1 text-slate-400 hover:text-rose-600 cursor-pointer"
+                    className="p-1 text-fg-muted hover:text-danger-fg cursor-pointer"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>

@@ -117,11 +117,11 @@ export const DocumentosCierrePage: React.FC = () => {
       {/* Encabezado */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-fg-muted ">
             Contrato SOP-LP-024/2024 · Expediente legal y cierre administrativo
           </p>
           <div className="flex items-center gap-3 mt-1">
-            <h1 className="text-2xl font-normal text-slate-900 dark:text-white hc:text-black tracking-tight">
+            <h1 className="text-2xl font-normal text-fg tracking-tight">
               Documentos, Recepción Física y Finiquito
             </h1>
             <StatusBadge status={obraFiniquitada ? 'FINIQUITADA' : 'EN_EJECUCION'} />
@@ -130,18 +130,18 @@ export const DocumentosCierrePage: React.FC = () => {
       </div>
 
       {/* Panel de Recepción Física y Finiquito (RF-RES-05) */}
-      <div className="bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl p-5 space-y-5">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+      <div className="bg-surface border border-line rounded-xl p-5 space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
           <div>
-            <h2 className="text-sm font-semibold text-slate-900 dark:text-white hc:text-black">
+            <h2 className="text-sm font-semibold text-fg ">
               Cierre de contrato y consolidación de finiquito (RF-RES-05)
             </h2>
-            <p className="text-[11px] text-slate-400 mt-0.5">
+            <p className="text-[11px] text-fg-muted mt-0.5">
               Facultad exclusiva del Residente una vez cumplidas las precondiciones normativas.
             </p>
           </div>
           {selloFiniquito && (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-mono text-[10px]">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-ok-bg text-ok-fg font-mono text-[10px]">
               <ShieldCheck className="w-3.5 h-3.5" />
               {selloFiniquito}
             </span>
@@ -153,21 +153,21 @@ export const DocumentosCierrePage: React.FC = () => {
           <div
             className={`p-3.5 rounded-lg border flex items-start justify-between gap-3 ${
               tieneAviso6Fotos
-                ? 'bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800'
-                : 'bg-rose-50/60 dark:bg-rose-950/20 border-rose-200 dark:border-rose-800'
+                ? 'bg-ok-bg/60 border-ok-line '
+                : 'bg-danger-bg/60 border-danger-line '
             }`}
           >
             <div className="flex items-start gap-2.5">
               {tieneAviso6Fotos ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-4 h-4 text-ok-fg shrink-0 mt-0.5" />
               ) : (
-                <XCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                <XCircle className="w-4 h-4 text-danger-fg shrink-0 mt-0.5" />
               )}
               <div>
-                <p className="font-semibold text-slate-900 dark:text-white">
+                <p className="font-semibold text-fg ">
                   1. Aviso de Terminación (≥ 6 fotos)
                 </p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                <p className="text-[11px] text-fg-muted mt-0.5">
                   Emitido por el Superintendente en Bitácora (RF-SUPT-05).
                 </p>
               </div>
@@ -176,7 +176,7 @@ export const DocumentosCierrePage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setTieneAviso6Fotos((v) => !v)}
-                className="text-[10px] underline text-slate-500 cursor-pointer shrink-0"
+                className="text-[10px] underline text-fg-muted cursor-pointer shrink-0"
               >
                 Simular
               </button>
@@ -186,21 +186,21 @@ export const DocumentosCierrePage: React.FC = () => {
           <div
             className={`p-3.5 rounded-lg border flex items-start justify-between gap-3 ${
               todasEstimacionesLiquidadas
-                ? 'bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800'
-                : 'bg-rose-50/60 dark:bg-rose-950/20 border-rose-200 dark:border-rose-800'
+                ? 'bg-ok-bg/60 border-ok-line '
+                : 'bg-danger-bg/60 border-danger-line '
             }`}
           >
             <div className="flex items-start gap-2.5">
               {todasEstimacionesLiquidadas ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-4 h-4 text-ok-fg shrink-0 mt-0.5" />
               ) : (
-                <XCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                <XCircle className="w-4 h-4 text-danger-fg shrink-0 mt-0.5" />
               )}
               <div>
-                <p className="font-semibold text-slate-900 dark:text-white">
+                <p className="font-semibold text-fg ">
                   2. Cero estimaciones pendientes
                 </p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                <p className="text-[11px] text-fg-muted mt-0.5">
                   Todas las estimaciones deben figurar como LIQUIDADA (RF-RES-05).
                 </p>
               </div>
@@ -209,7 +209,7 @@ export const DocumentosCierrePage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setTodasEstimacionesLiquidadas((v) => !v)}
-                className="text-[10px] underline text-slate-500 cursor-pointer shrink-0"
+                className="text-[10px] underline text-fg-muted cursor-pointer shrink-0"
               >
                 Simular
               </button>
@@ -229,10 +229,10 @@ export const DocumentosCierrePage: React.FC = () => {
           ].map((item) => (
             <div
               key={item.label}
-              className="p-3 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800"
+              className="p-3 rounded-lg bg-canvas border border-line "
             >
-              <p className="text-[10px] text-slate-400">{item.label}</p>
-              <p className="font-semibold text-slate-900 dark:text-white mt-1">
+              <p className="text-[10px] text-fg-muted">{item.label}</p>
+              <p className="font-semibold text-fg mt-1">
                 {formatMXN(item.value)}
               </p>
             </div>
@@ -241,7 +241,7 @@ export const DocumentosCierrePage: React.FC = () => {
 
         {isResidente && (
           <div className="flex items-center justify-between pt-2">
-            <p className="text-[11px] text-slate-500">
+            <p className="text-[11px] text-fg-muted">
               {obraFiniquitada
                 ? 'Obra y contrato marcados como FINIQUITADA / CERRADA (RN-RES-05.2).'
                 : canEmitFiniquito
@@ -255,7 +255,7 @@ export const DocumentosCierrePage: React.FC = () => {
               className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${
                 canEmitFiniquito
                   ? 'bg-brand hover:bg-brand-hover text-white cursor-pointer'
-                  : 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
+                  : 'bg-line text-fg-muted cursor-not-allowed'
               }`}
             >
               <Lock className="w-3.5 h-3.5" />
@@ -266,32 +266,32 @@ export const DocumentosCierrePage: React.FC = () => {
       </div>
 
       {/* Repositorio documental */}
-      <div className="bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+      <div className="bg-surface border border-line rounded-xl overflow-hidden">
+        <div className="px-5 py-4 border-b border-line flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <FolderOpen className="w-4 h-4 text-brand" />
-            <h2 className="text-sm font-semibold text-slate-900 dark:text-white hc:text-black">
+            <FolderOpen className="w-4 h-4 text-accent" />
+            <h2 className="text-sm font-semibold text-fg ">
               Expediente documental ({docs.length})
             </h2>
           </div>
           {isDirectivo && (
-            <span className="text-[11px] text-slate-400">Consulta en solo lectura (RF-DIR-03)</span>
+            <span className="text-[11px] text-fg-muted">Consulta en solo lectura (RF-DIR-03)</span>
           )}
         </div>
 
-        <div className="divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="divide-y divide-line ">
           {docs.map((doc) => (
             <div
               key={doc.id}
               className="px-5 py-3.5 flex flex-wrap items-center justify-between gap-4 text-xs"
             >
               <div className="flex items-center gap-3 min-w-0">
-                <FileText className="w-4 h-4 text-brand shrink-0" />
+                <FileText className="w-4 h-4 text-accent shrink-0" />
                 <div className="min-w-0">
-                  <p className="font-medium text-slate-800 dark:text-slate-100 truncate">
+                  <p className="font-medium text-fg truncate">
                     {doc.nombre}
                   </p>
-                  <p className="text-[10px] text-slate-400">
+                  <p className="text-[10px] text-fg-muted">
                     {doc.categoria} · Registrado: {doc.fecha}
                   </p>
                 </div>
@@ -302,7 +302,7 @@ export const DocumentosCierrePage: React.FC = () => {
         </div>
 
         {!isDirectivo && !obraFiniquitada && (
-          <div className="p-5 border-t border-slate-200 dark:border-slate-800 space-y-3 bg-slate-50/50 dark:bg-slate-950/30">
+          <div className="p-5 border-t border-line space-y-3 bg-canvas/50 ">
             <FileDropzone
               files={uploadFiles}
               onChange={setUploadFiles}

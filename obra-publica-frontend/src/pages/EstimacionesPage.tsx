@@ -426,10 +426,10 @@ export const EstimacionesPage: React.FC = () => {
       {/* Encabezado */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-fg-muted ">
             Control financiero · Candado Avance Financiero ≤ Avance Físico ({AVANCE_FISICO_REAL_VIGENTE}%)
           </p>
-          <h1 className="text-2xl font-normal text-slate-900 dark:text-white hc:text-black tracking-tight mt-0.5">
+          <h1 className="text-2xl font-normal text-fg tracking-tight mt-0.5">
             Estimaciones de obra y facturación
           </h1>
         </div>
@@ -450,20 +450,20 @@ export const EstimacionesPage: React.FC = () => {
       </div>
 
       {/* Barra comparativa Físico vs Financiero */}
-      <div className="bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl p-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+      <div className="bg-surface border border-line rounded-xl p-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
         <div>
-          <p className="text-[11px] text-slate-400">Avance físico real (tope legal)</p>
-          <p className="text-xl font-semibold text-brand mt-0.5">{AVANCE_FISICO_REAL_VIGENTE}%</p>
+          <p className="text-[11px] text-fg-muted">Avance físico real (tope legal)</p>
+          <p className="text-xl font-semibold text-accent mt-0.5">{AVANCE_FISICO_REAL_VIGENTE}%</p>
         </div>
         <div>
-          <p className="text-[11px] text-slate-400">Avance financiero autorizado / liquidado</p>
-          <p className="text-xl font-semibold text-slate-900 dark:text-white mt-0.5">
+          <p className="text-[11px] text-fg-muted">Avance financiero autorizado / liquidado</p>
+          <p className="text-xl font-semibold text-fg mt-0.5">
             {avanceFinancieroActual}%
           </p>
         </div>
         <div>
-          <p className="text-[11px] text-slate-400">Margen disponible para estimar</p>
-          <p className="text-xl font-semibold text-emerald-600 mt-0.5">
+          <p className="text-[11px] text-fg-muted">Margen disponible para estimar</p>
+          <p className="text-xl font-semibold text-ok-fg mt-0.5">
             {formatMXN(
               Math.max(
                 0,
@@ -478,7 +478,7 @@ export const EstimacionesPage: React.FC = () => {
       {errorMsg && (
         <div
           role="alert"
-          className="flex items-start justify-between gap-3 p-3 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-xs"
+          className="flex items-start justify-between gap-3 p-3 rounded-lg bg-danger-bg border border-danger-line text-danger-fg text-xs"
         >
           <div className="flex items-center gap-2">
             <ShieldAlert className="w-4 h-4 shrink-0" />
@@ -491,7 +491,7 @@ export const EstimacionesPage: React.FC = () => {
       )}
 
       {successMsg && (
-        <div className="flex items-start justify-between gap-3 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-xs">
+        <div className="flex items-start justify-between gap-3 p-3 rounded-lg bg-ok-bg border border-ok-line text-ok-fg text-xs">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>{successMsg}</span>
@@ -516,41 +516,41 @@ export const EstimacionesPage: React.FC = () => {
           return (
             <div
               key={est.id}
-              className="bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl p-5 space-y-3"
+              className="bg-surface border border-line rounded-xl p-5 space-y-3"
             >
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div className="space-y-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                    <span className="text-sm font-semibold text-fg ">
                       Estimación N.º {String(est.numero).padStart(2, '0')}
                     </span>
                     <StatusBadge status={est.estado as BadgeVariant} />
-                    <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
+                    <span className="px-2 py-0.5 rounded bg-subtle text-[10px] font-semibold text-fg-soft ">
                       {est.tipo} · v{est.versionSubsanacion}
                     </span>
 
                     {isAlertCritica && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 text-[10px] font-semibold">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-danger-bg text-danger-fg text-[10px] font-semibold">
                         <Clock className="w-3 h-3" />
                         Plazo vencido ({est.diasEnRevision} días · RF-SUP-06)
                       </span>
                     )}
                     {isAlertPreventiva && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 text-[10px] font-semibold">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-warn-bg text-warn-fg text-[10px] font-semibold">
                         <Clock className="w-3 h-3" />
                         Alerta preventiva: día {est.diasEnRevision} de 15
                       </span>
                     )}
                   </div>
 
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <p className="text-xs text-fg-muted ">
                     Periodo: <strong>{est.periodoInicio}</strong> al{' '}
                     <strong>{est.periodoFin}</strong> · Bruto: {formatMXN(est.montoBruto)} ·
                     Amortización: {formatMXN(est.montoAmortizacion)}
                   </p>
 
                   {est.uuidFiscal && (
-                    <p className="text-[11px] font-mono text-emerald-700 dark:text-emerald-300">
+                    <p className="text-[11px] font-mono text-ok-fg ">
                       CFDI UUID: {est.uuidFiscal} ({est.archivosFiscales?.join(', ')})
                     </p>
                   )}
@@ -558,8 +558,8 @@ export const EstimacionesPage: React.FC = () => {
 
                 <div className="flex flex-wrap items-center gap-3 shrink-0">
                   <div className="text-right">
-                    <p className="text-[10px] text-slate-400 uppercase">Monto neto</p>
-                    <p className="text-base font-bold text-slate-900 dark:text-white">
+                    <p className="text-[10px] text-fg-muted uppercase">Monto neto</p>
+                    <p className="text-base font-bold text-fg ">
                       {formatMXN(est.montoNeto)}
                     </p>
                   </div>
@@ -570,7 +570,7 @@ export const EstimacionesPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => requestDecision(est, 'RECHAZAR_SUP')}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-semibold cursor-pointer"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-danger-line text-danger-fg hover:bg-danger-bg text-xs font-semibold cursor-pointer"
                       >
                         <XCircle className="w-3.5 h-3.5" />
                         <span>Rechazar</span>
@@ -578,7 +578,7 @@ export const EstimacionesPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => requestDecision(est, 'APROBAR_SUP')}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold cursor-pointer"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-ok-solid hover:bg-emerald-700 text-white text-xs font-semibold cursor-pointer"
                       >
                         <ShieldCheck className="w-3.5 h-3.5" />
                         <span>Aprobar</span>
@@ -616,7 +616,7 @@ export const EstimacionesPage: React.FC = () => {
                         setCfdiTarget(est);
                         setCfdiMonto(String(est.montoNeto));
                       }}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-ok-solid hover:bg-emerald-700 text-white text-xs font-semibold cursor-pointer"
                     >
                       <FileUp className="w-3.5 h-3.5" />
                       <span>Adjuntar CFDI (PDF + XML)</span>
@@ -627,24 +627,24 @@ export const EstimacionesPage: React.FC = () => {
 
               {/* Historial inmutable de revisiones / rechazos (RN-SUPT-07.2) */}
               {est.historial.length > 0 && (
-                <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-1.5">
-                  <p className="text-[10px] font-semibold uppercase text-slate-400">
+                <div className="pt-3 border-t border-line space-y-1.5">
+                  <p className="text-[10px] font-semibold uppercase text-fg-muted">
                     Historial de dictámenes (inmutable)
                   </p>
                   {est.historial.map((h, i) => (
                     <div
                       key={`${est.id}-hist-${i}`}
-                      className="text-[11px] flex flex-wrap items-center gap-2 text-slate-600 dark:text-slate-300"
+                      className="text-[11px] flex flex-wrap items-center gap-2 text-fg-soft "
                     >
                       <span className="font-semibold">v{h.version}</span>
                       <span
                         className={
-                          h.dictamen === 'APROBADA' ? 'text-emerald-600 font-semibold' : 'text-rose-600 font-semibold'
+                          h.dictamen === 'APROBADA' ? 'text-ok-fg font-semibold' : 'text-danger-fg font-semibold'
                         }
                       >
                         {h.dictamen}
                       </span>
-                      <span className="text-slate-400">· {h.fecha} · {h.actor}:</span>
+                      <span className="text-fg-muted">· {h.fecha} · {h.actor}:</span>
                       <span>{h.observaciones}</span>
                     </div>
                   ))}
@@ -664,9 +664,9 @@ export const EstimacionesPage: React.FC = () => {
           <form
             onSubmit={handleCreateEstimacion}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl max-w-md w-full p-5 space-y-3 shadow-xl"
+            className="bg-surface border border-line rounded-xl max-w-md w-full p-5 space-y-3 shadow-xl"
           >
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+            <h3 className="text-sm font-semibold text-fg ">
               Nueva estimación de obra (RF-SUPT-03)
             </h3>
 
@@ -675,7 +675,7 @@ export const EstimacionesPage: React.FC = () => {
               onChange={(e) =>
                 setNewForm({ ...newForm, tipo: e.target.value as EstimacionTipo })
               }
-              className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+              className="w-full px-3 py-2 text-xs rounded-lg border border-line-strong bg-canvas "
             >
               <option value="ORDINARIO">1. Ordinario (catálogo original)</option>
               <option value="CANTIDADES_ADICIONALES">2. Cantidades Adicionales</option>
@@ -684,21 +684,21 @@ export const EstimacionesPage: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div>
-                <label className="text-[10px] text-slate-400">Periodo inicio</label>
+                <label className="text-[10px] text-fg-muted">Periodo inicio</label>
                 <input
                   type="date"
                   value={newForm.periodoInicio}
                   onChange={(e) => setNewForm({ ...newForm, periodoInicio: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+                  className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas "
                 />
               </div>
               <div>
-                <label className="text-[10px] text-slate-400">Periodo fin</label>
+                <label className="text-[10px] text-fg-muted">Periodo fin</label>
                 <input
                   type="date"
                   value={newForm.periodoFin}
                   onChange={(e) => setNewForm({ ...newForm, periodoFin: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+                  className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas "
                 />
               </div>
             </div>
@@ -710,7 +710,7 @@ export const EstimacionesPage: React.FC = () => {
                 placeholder="Monto bruto (MXN)"
                 value={newForm.montoBruto}
                 onChange={(e) => setNewForm({ ...newForm, montoBruto: e.target.value })}
-                className="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+                className="px-3 py-2 rounded-lg border border-line-strong bg-canvas "
               />
               <input
                 type="number"
@@ -718,24 +718,24 @@ export const EstimacionesPage: React.FC = () => {
                 placeholder="Amortización anticipo"
                 value={newForm.montoAmortizacion}
                 onChange={(e) => setNewForm({ ...newForm, montoAmortizacion: e.target.value })}
-                className="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+                className="px-3 py-2 rounded-lg border border-line-strong bg-canvas "
               />
             </div>
 
-            <p className="text-xs text-slate-600 dark:text-slate-300">
+            <p className="text-xs text-fg-soft ">
               Monto neto calculado:{' '}
-              <strong className="text-brand">
+              <strong className="text-accent">
                 {formatMXN(
                   Math.max(0, Number(newForm.montoBruto || 0) - Number(newForm.montoAmortizacion || 0))
                 )}
               </strong>
             </p>
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex justify-end gap-2 pt-2 border-t border-line ">
               <button
                 type="button"
                 onClick={() => setShowCreateModal(false)}
-                className="px-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer"
+                className="px-3 py-1.5 text-xs rounded-lg border border-line-strong cursor-pointer"
               >
                 Cancelar
               </button>
@@ -759,12 +759,12 @@ export const EstimacionesPage: React.FC = () => {
           <form
             onSubmit={handleSubmitCfdi}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl max-w-lg w-full p-5 space-y-3.5 shadow-xl"
+            className="bg-surface border border-line rounded-xl max-w-lg w-full p-5 space-y-3.5 shadow-xl"
           >
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+            <h3 className="text-sm font-semibold text-fg ">
               Facturación · Estimación N.º {cfdiTarget.numero} (RF-SUPT-06)
             </h3>
-            <p className="text-[11px] text-slate-500">
+            <p className="text-[11px] text-fg-muted">
               Adjunta el par fiscal obligatorio (PDF + XML) y captura el UUID irrepetible del SAT.
               Monto autorizado neto exacto: <strong>{formatMXN(cfdiTarget.montoNeto)}</strong>.
             </p>
@@ -774,7 +774,7 @@ export const EstimacionesPage: React.FC = () => {
               placeholder="Folio fiscal UUID del SAT"
               value={cfdiUuid}
               onChange={(e) => setCfdiUuid(e.target.value)}
-              className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 font-mono"
+              className="w-full px-3 py-2 text-xs rounded-lg border border-line-strong bg-canvas font-mono"
             />
 
             <input
@@ -783,7 +783,7 @@ export const EstimacionesPage: React.FC = () => {
               placeholder="Monto total de factura (MXN)"
               value={cfdiMonto}
               onChange={(e) => setCfdiMonto(e.target.value)}
-              className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+              className="w-full px-3 py-2 text-xs rounded-lg border border-line-strong bg-canvas "
             />
 
             <FileDropzone
@@ -795,17 +795,17 @@ export const EstimacionesPage: React.FC = () => {
               helperText="Obligatorio cargar 1 archivo .PDF y 1 archivo .XML (máx. 10 MB cada uno)"
             />
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex justify-end gap-2 pt-2 border-t border-line ">
               <button
                 type="button"
                 onClick={() => setCfdiTarget(null)}
-                className="px-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer"
+                className="px-3 py-1.5 text-xs rounded-lg border border-line-strong cursor-pointer"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="px-3.5 py-1.5 text-xs rounded-lg bg-emerald-600 text-white font-semibold cursor-pointer"
+                className="px-3.5 py-1.5 text-xs rounded-lg bg-ok-solid text-white font-semibold cursor-pointer"
               >
                 Validar y registrar CFDI
               </button>

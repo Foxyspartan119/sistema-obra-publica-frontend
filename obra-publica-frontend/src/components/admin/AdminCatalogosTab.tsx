@@ -81,11 +81,11 @@ export const AdminCatalogosTab: React.FC = () => {
     <div className="space-y-5">
       <form
         onSubmit={handleAdd}
-        className="bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl p-5 space-y-3 text-xs"
+        className="bg-surface border border-line rounded-xl p-5 space-y-3 text-xs"
       >
         <div className="flex items-center gap-2">
-          <MailCheck className="w-4 h-4 text-brand" />
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
+          <MailCheck className="w-4 h-4 text-accent" />
+          <h2 className="text-sm font-semibold text-fg ">
             Catálogos maestros y diccionario de correos autorizados (RF-ADM-01.8 / RF-ADM-05)
           </h2>
         </div>
@@ -94,7 +94,7 @@ export const AdminCatalogosTab: React.FC = () => {
           <select
             value={grupo}
             onChange={(e) => setGrupo(e.target.value as CatalogEntry['grupo'])}
-            className="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 cursor-pointer"
+            className="px-3 py-2 rounded-lg border border-line-strong bg-canvas cursor-pointer"
           >
             <option value="Dominio / Correo Autorizado">Dominio / Correo Autorizado</option>
             <option value="Unidad de Medida">Unidad de Medida</option>
@@ -105,14 +105,14 @@ export const AdminCatalogosTab: React.FC = () => {
             placeholder="Valor (ej. @contratista.mx o kg)"
             value={valor}
             onChange={(e) => setValor(e.target.value)}
-            className="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+            className="px-3 py-2 rounded-lg border border-line-strong bg-canvas "
           />
           <input
             type="text"
             placeholder="Alcance o contrato vinculado"
             value={alcance}
             onChange={(e) => setAlcance(e.target.value)}
-            className="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+            className="px-3 py-2 rounded-lg border border-line-strong bg-canvas "
           />
         </div>
 
@@ -127,17 +127,17 @@ export const AdminCatalogosTab: React.FC = () => {
         </div>
       </form>
 
-      <div className="bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+      <div className="bg-surface border border-line rounded-xl divide-y divide-line text-xs">
         {entries.map((item) => (
           <div key={item.id} className="p-4 flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-start gap-3">
-              <Layers className="w-4 h-4 text-brand mt-0.5 shrink-0" />
+              <Layers className="w-4 h-4 text-accent mt-0.5 shrink-0" />
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-slate-900 dark:text-white">{item.valor}</span>
-                  <span className="text-[10px] text-slate-400">· {item.grupo}</span>
+                  <span className="font-semibold text-fg ">{item.valor}</span>
+                  <span className="text-[10px] text-fg-muted">· {item.grupo}</span>
                 </div>
-                <p className="text-[11px] text-slate-500 mt-0.5">{item.alcance}</p>
+                <p className="text-[11px] text-fg-muted mt-0.5">{item.alcance}</p>
               </div>
             </div>
 
@@ -146,7 +146,7 @@ export const AdminCatalogosTab: React.FC = () => {
               <button
                 type="button"
                 onClick={() => toggleActivo(item.id)}
-                className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-brand text-[11px] font-medium cursor-pointer"
+                className="px-2.5 py-1 rounded-lg border border-line-strong hover:border-brand text-[11px] font-medium cursor-pointer"
               >
                 {item.activo ? 'Marcar inactivo' : 'Reactivar'}
               </button>

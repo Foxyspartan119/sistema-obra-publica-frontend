@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { AccessibilityTheme, UserRole, UserSession } from '../types/obra.types';
+import type { UserRole, UserSession } from '../types/obra.types';
 import { BUSINESS_CONSTANTS } from '../utils/businessRules';
 
 const MOCK_USERS_BY_ROLE: Record<UserRole, UserSession> = {
@@ -45,11 +45,49 @@ const MOCK_USERS_BY_ROLE: Record<UserRole, UserSession> = {
   },
 };
 
+/** Apariencia y contraste son ejes independientes: 2 x 2 = 4 modos. */
+export type Appearance = 'claro' | 'oscuro';
+
+interface A11yPrefs {
+  appearance: Appearance;
+  highContrast: boolean;
+}
+
+const A11Y_STORAGE_KEY = 'obra.a11y.v1';
+
+const prefersMedia = (query: string): boolean =>
+  typeof window !== 'undefined' && !!window.matchMedia && window.matchMedia(query).matches;
+
+/** Preferencia guardada; si no hay, respeta la del sistema operativo. */
+function readInitialPrefs(): A11yPrefs {
+  try {
+    const raw = localStorage.getItem(A11Y_STORAGE_KEY);
+    if (raw) {
+      const p = JSON.parse(raw) as Partial<A11yPrefs>;
+      if ((p.appearance === 'claro' || p.appearance === 'oscuro') && typeof p.highContrast === 'boolean') {
+        return { appearance: p.appearance, highContrast: p.highContrast };
+      }
+    }
+  } catch {
+    // localStorage no disponible o JSON inválido: se usan los valores por defecto
+  }
+  return {
+    appearance: prefersMedia('(prefers-color-scheme: dark)') ? 'oscuro' : 'claro',
+    highContrast: prefersMedia('(prefers-contrast: more)'),
+  };
+}
+
+// Eventos que cuentan como actividad (RNF-SEG-05). Incluye táctil: en tablets
+// de campo no se disparan mousemove/keydown al desplazarse o tocar.
+const ACTIVITY_EVENTS = ['pointerdown', 'pointermove', 'keydown', 'scroll', 'touchstart'] as const;
+
 interface AuthContextType {
   user: UserSession | null;
   sessionExpired: boolean;
-  theme: AccessibilityTheme;
-  setTheme: (theme: AccessibilityTheme) => void;
+  appearance: Appearance;
+  setAppearance: (appearance: Appearance) => void;
+  highContrast: boolean;
+  setHighContrast: (enabled: boolean) => void;
   loginAsRole: (role: UserRole) => void;
   logout: (expired?: boolean) => void;
 }
@@ -59,14 +97,23 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserSession | null>(MOCK_USERS_BY_ROLE.RESIDENTE);
   const [sessionExpired, setSessionExpired] = useState(false);
-  const [theme, setTheme] = useState<AccessibilityTheme>('claro');
+  const [prefs, setPrefs] = useState<A11yPrefs>(readInitialPrefs);
+  const { appearance, highContrast } = prefs;
 
+  // Aplica las clases al <html> y persiste la preferencia.
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.remove('dark', 'high-contrast');
-    if (theme === 'oscuro') root.classList.add('dark');
-    if (theme === 'alto-contraste') root.classList.add('high-contrast');
-  }, [theme]);
+    root.classList.toggle('dark', appearance === 'oscuro');
+    root.classList.toggle('high-contrast', highContrast);
+    try {
+      localStorage.setItem(A11Y_STORAGE_KEY, JSON.stringify({ appearance, highContrast }));
+    } catch {
+      // sin persistencia: el modo sigue funcionando en esta sesión
+    }
+  }, [appearance, highContrast]);
+
+  const setAppearance = (next: Appearance) => setPrefs((p) => ({ ...p, appearance: next }));
+  const setHighContrast = (next: boolean) => setPrefs((p) => ({ ...p, highContrast: next }));
 
   useEffect(() => {
     if (!user) return;
@@ -77,13 +124,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       timer = setTimeout(() => logout(true), BUSINESS_CONSTANTS.SESSION_TIMEOUT_MS);
     };
 
-    window.addEventListener('mousemove', resetTimer);
-    window.addEventListener('keydown', resetTimer);
+    ACTIVITY_EVENTS.forEach((evt) => window.addEventListener(evt, resetTimer, { passive: true }));
 
     return () => {
       clearTimeout(timer);
-      window.removeEventListener('mousemove', resetTimer);
-      window.removeEventListener('keydown', resetTimer);
+      ACTIVITY_EVENTS.forEach((evt) => window.removeEventListener(evt, resetTimer));
     };
   }, [user]);
 
@@ -99,7 +144,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return (
     <AuthContext.Provider
-      value={{ user, sessionExpired, theme, setTheme, loginAsRole, logout }}
+      value={{
+        user,
+        sessionExpired,
+        appearance,
+        setAppearance,
+        highContrast,
+        setHighContrast,
+        loginAsRole,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>

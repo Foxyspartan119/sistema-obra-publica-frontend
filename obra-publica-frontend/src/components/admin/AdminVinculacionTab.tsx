@@ -77,27 +77,27 @@ export const AdminVinculacionTab: React.FC = () => {
     <div className="space-y-5">
       <form
         onSubmit={handleAsignar}
-        className="bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl p-5 space-y-4 text-xs"
+        className="bg-surface border border-line rounded-xl p-5 space-y-4 text-xs"
       >
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
+            <h2 className="text-sm font-semibold text-fg ">
               Asignación y relevo de personal operativo (RF-ADM-03)
             </h2>
-            <p className="text-[11px] text-slate-400 mt-0.5">
+            <p className="text-[11px] text-fg-muted mt-0.5">
               Máximo 1 Residente, 1 Supervisor y 1 Superintendente activos por obra (RN-ADM-03.2).
             </p>
           </div>
-          <RefreshCw className="w-4 h-4 text-brand" />
+          <RefreshCw className="w-4 h-4 text-accent" />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="space-y-1">
-            <label className="text-[11px] text-slate-500">Obra</label>
+            <label className="text-[11px] text-fg-muted">Obra</label>
             <select
               value={selectedObraId}
               onChange={(e) => setSelectedObraId(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 cursor-pointer"
+              className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas cursor-pointer"
             >
               {filas.map((f) => (
                 <option key={f.obraId} value={f.obraId}>
@@ -108,7 +108,7 @@ export const AdminVinculacionTab: React.FC = () => {
           </div>
 
           <div className="space-y-1">
-            <label className="text-[11px] text-slate-500">Área / Rol operativo</label>
+            <label className="text-[11px] text-fg-muted">Área / Rol operativo</label>
             <select
               value={rolSlot}
               onChange={(e) => {
@@ -116,7 +116,7 @@ export const AdminVinculacionTab: React.FC = () => {
                 setRolSlot(nextSlot);
                 setUsuarioElegido(CANDIDATOS_POR_ROL[nextSlot][0]);
               }}
-              className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 cursor-pointer"
+              className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas cursor-pointer"
             >
               <option value="residente">RESIDENTE</option>
               <option value="supervisor">SUPERVISOR</option>
@@ -125,11 +125,11 @@ export const AdminVinculacionTab: React.FC = () => {
           </div>
 
           <div className="space-y-1">
-            <label className="text-[11px] text-slate-500">Usuario activo asignado</label>
+            <label className="text-[11px] text-fg-muted">Usuario activo asignado</label>
             <select
               value={usuarioElegido}
               onChange={(e) => setUsuarioElegido(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 cursor-pointer"
+              className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas cursor-pointer"
             >
               {CANDIDATOS_POR_ROL[rolSlot].map((nombre) => (
                 <option key={nombre} value={nombre}>
@@ -141,7 +141,7 @@ export const AdminVinculacionTab: React.FC = () => {
         </div>
 
         {mensaje && (
-          <div className="flex items-center gap-2 p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300">
+          <div className="flex items-center gap-2 p-2.5 rounded-lg bg-ok-bg text-ok-fg ">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>{mensaje}</span>
           </div>
@@ -158,14 +158,14 @@ export const AdminVinculacionTab: React.FC = () => {
         </div>
       </form>
 
-      <div className="bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl overflow-hidden">
-        <div className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+      <div className="bg-surface border border-line rounded-xl overflow-hidden">
+        <div className="divide-y divide-line text-xs">
           {filas.map((row) => (
             <div key={row.obraId} className="p-5 space-y-2.5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
-                  <span className="font-semibold text-brand mr-2">{row.obraId}</span>
-                  <span className="font-semibold text-slate-900 dark:text-white">
+                  <span className="font-semibold text-accent mr-2">{row.obraId}</span>
+                  <span className="font-semibold text-fg ">
                     {row.obraNombre}
                   </span>
                 </div>
@@ -174,21 +174,21 @@ export const AdminVinculacionTab: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
                 <div>
-                  <span className="text-[10px] text-slate-400 block">Residente</span>
+                  <span className="text-[10px] text-fg-muted block">Residente</span>
                   <span className="font-medium">
                     {row.residente ?? (
-                      <span className="inline-flex items-center gap-1 text-rose-600">
+                      <span className="inline-flex items-center gap-1 text-danger-fg">
                         <AlertTriangle className="w-3.5 h-3.5" /> Vacante descubierta
                       </span>
                     )}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 block">Supervisor</span>
+                  <span className="text-[10px] text-fg-muted block">Supervisor</span>
                   <span className="font-medium">{row.supervisor ?? 'Vacante'}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 block">Superintendente</span>
+                  <span className="text-[10px] text-fg-muted block">Superintendente</span>
                   <span className="font-medium">{row.superintendente ?? 'Vacante'}</span>
                 </div>
               </div>

@@ -113,11 +113,11 @@ export const ProgramaPage: React.FC = () => {
       {/* Encabezado */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-fg-muted ">
             Plazo contractual: {CONTRATO_INICIO} al {contratoFin} · Corte: {FECHA_CORTE_SIMULADA}
           </p>
           <div className="flex items-center gap-3 mt-1">
-            <h1 className="text-2xl font-normal text-slate-900 dark:text-white hc:text-black tracking-tight">
+            <h1 className="text-2xl font-normal text-fg tracking-tight">
               Programa de ejecución y ruta crítica
             </h1>
             <StatusBadge status={suspendida ? 'SUSPENDIDA' : 'EN_EJECUCION'} />
@@ -129,7 +129,7 @@ export const ProgramaPage: React.FC = () => {
           <div className="flex flex-wrap items-center gap-2">
             {suspendida ? (
               <>
-                <label className="inline-flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300">
+                <label className="inline-flex items-center gap-1.5 text-xs text-fg-soft ">
                   <span>Δ días:</span>
                   <input
                     type="number"
@@ -137,13 +137,13 @@ export const ProgramaPage: React.FC = () => {
                     max={90}
                     value={diasSuspension}
                     onChange={(e) => setDiasSuspension(Number(e.target.value))}
-                    className="w-16 px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs"
+                    className="w-16 px-2 py-1.5 rounded-lg border border-line-strong bg-surface text-xs"
                   />
                 </label>
                 <button
                   type="button"
                   onClick={() => setModalAction('REANUDAR')}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-ok-solid hover:bg-emerald-700 text-white text-xs font-semibold cursor-pointer"
                 >
                   <PlayCircle className="w-4 h-4" />
                   <span>Registrar reanudación</span>
@@ -153,7 +153,7 @@ export const ProgramaPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setModalAction('SUSPENDER')}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-warn-solid hover:bg-amber-700 text-white text-xs font-semibold cursor-pointer"
               >
                 <PauseCircle className="w-4 h-4" />
                 <span>Emitir suspensión temporal</span>
@@ -165,8 +165,8 @@ export const ProgramaPage: React.FC = () => {
 
       {/* Banners normativos */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="flex items-center gap-2.5 p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300">
-          <Lock className="w-4 h-4 text-slate-400 shrink-0" />
+        <div className="flex items-center gap-2.5 p-3 rounded-xl bg-surface border border-line text-xs text-fg-soft ">
+          <Lock className="w-4 h-4 text-fg-muted shrink-0" />
           <span>
             Fechas programadas bloqueadas contra edición manual tras inicio de contrato (RN-SUPT-02.3).
           </span>
@@ -175,8 +175,8 @@ export const ProgramaPage: React.FC = () => {
         <div
           className={`flex items-center gap-2.5 p-3 rounded-xl border text-xs ${
             overdueCount > 0
-              ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200'
-              : 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200'
+              ? 'bg-danger-bg border-danger-line text-danger-fg '
+              : 'bg-ok-bg border-ok-line text-ok-fg '
           }`}
         >
           {overdueCount > 0 ? (
@@ -201,7 +201,7 @@ export const ProgramaPage: React.FC = () => {
       </div>
 
       {feedback && (
-        <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-200 text-xs flex items-center justify-between gap-2">
+        <div className="p-3 rounded-lg bg-info-bg border border-info-line text-info-fg text-xs flex items-center justify-between gap-2">
           <span>{feedback}</span>
           <button type="button" onClick={() => setFeedback(null)} className="underline cursor-pointer">
             Cerrar
@@ -210,20 +210,20 @@ export const ProgramaPage: React.FC = () => {
       )}
 
       {/* Tabla de actividades */}
-      <div className="bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+      <div className="bg-surface border border-line rounded-xl overflow-hidden">
+        <div className="px-5 py-4 border-b border-line flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <CalendarClock className="w-4 h-4 text-brand" />
-            <h2 className="text-sm font-semibold text-slate-900 dark:text-white hc:text-black">
+            <CalendarClock className="w-4 h-4 text-accent" />
+            <h2 className="text-sm font-semibold text-fg ">
               Partidas programadas y cumplimiento
             </h2>
           </div>
-          <span className="text-[11px] text-slate-400">
+          <span className="text-[11px] text-fg-muted">
             Volúmenes consistentes con catálogo (RN-SUPT-02.2)
           </span>
         </div>
 
-        <div className="divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="divide-y divide-line ">
           {actividades.map((act) => {
             const pct = Math.round((act.cantidadAprobada / act.cantidadProgramada) * 100);
             const isOverdue = !suspendida && act.fechaFin < FECHA_CORTE_SIMULADA && pct < 100;
@@ -233,36 +233,36 @@ export const ProgramaPage: React.FC = () => {
               <div
                 key={act.id}
                 className={`p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 ${
-                  isOverdue ? 'bg-rose-50/40 dark:bg-rose-950/20' : ''
+                  isOverdue ? 'bg-danger-bg/40 ' : ''
                 }`}
               >
                 <div className="space-y-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[11px] font-semibold text-brand">{act.claveConcepto}</span>
-                    <span className="text-xs font-semibold text-slate-900 dark:text-white">
+                    <span className="text-[11px] font-semibold text-accent">{act.claveConcepto}</span>
+                    <span className="text-xs font-semibold text-fg ">
                       {act.nombre}
                     </span>
                     {isOverdue && (
-                      <span className="px-2 py-0.5 rounded bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 text-[10px] font-semibold">
+                      <span className="px-2 py-0.5 rounded bg-danger-bg text-danger-fg text-[10px] font-semibold">
                         Atraso crítico
                       </span>
                     )}
                     {isDone && (
-                      <span className="px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 text-[10px] font-semibold">
+                      <span className="px-2 py-0.5 rounded bg-ok-bg text-ok-fg text-[10px] font-semibold">
                         Concluida
                       </span>
                     )}
                   </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  <p className="text-[11px] text-fg-muted ">
                     {act.frente} · Inicio: <strong>{act.fechaInicio}</strong> · Fin programado:{' '}
-                    <strong className={isOverdue ? 'text-rose-600 dark:text-rose-400' : ''}>
+                    <strong className={isOverdue ? 'text-danger-fg ' : ''}>
                       {act.fechaFin}
                     </strong>
                   </p>
                 </div>
 
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4 shrink-0">
-                  <div className="text-[11px] text-slate-500 dark:text-slate-400 sm:text-right">
+                  <div className="text-[11px] text-fg-muted sm:text-right">
                     <p>
                       Aprobado: <strong>{act.cantidadAprobada}</strong> / {act.cantidadProgramada}{' '}
                       {act.unidad}
@@ -270,19 +270,19 @@ export const ProgramaPage: React.FC = () => {
                   </div>
                   <div className="w-40 space-y-1">
                     <div className="flex justify-between text-[11px]">
-                      <span className="text-slate-400">Cumplimiento</span>
+                      <span className="text-fg-muted">Cumplimiento</span>
                       <span
                         className={`font-semibold ${
-                          isOverdue ? 'text-rose-600' : isDone ? 'text-emerald-600' : 'text-brand'
+                          isOverdue ? 'text-danger-fg' : isDone ? 'text-ok-fg' : 'text-accent'
                         }`}
                       >
                         {pct}%
                       </span>
                     </div>
-                    <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div className="h-2 bg-subtle rounded-full overflow-hidden">
                       <div
                         className={`h-full rounded-full ${
-                          isOverdue ? 'bg-rose-600' : isDone ? 'bg-emerald-600' : 'bg-brand'
+                          isOverdue ? 'bg-danger-solid' : isDone ? 'bg-ok-solid' : 'bg-brand'
                         }`}
                         style={{ width: `${Math.min(100, pct)}%` }}
                       />

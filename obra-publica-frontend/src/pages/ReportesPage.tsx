@@ -172,10 +172,10 @@ export const ReportesPage: React.FC = () => {
       {/* Encabezado */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-fg-muted ">
             Tablero directivo y consolidado financiero (RF-DIR-01 / RF-DIR-04)
           </p>
-          <h1 className="text-2xl font-normal text-slate-900 dark:text-white hc:text-black tracking-tight mt-0.5">
+          <h1 className="text-2xl font-normal text-fg tracking-tight mt-0.5">
             Reportes gerenciales
           </h1>
         </div>
@@ -184,9 +184,9 @@ export const ReportesPage: React.FC = () => {
           <button
             type="button"
             onClick={handleExportCsv}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-brand text-xs font-semibold text-slate-700 dark:text-slate-200 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-line-strong bg-surface hover:border-brand text-xs font-semibold text-fg-soft cursor-pointer"
           >
-            <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+            <FileSpreadsheet className="w-4 h-4 text-ok-fg" />
             <span>Exportar Excel (.csv)</span>
           </button>
 
@@ -203,36 +203,36 @@ export const ReportesPage: React.FC = () => {
 
       {/* Resumen ejecutivo global */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 text-xs">
-        <div className="bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl p-4">
-          <p className="text-slate-400">Presupuesto total contratado</p>
-          <p className="text-xl font-bold text-slate-900 dark:text-white mt-1">
+        <div className="bg-surface border border-line rounded-xl p-4">
+          <p className="text-fg-muted">Presupuesto total contratado</p>
+          <p className="text-xl font-bold text-fg mt-1">
             {formatMXN(totalContratado)}
           </p>
         </div>
-        <div className="bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl p-4">
-          <p className="text-slate-400">Monto efectivamente liquidado</p>
-          <p className="text-xl font-bold text-emerald-600 mt-1">{formatMXN(totalLiquidado)}</p>
+        <div className="bg-surface border border-line rounded-xl p-4">
+          <p className="text-fg-muted">Monto efectivamente liquidado</p>
+          <p className="text-xl font-bold text-ok-fg mt-1">{formatMXN(totalLiquidado)}</p>
         </div>
-        <div className="bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl p-4">
-          <p className="text-slate-400">Saldo pendiente por ejercer</p>
-          <p className="text-xl font-bold text-slate-900 dark:text-white mt-1">
+        <div className="bg-surface border border-line rounded-xl p-4">
+          <p className="text-fg-muted">Saldo pendiente por ejercer</p>
+          <p className="text-xl font-bold text-fg mt-1">
             {formatMXN(totalPorEjercer)}
           </p>
         </div>
-        <div className="bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl p-4">
-          <div className="flex items-center justify-between text-slate-400">
+        <div className="bg-surface border border-line rounded-xl p-4">
+          <div className="flex items-center justify-between text-fg-muted">
             <span>Avance físico promedio</span>
-            <TrendingUp className="w-4 h-4 text-brand" />
+            <TrendingUp className="w-4 h-4 text-accent" />
           </div>
-          <p className="text-xl font-bold text-brand mt-1">{promedioFisico}%</p>
+          <p className="text-xl font-bold text-accent mt-1">{promedioFisico}%</p>
         </div>
       </div>
 
       {/* Tabla desglosada financiera (RN-DIR-04.1) */}
-      <div className="bg-white dark:bg-slate-900 hc:bg-white border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black rounded-xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2">
-          <BarChart3 className="w-4 h-4 text-brand" />
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-white hc:text-black">
+      <div className="bg-surface border border-line rounded-xl overflow-hidden">
+        <div className="px-5 py-4 border-b border-line flex items-center gap-2">
+          <BarChart3 className="w-4 h-4 text-accent" />
+          <h2 className="text-sm font-semibold text-fg ">
             Desglose financiero y avance físico vs. financiero por contrato
           </h2>
         </div>
@@ -240,7 +240,7 @@ export const ReportesPage: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-230 text-xs">
             <thead>
-              <tr className="bg-slate-50 dark:bg-slate-950/60 text-[10px] font-semibold uppercase text-slate-500 border-b border-slate-200 dark:border-slate-800">
+              <tr className="bg-canvas text-[10px] font-semibold uppercase text-fg-muted border-b border-line ">
                 <th className="py-3 px-4">Obra / Contrato</th>
                 <th className="py-3 px-3">Estatus</th>
                 <th className="py-3 px-3">Físico / Financ.</th>
@@ -251,15 +251,15 @@ export const ReportesPage: React.FC = () => {
                 <th className="py-3 px-4 text-right">Saldo</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            <tbody className="divide-y divide-line ">
               {REPORT_ROWS.map((r) => {
                 const saldo = r.presupuestoContratado - r.montoLiquidado;
                 return (
-                  <tr key={r.clave} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40">
+                  <tr key={r.clave} className="hover:bg-subtle/60 ">
                     <td className="py-3.5 px-4">
-                      <p className="font-semibold text-brand">{r.clave}</p>
-                      <p className="font-medium text-slate-800 dark:text-slate-100">{r.nombre}</p>
-                      <p className="text-[10px] text-slate-400">{r.contrato}</p>
+                      <p className="font-semibold text-accent">{r.clave}</p>
+                      <p className="font-medium text-fg ">{r.nombre}</p>
+                      <p className="text-[10px] text-fg-muted">{r.contrato}</p>
                     </td>
                     <td className="py-3.5 px-3">
                       <StatusBadge status={r.estado} />
@@ -267,19 +267,19 @@ export const ReportesPage: React.FC = () => {
                     <td className="py-3.5 px-3 w-40">
                       <div className="space-y-1.5 text-[10px]">
                         <div className="flex justify-between">
-                          <span className="text-slate-400">Físico</span>
-                          <span className="font-semibold text-brand">{r.avanceFisico}%</span>
+                          <span className="text-fg-muted">Físico</span>
+                          <span className="font-semibold text-accent">{r.avanceFisico}%</span>
                         </div>
-                        <div className="h-1.5 bg-blue-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                        <div className="h-1.5 bg-info-bg rounded-full overflow-hidden">
                           <div className="h-full bg-brand" style={{ width: `${r.avanceFisico}%` }} />
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-slate-400">Financ.</span>
+                          <span className="text-fg-muted">Financ.</span>
                           <span className="font-semibold">{r.avanceFinanciero}%</span>
                         </div>
-                        <div className="h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                        <div className="h-1.5 bg-subtle rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-slate-500"
+                            className="h-full bg-fg-muted"
                             style={{ width: `${r.avanceFinanciero}%` }}
                           />
                         </div>
@@ -287,10 +287,10 @@ export const ReportesPage: React.FC = () => {
                     </td>
                     <td className="py-3.5 px-3 text-right">{formatMXN(r.presupuestoContratado)}</td>
                     <td className="py-3.5 px-3 text-right">{formatMXN(r.montoBrutoEstimado)}</td>
-                    <td className="py-3.5 px-3 text-right text-slate-500">
+                    <td className="py-3.5 px-3 text-right text-fg-muted">
                       -{formatMXN(r.amortizacionAnticipo)}
                     </td>
-                    <td className="py-3.5 px-3 text-right font-semibold text-emerald-600">
+                    <td className="py-3.5 px-3 text-right font-semibold text-ok-fg">
                       {formatMXN(r.montoLiquidado)}
                     </td>
                     <td className="py-3.5 px-4 text-right font-semibold">{formatMXN(saldo)}</td>
@@ -303,30 +303,30 @@ export const ReportesPage: React.FC = () => {
       </div>
 
       {/* Trazabilidad de descargas (RN-DIR-04.2) */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-2.5 text-xs">
+      <div className="bg-surface border border-line rounded-xl p-5 space-y-2.5 text-xs">
         <div className="flex items-center justify-between">
-          <span className="font-semibold text-slate-900 dark:text-white inline-flex items-center gap-1.5">
-            <ShieldCheck className="w-4 h-4 text-brand" />
+          <span className="font-semibold text-fg inline-flex items-center gap-1.5">
+            <ShieldCheck className="w-4 h-4 text-accent" />
             Trazabilidad de exportaciones (RN-DIR-04.2)
           </span>
-          <span className="text-[10px] text-slate-400">Registrado en Auditoría Logs</span>
+          <span className="text-[10px] text-fg-muted">Registrado en Auditoría Logs</span>
         </div>
 
         {auditExports.length === 0 ? (
-          <p className="text-[11px] text-slate-400">
+          <p className="text-[11px] text-fg-muted">
             Aún no se han generado descargas en esta sesión. Al exportar en Excel o PDF se registrará
             automáticamente fecha UTC, usuario e IP de origen.
           </p>
         ) : (
-          <div className="divide-y divide-slate-100 dark:divide-slate-800">
+          <div className="divide-y divide-line ">
             {auditExports.map((log) => (
               <div key={log.id} className="py-2 flex flex-wrap items-center justify-between gap-2">
-                <span className="font-mono text-[11px] text-slate-500">{log.fechaUtc}</span>
-                <span className="font-medium text-slate-800 dark:text-slate-100">{log.actor}</span>
-                <span className="px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/60 text-brand text-[10px] font-semibold">
+                <span className="font-mono text-[11px] text-fg-muted">{log.fechaUtc}</span>
+                <span className="font-medium text-fg ">{log.actor}</span>
+                <span className="px-2 py-0.5 rounded bg-info-bg text-accent text-[10px] font-semibold">
                   {log.formato}
                 </span>
-                <span className="text-[11px] text-slate-400">IP: {log.ipOrigen}</span>
+                <span className="text-[11px] text-fg-muted">IP: {log.ipOrigen}</span>
               </div>
             ))}
           </div>

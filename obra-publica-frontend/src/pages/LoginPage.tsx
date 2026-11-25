@@ -55,18 +55,18 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-950 hc:bg-white p-4">
-      <div className="max-w-md w-full bg-white dark:bg-slate-900 hc:bg-white rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 hc:border-2 hc:border-black p-7 space-y-6">
+    <div className="min-h-screen flex items-center justify-center bg-canvas p-4">
+      <div className="max-w-md w-full bg-surface rounded-2xl shadow-sm border border-line p-7 space-y-6">
         {/* Marca */}
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-xl bg-brand flex items-center justify-center text-white shrink-0">
             <HardHat className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-900 dark:text-white hc:text-black leading-tight">
+            <h1 className="text-xl font-bold text-fg leading-tight">
               OBRA
             </h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-fg-muted ">
               Sistema de Gestión y Auditoría de Obra Pública
             </p>
           </div>
@@ -76,7 +76,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
         {sessionExpired && (
           <div
             role="alert"
-            className="flex items-start gap-2.5 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200 text-xs"
+            className="flex items-start gap-2.5 p-3 rounded-lg bg-warn-bg border border-warn-line text-warn-fg text-xs"
           >
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>
@@ -89,33 +89,33 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
         {/* Formulario institucional */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">
+            <label className="block text-xs font-medium text-fg-soft ">
               Correo electrónico institucional o contratista
             </label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Mail className="w-4 h-4 text-fg-muted absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="usuario@obra.gob.mx"
-                className="w-full pl-9 pr-3 py-2.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-brand"
+                className="w-full pl-9 pr-3 py-2.5 text-xs rounded-lg bg-canvas border border-line-strong text-fg focus:border-brand"
               />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">
+            <label className="block text-xs font-medium text-fg-soft ">
               Contraseña
             </label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Lock className="w-4 h-4 text-fg-muted absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Mínimo 8 caracteres"
-                className="w-full pl-9 pr-3 py-2.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-brand"
+                className="w-full pl-9 pr-3 py-2.5 text-xs rounded-lg bg-canvas border border-line-strong text-fg focus:border-brand"
               />
             </div>
           </div>
@@ -123,7 +123,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
           {error && (
             <div
               role="alert"
-              className="p-2.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-200 text-xs"
+              className="p-2.5 rounded-lg bg-danger-bg border border-danger-line text-danger-fg text-xs"
             >
               {error}
             </div>
@@ -138,12 +138,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
         </form>
 
         {/* Atajo de prototipo para pruebas por rol */}
-        <div className="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-2.5">
-          <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+        <div className="pt-4 border-t border-line space-y-2.5">
+          <div className="flex items-center justify-between text-[11px] text-fg-muted ">
             <span className="font-semibold uppercase tracking-wider">
               Acceso rápido (Prototipo)
             </span>
-            <ShieldCheck className="w-3.5 h-3.5 text-brand" />
+            <ShieldCheck className="w-3.5 h-3.5 text-accent" />
           </div>
           <div className="grid grid-cols-1 gap-1.5">
             {DEMO_ACCOUNTS.map((acc) => (
@@ -154,10 +154,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                   loginAsRole(acc.role);
                   onLoginSuccess(acc.role);
                 }}
-                className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-brand hover:bg-blue-50/40 dark:hover:bg-slate-800 text-xs text-slate-700 dark:text-slate-200 transition-colors cursor-pointer"
+                className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-line hover:border-brand hover:bg-info-bg/40 text-xs text-fg-soft transition-colors cursor-pointer"
               >
                 <span className="font-medium">{acc.label}</span>
-                <span className="text-[10px] font-semibold text-brand">{acc.role}</span>
+                <span className="text-[10px] font-semibold text-accent">{acc.role}</span>
               </button>
             ))}
           </div>
