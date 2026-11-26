@@ -536,7 +536,7 @@ export const CatalogoPage: React.FC = () => {
       {/* Tabla agrupada por partidas (Formato Costos Paramétricos) */}
       <div className="bg-surface border border-line rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[920px] text-xs">
+          <table className="w-full text-left border-collapse min-w-230 text-xs">
             <thead>
               <tr className="bg-canvas text-[10px] font-semibold uppercase text-fg-muted border-b border-line">
                 <th className="py-3 px-4">Clave</th>
