@@ -447,33 +447,33 @@ export const BitacoraPage: React.FC = () => {
     const maxAvail = getAvailableForObra(selectedObra.id, selectedId);
 
     return (
-      <div className="p-3.5 rounded-xl bg-canvas border border-line space-y-2">
-        <div className="flex items-center justify-between text-[11px]">
-          <span className="font-semibold text-fg">{title}</span>
-          <span className="text-fg-muted">
-            Disponibles en {selectedObra.id}: <strong>{maxAvail}</strong>
+      <div className="p-3.5 rounded-xl bg-canvas border border-line flex flex-col justify-between gap-2.5 min-w-0">
+        <div className="flex items-center justify-between gap-2 text-[11px]">
+          <span className="font-semibold text-fg truncate">{title}</span>
+          <span className="px-2 py-0.5 rounded bg-subtle text-fg-muted shrink-0">
+            Disp.: <strong className="text-fg">{maxAvail}</strong>
           </span>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-2">
-          <select
-            value={selectedId}
-            onChange={(e) => {
-              setSelectedId(e.target.value);
-              setQty('1');
-            }}
-            className="flex-1 px-2.5 py-2 text-xs rounded-lg border border-line-strong bg-surface cursor-pointer"
-          >
-            {items.map((item) => {
-              const avail = getAvailableForObra(selectedObra.id, item.id);
-              return (
-                <option key={item.id} value={item.id} disabled={avail === 0}>
-                  {item.nombre} ({avail} disp. / {item.totalFlota} total)
-                </option>
-              );
-            })}
-          </select>
+        <select
+          value={selectedId}
+          onChange={(e) => {
+            setSelectedId(e.target.value);
+            setQty('1');
+          }}
+          className="w-full min-w-0 px-2.5 py-2 text-xs rounded-lg border border-line-strong bg-surface cursor-pointer truncate"
+        >
+          {items.map((item) => {
+            const avail = getAvailableForObra(selectedObra.id, item.id);
+            return (
+              <option key={item.id} value={item.id} disabled={avail === 0}>
+                {item.nombre} ({avail}/{item.totalFlota})
+              </option>
+            );
+          })}
+        </select>
 
+        <div className="flex items-center gap-2">
           <input
             type="number"
             min={1}
@@ -491,14 +491,14 @@ export const BitacoraPage: React.FC = () => {
               const parsed = Math.max(0, Math.min(maxAvail, Math.floor(Number(val))));
               setQty(String(parsed));
             }}
-            className="w-full sm:w-24 px-2.5 py-2 text-xs rounded-lg border border-line-strong bg-surface"
+            className="flex-1 min-w-0 px-2.5 py-2 text-xs rounded-lg border border-line-strong bg-surface"
           />
 
           <button
             type="button"
             disabled={maxAvail === 0}
             onClick={() => handleAddRecurso(selectedId, qty)}
-            className="px-3 py-2 rounded-lg bg-brand hover:bg-brand-hover disabled:opacity-40 text-white text-xs font-semibold cursor-pointer shrink-0"
+            className="px-3.5 py-2 rounded-lg bg-brand hover:bg-brand-hover disabled:opacity-40 text-white text-xs font-semibold cursor-pointer shrink-0"
           >
             Agregar
           </button>
