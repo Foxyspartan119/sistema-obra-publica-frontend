@@ -38,7 +38,7 @@ interface HistorialRevision {
   dictamen: 'APROBADA' | 'RECHAZADA';
   observaciones: string;
 }
-
+/*
 interface ConceptoCatalogoBase {
   clave: string;
   nombre: string;
@@ -46,7 +46,7 @@ interface ConceptoCatalogoBase {
   cantidadContratada: number;
   acumuladoAnterior: number;
   precioUnitario: number;
-}
+}*/
 
 interface ConceptoEstimacionDetalle {
   clave: string;
@@ -155,41 +155,6 @@ const CONTRATO_EXTRA_BY_OBRA: Record<
     porcentajeAnticipo: 0.3,
   },
 };
-
-const CATALOGO_CONCEPTOS_BASE: ConceptoCatalogoBase[] = [
-  {
-    clave: 'EST-001',
-    nombre: "Concreto hidráulico f'c=350 kg/cm² en losa de rodamiento",
-    unidad: 'm³',
-    cantidadContratada: 420,
-    acumuladoAnterior: 315,
-    precioUnitario: 4500,
-  },
-  {
-    clave: 'SUP-012',
-    nombre: 'Suministro y montaje de trabe AASHTO tipo IV prefabricada',
-    unidad: 'pza',
-    cantidadContratada: 16,
-    acumuladoAnterior: 16,
-    precioUnitario: 400000,
-  },
-  {
-    clave: 'TER-008',
-    nombre: 'Relleno compactado al 95% PVSM con material de banco',
-    unidad: 'm³',
-    cantidadContratada: 1970,
-    acumuladoAnterior: 592,
-    precioUnitario: 500,
-  },
-  {
-    clave: 'CIM-004',
-    nombre: 'Cimentación profunda con pilas coladas in situ Ø1.20 m',
-    unidad: 'm',
-    cantidadContratada: 260,
-    acumuladoAnterior: 210,
-    precioUnitario: 28500,
-  },
-];
 
 function blockNegativeKey(e: React.KeyboardEvent<HTMLInputElement>) {
   if (e.key === '-' || e.key === '+' || e.key === 'e' || e.key === 'E') {
@@ -468,7 +433,7 @@ function buildInitialEstimaciones(): EstimacionItem[] {
 
 export const EstimacionesPage: React.FC = () => {
   const { user } = useAuth();
-  const { selectedObra } = useObra();
+  const { selectedObra, selectedConceptos } = useObra();
   const [estimaciones, setEstimaciones] = useState<EstimacionItem[]>(() =>
     buildInitialEstimaciones()
   );
@@ -559,26 +524,28 @@ export const EstimacionesPage: React.FC = () => {
 
   // Detalle calculado en vivo de cada concepto en el modal de alta
   const conceptosCalculados = useMemo<ConceptoEstimacionDetalle[]>(() => {
-    return CATALOGO_CONCEPTOS_BASE.map((c) => {
-      const raw = Number(capturaPorClave[c.clave] || 0);
-      const estimado = Number.isNaN(raw) || raw < 0 ? 0 : raw;
-      const acumuladoActual = c.acumuladoAnterior + estimado;
-      const saldo = c.cantidadContratada - acumuladoActual;
-      const importe = estimado * c.precioUnitario;
-      return {
-        clave: c.clave,
-        nombre: c.nombre,
-        unidad: c.unidad,
-        cantidadContratada: c.cantidadContratada,
-        acumuladoAnterior: c.acumuladoAnterior,
-        estimado,
-        acumuladoActual,
-        saldo,
-        precioUnitario: c.precioUnitario,
-        importe,
-      };
-    });
-  }, [capturaPorClave]);
+  return selectedConceptos.map((c) => {
+    const raw = Number(capturaPorClave[c.clave] || 0);
+    const estimado = Number.isNaN(raw) || raw < 0 ? 0 : raw;
+    const cantidadContratada =
+      c.cantidadPresupuestada + c.cantidadAdicionalAutorizada;
+    const acumuladoActual = c.cantidadEjecutada + estimado;
+    const saldo = cantidadContratada - acumuladoActual;
+    const importe = estimado * c.precioUnitario;
+    return {
+      clave: c.clave,
+      nombre: c.descripcion,
+      unidad: c.unidad,
+      cantidadContratada,
+      acumuladoAnterior: c.cantidadEjecutada,
+      estimado,
+      acumuladoActual,
+      saldo,
+      precioUnitario: c.precioUnitario,
+      importe,
+    };
+  });
+}, [selectedConceptos, capturaPorClave]);
 
   const importeEstimadoEnVivo = useMemo(
     () => conceptosCalculados.reduce((acc, c) => acc + c.importe, 0),

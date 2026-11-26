@@ -3,6 +3,11 @@ import {
   PORTFOLIO_OBRAS_MOCK,
   type ObraPortfolioItem,
 } from '../pages/MisObrasPage';
+import { 
+    INITIAL_CONCEPTOS_BY_OBRA,
+    MONTO_CONTRATO_BY_OBRA,
+    type CatalogoConcepto,
+} from '../mocks/catalogoParametrico.mock';
 
 export type ResourceCategory = 'MAQUINARIA' | 'PERSONAL' | 'EQUIPO';
 
@@ -74,6 +79,8 @@ const INITIAL_ALLOCATIONS_BY_OBRA: Record<string, ResourceAllocation[]> = {
 interface ObraContextValue {
   obras: ObraPortfolioItem[];
   selectedObra: ObraPortfolioItem;
+  selectedObraMontoContrato: number;
+  selectedConceptos: CatalogoConcepto[];
   selectObraById: (obraId: string) => void;
   updateObraStatus: (
     obraId: string,
@@ -82,6 +89,8 @@ interface ObraContextValue {
   ) => void;
   getAvailableForObra: (obraId: string, resourceId: string) => number;
   setObraAllocations: (obraId: string, allocations: ResourceAllocation[]) => void;
+  addConceptoToSelectedObra: (concepto: CatalogoConcepto) => void;
+  autorizarAdicionalConcepto: (clave: string, delta: number) => void;
 }
 
 const ObraContext = createContext<ObraContextValue | undefined>(undefined);
@@ -96,9 +105,18 @@ export const ObraProvider: React.FC<{ children: React.ReactNode }> = ({
   const [allocationsByObra, setAllocationsByObra] = useState<
     Record<string, ResourceAllocation[]>
   >(INITIAL_ALLOCATIONS_BY_OBRA);
+  const [conceptosByObra, setConceptosByObra] = useState<
+    Record<string, CatalogoConcepto[]>
+  >(INITIAL_CONCEPTOS_BY_OBRA);
 
   const selectedObra =
     obras.find((o) => o.id === selectedObraId) ?? obras[0];
+
+  const selectedObraMontoContrato =
+    MONTO_CONTRATO_BY_OBRA[selectedObra.id] ?? 25000000;
+
+  const selectedConceptos =
+    conceptosByObra[selectedObra.id] ?? INITIAL_CONCEPTOS_BY_OBRA['OP-2024-001'];
 
   const selectObraById = (obraId: string) => {
     if (obras.some((o) => o.id === obraId)) {
@@ -125,7 +143,6 @@ export const ObraProvider: React.FC<{ children: React.ReactNode }> = ({
     );
   };
 
-  // Calcula cuántas unidades siguen libres descontando lo ocupado por OTRAS obras
   const getAvailableForObra = (obraId: string, resourceId: string): number => {
     const item = RESOURCE_CATALOG.find((r) => r.id === resourceId);
     if (!item) return 0;
@@ -150,15 +167,43 @@ export const ObraProvider: React.FC<{ children: React.ReactNode }> = ({
     }));
   };
 
+  const addConceptoToSelectedObra = (concepto: CatalogoConcepto) => {
+    setConceptosByObra((prev) => {
+      const current = prev[selectedObra.id] ?? INITIAL_CONCEPTOS_BY_OBRA['OP-2024-001'];
+      return {
+        ...prev,
+        [selectedObra.id]: [...current, concepto],
+      };
+    });
+  };
+
+  const autorizarAdicionalConcepto = (clave: string, delta: number) => {
+    setConceptosByObra((prev) => {
+      const current = prev[selectedObra.id] ?? INITIAL_CONCEPTOS_BY_OBRA['OP-2024-001'];
+      return {
+        ...prev,
+        [selectedObra.id]: current.map((c) =>
+          c.clave === clave
+            ? { ...c, cantidadAdicionalAutorizada: c.cantidadAdicionalAutorizada + delta }
+            : c
+        ),
+      };
+    });
+  };
+
   return (
     <ObraContext.Provider
       value={{
         obras,
         selectedObra,
+        selectedObraMontoContrato,
+        selectedConceptos,
         selectObraById,
         updateObraStatus,
         getAvailableForObra,
         setObraAllocations,
+        addConceptoToSelectedObra,
+        autorizarAdicionalConcepto,
       }}
     >
       {children}
