@@ -22,6 +22,9 @@ export interface ResourceAllocation {
 export const RESOURCE_CATALOG: ResourceCatalogItem[] = [
   // Maquinaria pesada (exclusiva por obra)
   { id: 'maq-retro', categoria: 'MAQUINARIA', nombre: 'Retroexcavadora', unidad: 'unid.', totalFlota: 4 },
+  { id: 'maq-excavadora', categoria: 'MAQUINARIA', nombre: 'Excavadora', unidad: 'unid.', totalFlota: 3 },
+  { id: 'maq-motoniveladora', categoria: 'MAQUINARIA', nombre: 'Motoniveladora', unidad: 'unid.', totalFlota: 2 },
+  { id: 'maq-bulldozer', categoria: 'MAQUINARIA', nombre: 'Bulldozer', unidad: 'unid.', totalFlota: 3 },
   { id: 'maq-grua', categoria: 'MAQUINARIA', nombre: 'Grúa hidráulica', unidad: 'unid.', totalFlota: 3 },
   { id: 'maq-bomba', categoria: 'MAQUINARIA', nombre: 'Bomba de concreto', unidad: 'unid.', totalFlota: 2 },
   { id: 'maq-comp', categoria: 'MAQUINARIA', nombre: 'Compactador vibratorio', unidad: 'unid.', totalFlota: 4 },
@@ -30,7 +33,9 @@ export const RESOURCE_CATALOG: ResourceCatalogItem[] = [
   // Personal involucrado por especialidad
   { id: 'per-albanil', categoria: 'PERSONAL', nombre: 'Oficiales albañiles', unidad: 'trab.', totalFlota: 45 },
   { id: 'per-peon', categoria: 'PERSONAL', nombre: 'Peones / Ayudantes generales', unidad: 'trab.', totalFlota: 60 },
-  { id: 'per-fierrero', categoria: 'PERSONAL', nombre: 'Fierreros y carpinteros', unidad: 'trab.', totalFlota: 30 },
+  { id: 'per-fierrero', categoria: 'PERSONAL', nombre: 'Fierreros y armadores', unidad: 'trab.', totalFlota: 30 },
+  { id: 'per-carpintero', categoria: 'PERSONAL', nombre: 'Carpinteros y encofradores', unidad: 'trab.', totalFlota: 25 },
+  { id: 'per-electricista', categoria: 'PERSONAL', nombre: 'Electricistas y plomeros', unidad: 'trab.', totalFlota: 15 },
   { id: 'per-operador', categoria: 'PERSONAL', nombre: 'Operadores de maquinaria', unidad: 'trab.', totalFlota: 12 },
   { id: 'per-topo', categoria: 'PERSONAL', nombre: 'Topógrafos y técnicos', unidad: 'trab.', totalFlota: 8 },
 
@@ -40,7 +45,9 @@ export const RESOURCE_CATALOG: ResourceCatalogItem[] = [
   { id: 'eq-estacion', categoria: 'EQUIPO', nombre: 'Estación total / Nivel óptico', unidad: 'eq.', totalFlota: 4 },
   { id: 'eq-soldar', categoria: 'EQUIPO', nombre: 'Planta de soldar', unidad: 'eq.', totalFlota: 5 },
   { id: 'eq-cortadora', categoria: 'EQUIPO', nombre: 'Cortadora de concreto / acero', unidad: 'eq.', totalFlota: 5 },
-];
+  { id: 'eq-taladro', categoria: 'EQUIPO', nombre: 'Taladros', unidad: 'eq.', totalFlota: 10 },
+  { id: 'eq-soldadora', categoria: 'EQUIPO', nombre: 'Soldadora', unidad: 'eq.', totalFlota: 6 },
+  ];
 
 // Asignaciones activas en otras obras (lo usado en Obra B ya no está disponible en Obra A)
 const INITIAL_ALLOCATIONS_BY_OBRA: Record<string, ResourceAllocation[]> = {
