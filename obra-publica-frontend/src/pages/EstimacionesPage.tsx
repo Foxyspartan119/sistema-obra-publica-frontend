@@ -706,6 +706,7 @@ export const EstimacionesPage: React.FC = () => {
             <div className="grid grid-cols-2 gap-3 text-xs">
               <input
                 type="number"
+                min="0"
                 step="0.01"
                 placeholder="Monto bruto (MXN)"
                 value={newForm.montoBruto}
@@ -714,6 +715,7 @@ export const EstimacionesPage: React.FC = () => {
               />
               <input
                 type="number"
+                min="0"
                 step="0.01"
                 placeholder="Amortización anticipo"
                 value={newForm.montoAmortizacion}

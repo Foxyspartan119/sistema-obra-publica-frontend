@@ -164,7 +164,7 @@ export const ObraInicioPage: React.FC<ObraInicioPageProps> = ({ onNavigateSectio
 
         <div className="bg-surface border border-line rounded-xl p-4 flex flex-col justify-between gap-2">
           <div className="flex items-center justify-between text-xs font-medium text-fg-muted ">
-            <span>Avance físico</span>
+            <span>Avance físico real</span>
             <TrendingUp className="w-4 h-4 text-accent" />
           </div>
           <div className="text-3xl font-normal text-accent">{OBRA_DETAIL_MOCK.avanceFisico}%</div>

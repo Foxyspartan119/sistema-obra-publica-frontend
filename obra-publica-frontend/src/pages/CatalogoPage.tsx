@@ -519,6 +519,7 @@ export const CatalogoPage: React.FC = () => {
             <div className="grid grid-cols-2 gap-3">
               <input
                 type="number"
+                min="0"
                 step="0.01"
                 placeholder="Cantidad presupuestada"
                 value={ordForm.cantidad}
@@ -527,6 +528,7 @@ export const CatalogoPage: React.FC = () => {
               />
               <input
                 type="number"
+                min="0"
                 step="0.01"
                 placeholder="Precio unitario (MXN)"
                 value={ordForm.precioUnitario}
@@ -596,6 +598,7 @@ export const CatalogoPage: React.FC = () => {
             <div className="grid grid-cols-2 gap-3">
               <input
                 type="number"
+                min="0"
                 step="0.01"
                 placeholder="Cantidad autorizada"
                 value={extForm.cantidad}
@@ -604,6 +607,7 @@ export const CatalogoPage: React.FC = () => {
               />
               <input
                 type="number"
+                min="0"
                 step="0.01"
                 placeholder="P.U. autorizado (MXN)"
                 value={extForm.precioUnitario}

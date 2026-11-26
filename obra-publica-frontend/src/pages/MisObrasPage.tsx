@@ -18,8 +18,9 @@ export interface ObraPortfolioItem {
   contratista: string;
   estado: BadgeVariant;
   vacanteRol?: string;
-  avanceFisico: number;
-  avanceFinanciero: number;
+  avanceFisico: number;      // Avance físico real validado
+  avanceProgramado: number;  // Avance físico programado contractual
+  avanceFinanciero: number;  // Avance financiero ejercido/pagado
   fechaTermino: string;
   montoLabel: string;
   asignados: string[];
@@ -34,6 +35,7 @@ export const PORTFOLIO_OBRAS_MOCK: ObraPortfolioItem[] = [
     contratista: 'Constructora del Norte, S.A. de C.V.',
     estado: 'EN_EJECUCION',
     avanceFisico: 62,
+    avanceProgramado: 65,
     avanceFinanciero: 58,
     fechaTermino: '20 dic 2024',
     montoLabel: '$25.0 M',
@@ -48,6 +50,7 @@ export const PORTFOLIO_OBRAS_MOCK: ObraPortfolioItem[] = [
     estado: 'ALERTA_VACANTE_OPERATIVA',
     vacanteRol: 'RESIDENTE',
     avanceFisico: 44,
+    avanceProgramado: 48,
     avanceFinanciero: 40,
     fechaTermino: '15 ene 2025',
     montoLabel: '$18.4 M',
@@ -61,6 +64,7 @@ export const PORTFOLIO_OBRAS_MOCK: ObraPortfolioItem[] = [
     contratista: 'Pavimentos y Estructuras del Valle',
     estado: 'SUSPENDIDA',
     avanceFisico: 31,
+    avanceProgramado: 31,
     avanceFinanciero: 28,
     fechaTermino: '30 mar 2025',
     montoLabel: '$32.0 M',
@@ -74,6 +78,7 @@ export const PORTFOLIO_OBRAS_MOCK: ObraPortfolioItem[] = [
     contratista: 'Edificaciones Civiles del Centro',
     estado: 'EN_CONFIGURACION',
     avanceFisico: 0,
+    avanceProgramado: 0,
     avanceFinanciero: 0,
     fechaTermino: '10 ago 2025',
     montoLabel: '$14.2 M',
@@ -87,6 +92,7 @@ export const PORTFOLIO_OBRAS_MOCK: ObraPortfolioItem[] = [
     contratista: 'Ingeniería Eléctrica Urbana',
     estado: 'FINIQUITADA',
     avanceFisico: 100,
+    avanceProgramado: 100,
     avanceFinanciero: 100,
     fechaTermino: '30 sep 2024',
     montoLabel: '$9.8 M',
@@ -112,15 +118,12 @@ export const MisObrasPage: React.FC<MisObrasPageProps> = ({
 
   const visibleObras = useMemo(() => {
     return PORTFOLIO_OBRAS_MOCK.filter((obra) => {
-      // RN-ADM-03.1: Directivo/Admin ven todas; operativos solo donde están asignados
       if (!isGlobalViewer && user && !obra.asignados.includes(user.rol)) {
         return false;
       }
-
       if (statusFilter !== 'TODAS' && obra.estado !== statusFilter) {
         return false;
       }
-
       const q = search.trim().toLowerCase();
       if (!q) return true;
       return (
@@ -136,7 +139,7 @@ export const MisObrasPage: React.FC<MisObrasPageProps> = ({
     <div className="space-y-5">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-fg-muted ">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-fg-muted">
             {isGlobalViewer ? 'Portafolio institucional global' : 'Obras asignadas'}
           </p>
           <h1 className="text-2xl font-normal text-fg tracking-tight mt-0.5">
@@ -181,13 +184,13 @@ export const MisObrasPage: React.FC<MisObrasPageProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {visibleObras.map((obra) => {
           const isSelected = obra.id === selectedObraId;
+          const desviacion = obra.avanceFisico - obra.avanceProgramado;
+
           return (
             <div
               key={obra.id}
-              className={`bg-surface  rounded-xl p-5 border transition-colors flex flex-col justify-between gap-4 ${
-                isSelected
-                  ? 'border-brand ring-1 ring-brand/30 '
-                  : 'border-line '
+              className={`bg-surface rounded-xl p-5 border transition-colors flex flex-col justify-between gap-4 ${
+                isSelected ? 'border-brand ring-1 ring-brand/30' : 'border-line'
               }`}
             >
               <div className="space-y-2.5">
@@ -198,11 +201,9 @@ export const MisObrasPage: React.FC<MisObrasPageProps> = ({
                   <StatusBadge status={obra.estado} />
                 </div>
 
-                <h2 className="text-sm font-semibold text-fg ">
-                  {obra.nombre}
-                </h2>
+                <h2 className="text-sm font-semibold text-fg">{obra.nombre}</h2>
 
-                <div className="flex flex-wrap items-center gap-4 text-[11px] text-fg-muted ">
+                <div className="flex flex-wrap items-center gap-4 text-[11px] text-fg-muted">
                   <span className="inline-flex items-center gap-1">
                     <MapPin className="w-3.5 h-3.5" />
                     {obra.ubicacion}
@@ -211,13 +212,13 @@ export const MisObrasPage: React.FC<MisObrasPageProps> = ({
                     <Calendar className="w-3.5 h-3.5" />
                     Término: {obra.fechaTermino}
                   </span>
-                  <span className="font-medium text-fg-soft ">
+                  <span className="font-medium text-fg-soft">
                     {obra.montoLabel} MXN
                   </span>
                 </div>
 
                 {obra.estado === 'ALERTA_VACANTE_OPERATIVA' && (
-                  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-danger-bg border border-danger-line text-[11px] text-danger-fg ">
+                  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-danger-bg border border-danger-line text-[11px] text-danger-fg">
                     <AlertTriangle className="w-4 h-4 shrink-0" />
                     <span>
                       Requiere suplente de <strong>{obra.vacanteRol}</strong>. Trámites pausados
@@ -227,11 +228,12 @@ export const MisObrasPage: React.FC<MisObrasPageProps> = ({
                 )}
               </div>
 
-              <div className="space-y-3 pt-3 border-t border-line ">
-                <div className="grid grid-cols-2 gap-4 text-[11px]">
+              <div className="space-y-3 pt-3 border-t border-line">
+                {/* Diferenciación explícita de los 3 avances */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[11px]">
                   <div>
                     <div className="flex justify-between mb-1">
-                      <span className="text-fg-muted">Avance físico</span>
+                      <span className="text-fg-muted">Físico real</span>
                       <span className="font-semibold text-accent">{obra.avanceFisico}%</span>
                     </div>
                     <div className="h-1.5 bg-info-bg rounded-full overflow-hidden">
@@ -241,21 +243,44 @@ export const MisObrasPage: React.FC<MisObrasPageProps> = ({
                       />
                     </div>
                   </div>
+
                   <div>
                     <div className="flex justify-between mb-1">
-                      <span className="text-fg-muted">Avance financiero</span>
-                      <span className="font-semibold text-fg-soft ">
-                        {obra.avanceFinanciero}%
+                      <span className="text-fg-muted">Físico programado</span>
+                      <span className="font-semibold text-fg-soft">
+                        {obra.avanceProgramado}%
                       </span>
                     </div>
                     <div className="h-1.5 bg-subtle rounded-full overflow-hidden">
                       <div
                         className="h-full bg-fg-muted rounded-full"
+                        style={{ width: `${obra.avanceProgramado}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-fg-muted">Financiero</span>
+                      <span className="font-semibold text-ok-fg">
+                        {obra.avanceFinanciero}%
+                      </span>
+                    </div>
+                    <div className="h-1.5 bg-ok-bg rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-ok-solid rounded-full"
                         style={{ width: `${obra.avanceFinanciero}%` }}
                       />
                     </div>
                   </div>
                 </div>
+
+                <p className="text-[10px] text-fg-muted">
+                  Desviación física (Real vs. Programado):{' '}
+                  <strong className={desviacion < 0 ? 'text-warn-fg' : 'text-ok-fg'}>
+                    {desviacion > 0 ? `+${desviacion}` : desviacion} pp
+                  </strong>
+                </p>
 
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] text-fg-muted truncate">
