@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   Search,
   Plus,
@@ -11,20 +11,34 @@ import {
   ChevronRight,
   BookMarked,
   X,
+  FileSpreadsheet,
+  Upload,
+  Pencil,
+  Calendar,
+  Download,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useObra } from '../context/ObraContext';
 import {
   CATALOGO_PARAMETRICO_PDF,
   PARTIDAS_CONSTRUCTIVAS,
+  calcularAvanceProgramadoAFecha,
+  calcularAvanceProgramadoConcepto,
   calcularCostosUnitarios,
   type CatalogoConcepto,
   type PartidaId,
 } from '../mocks/catalogoParametrico.mock';
+import { validarArchivoExcel } from '../utils/businessRules';
+import {
+  downloadCatalogoTemplateCsv,
+  parseCatalogoExcelFile,
+} from '../utils/excelImport';
 import { FileDropzone } from '../components/common/FileDropzone';
 import { ConfirmActionModal } from '../components/common/ConfirmActionModal';
 
 export type { CatalogoConcepto };
+
+const FECHA_CORTE_CATALOGO = '2024-10-14';
 
 const formatMXN = (amount: number) =>
   new Intl.NumberFormat('es-MX', {
@@ -46,10 +60,12 @@ export const CatalogoPage: React.FC = () => {
     selectedObraMontoContrato,
     selectedConceptos: conceptos,
     addConceptoToSelectedObra,
+    updateConceptoInSelectedObra,
+    importConceptosToSelectedObra,
     autorizarAdicionalConcepto,
   } = useObra();
 
-  const [lineaBaseCongelada, setLineaBaseCongelada] = useState(true);
+  const [lineaBaseCongelada, setLineaBaseCongelada] = useState(false);
   const [search, setSearch] = useState('');
   const [tipoFilter, setTipoFilter] = useState<'TODOS' | 'ORDINARIO' | 'EXTRAORDINARIO'>('TODOS');
   const [partidaFilter, setPartidaFilter] = useState<string>('TODAS');
@@ -57,8 +73,9 @@ export const CatalogoPage: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  // Modal alta ordinaria (Superintendente en fase inicial)
+  // Modal alta / edición ordinaria
   const [showAddOrdModal, setShowAddOrdModal] = useState(false);
+  const [editingOriginalClave, setEditingOriginalClave] = useState<string | null>(null);
   const [selectedTemplateClave, setSelectedTemplateClave] = useState('');
   const [ordForm, setOrdForm] = useState({
     partidaId: '1.0' as PartidaId,
@@ -70,6 +87,8 @@ export const CatalogoPage: React.FC = () => {
     costoMateriales: '',
     costoInstalacion: '',
     indirectosPct: '28',
+    fecha_inicio_programada: selectedObra.fechaInicio ?? '2024-05-06',
+    fecha_fin_programada: selectedObra.fechaFinIso ?? '2024-12-20',
   });
 
   // Modal extraordinario (Residente - RF-RES-04)
@@ -84,6 +103,8 @@ export const CatalogoPage: React.FC = () => {
     costoMateriales: '',
     costoInstalacion: '',
     indirectosPct: '28',
+    fecha_inicio_programada: '2024-10-15',
+    fecha_fin_programada: selectedObra.fechaFinIso ?? '2024-12-20',
   });
   const [apuFiles, setApuFiles] = useState<File[]>([]);
   const [confirmExtSign, setConfirmExtSign] = useState(false);
@@ -92,8 +113,20 @@ export const CatalogoPage: React.FC = () => {
   const [adicionalTarget, setAdicionalTarget] = useState<CatalogoConcepto | null>(null);
   const [adicionalDelta, setAdicionalDelta] = useState('');
 
+  // Modal importar Excel (.xlsx)
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [excelDragging, setExcelDragging] = useState(false);
+  const [excelFileName, setExcelFileName] = useState<string | null>(null);
+  const [excelParsed, setExcelParsed] = useState<CatalogoConcepto[]>([]);
+  const [excelWarnings, setExcelWarnings] = useState<string[]>([]);
+  const [excelError, setExcelError] = useState<string | null>(null);
+  const [excelParsing, setExcelParsing] = useState(false);
+  const excelInputRef = useRef<HTMLInputElement | null>(null);
+
   const isSuperintendente = user?.rol === 'SUPERINTENDENTE';
   const isResidente = user?.rol === 'RESIDENTE';
+  const canEditConcept = isResidente || (isSuperintendente && !lineaBaseCongelada);
+  const canImportExcel = isResidente || (isSuperintendente && !lineaBaseCongelada);
 
   const toggleExpand = (clave: string) => {
     setExpandedKeys((prev) =>
@@ -119,12 +152,17 @@ export const CatalogoPage: React.FC = () => {
     return { importeOrdinarioPU, totalCD, totalPU };
   }, [conceptos]);
 
+  const avanceProgramadoGlobal = useMemo(
+    () => calcularAvanceProgramadoAFecha(conceptos, FECHA_CORTE_CATALOGO),
+    [conceptos]
+  );
+
   const porcentajeAsignado = Math.min(
     100,
     (totalesPresupuesto.importeOrdinarioPU / selectedObraMontoContrato) * 100
   );
 
-  // Conceptos filtrados y agrupados por partida (formato PDF)
+  // Conceptos filtrados y agrupados por partida
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return conceptos.filter((c) => {
@@ -135,6 +173,8 @@ export const CatalogoPage: React.FC = () => {
         c.clave.toLowerCase().includes(q) ||
         c.descripcion.toLowerCase().includes(q) ||
         c.unidad.toLowerCase().includes(q) ||
+        c.fecha_inicio_programada.includes(q) ||
+        c.fecha_fin_programada.includes(q) ||
         c.alcances.some((a) => a.toLowerCase().includes(q))
       );
     });
@@ -183,6 +223,46 @@ export const CatalogoPage: React.FC = () => {
     [extForm.costoMateriales, extForm.costoInstalacion, extForm.indirectosPct]
   );
 
+  const openCreateOrdModal = () => {
+    setErrorMsg(null);
+    setEditingOriginalClave(null);
+    setSelectedTemplateClave('');
+    setOrdForm({
+      partidaId: '1.0',
+      clave: '',
+      descripcion: '',
+      alcancesTexto: '',
+      unidad: 'm²',
+      cantidad: '',
+      costoMateriales: '',
+      costoInstalacion: '',
+      indirectosPct: '28',
+      fecha_inicio_programada: selectedObra.fechaInicio ?? '2024-05-06',
+      fecha_fin_programada: selectedObra.fechaFinIso ?? '2024-12-20',
+    });
+    setShowAddOrdModal(true);
+  };
+
+  const openEditConceptModal = (c: CatalogoConcepto) => {
+    setErrorMsg(null);
+    setEditingOriginalClave(c.clave);
+    setSelectedTemplateClave('');
+    setOrdForm({
+      partidaId: c.partidaId,
+      clave: c.clave,
+      descripcion: c.descripcion,
+      alcancesTexto: c.alcances.join('\n'),
+      unidad: c.unidad,
+      cantidad: String(c.cantidadPresupuestada),
+      costoMateriales: String(c.costoMateriales),
+      costoInstalacion: String(c.costoInstalacion),
+      indirectosPct: String(c.indirectosPct),
+      fecha_inicio_programada: c.fecha_inicio_programada,
+      fecha_fin_programada: c.fecha_fin_programada,
+    });
+    setShowAddOrdModal(true);
+  };
+
   const handleSelectParametricTemplate = (clave: string) => {
     setSelectedTemplateClave(clave);
     const tpl = CATALOGO_PARAMETRICO_PDF.find((item) => item.clave === clave);
@@ -205,7 +285,9 @@ export const CatalogoPage: React.FC = () => {
     setErrorMsg(null);
     setSuccessMsg(null);
 
-    if (lineaBaseCongelada) {
+    const isEditing = editingOriginalClave !== null;
+
+    if (!isEditing && lineaBaseCongelada) {
       setErrorMsg(
         'Catálogo congelado (RN-SUPT-01.3): no se pueden agregar conceptos ordinarios tras la apertura de obra.'
       );
@@ -222,15 +304,49 @@ export const CatalogoPage: React.FC = () => {
       return;
     }
 
-    if (conceptos.some((c) => c.clave.toUpperCase() === claveNorm)) {
+    if (!ordForm.fecha_inicio_programada || !ordForm.fecha_fin_programada) {
+      setErrorMsg(
+        'Captura las fechas programadas (fecha_inicio_programada y fecha_fin_programada) del concepto.'
+      );
+      return;
+    }
+
+    if (ordForm.fecha_fin_programada < ordForm.fecha_inicio_programada) {
+      setErrorMsg(
+        'La fecha de fin programada no puede ser anterior a la fecha de inicio programada.'
+      );
+      return;
+    }
+
+    const duplicateExists = conceptos.some(
+      (c) =>
+        c.clave.toUpperCase() === claveNorm &&
+        (!isEditing || c.clave.toUpperCase() !== editingOriginalClave.toUpperCase())
+    );
+    if (duplicateExists) {
       setErrorMsg(
         `Clave duplicada (RN-SUPT-01.2): el concepto "${claveNorm}" ya existe en esta obra.`
       );
       return;
     }
 
-    const nuevoImporte = totalesPresupuesto.importeOrdinarioPU + cantidad * ordCalc.precioUnitario;
-    if (nuevoImporte > selectedObraMontoContrato) {
+    const existingConcept = isEditing
+      ? conceptos.find((c) => c.clave === editingOriginalClave)
+      : undefined;
+
+    const existingImporte =
+      existingConcept && existingConcept.tipo === 'ORDINARIO'
+        ? existingConcept.cantidadPresupuestada * existingConcept.precioUnitario
+        : 0;
+    const nuevoImporte =
+      totalesPresupuesto.importeOrdinarioPU -
+      existingImporte +
+      cantidad * ordCalc.precioUnitario;
+
+    if (
+      (!existingConcept || existingConcept.tipo === 'ORDINARIO') &&
+      nuevoImporte > selectedObraMontoContrato
+    ) {
       setErrorMsg(
         `Tope presupuestal excedido (RN-SUPT-01.1): el acumulado (${formatMXN(
           nuevoImporte
@@ -244,37 +360,40 @@ export const CatalogoPage: React.FC = () => {
       .map((line) => line.replace(/^[-•*]\s*/, '').trim())
       .filter(Boolean);
 
-    addConceptoToSelectedObra({
+    const conceptoPayload: CatalogoConcepto = {
       clave: claveNorm,
       partidaId: ordForm.partidaId,
       descripcion: ordForm.descripcion.trim(),
       alcances,
       unidad: ordForm.unidad.trim() || 'm²',
       cantidadPresupuestada: cantidad,
-      cantidadAdicionalAutorizada: 0,
-      cantidadEjecutada: 0,
+      cantidadAdicionalAutorizada: existingConcept?.cantidadAdicionalAutorizada ?? 0,
+      cantidadEjecutada: existingConcept?.cantidadEjecutada ?? 0,
       ...ordCalc,
-      tipo: 'ORDINARIO',
-    });
+      fecha_inicio_programada: ordForm.fecha_inicio_programada,
+      fecha_fin_programada: ordForm.fecha_fin_programada,
+      tipo: existingConcept?.tipo ?? 'ORDINARIO',
+      autorizadoPorResidente: existingConcept?.autorizadoPorResidente,
+      dictamenApuNombre: existingConcept?.dictamenApuNombre,
+    };
 
+    if (isEditing && editingOriginalClave) {
+      updateConceptoInSelectedObra(editingOriginalClave, conceptoPayload);
+      setSuccessMsg(
+        `Concepto ${claveNorm} actualizado (${ordForm.fecha_inicio_programada} al ${ordForm.fecha_fin_programada}).`
+      );
+    } else {
+      addConceptoToSelectedObra(conceptoPayload);
+      setSuccessMsg(
+        `Concepto ordinario ${claveNorm} agregado con P.U. de ${formatMXN(
+          ordCalc.precioUnitario
+        )} y programa ${ordForm.fecha_inicio_programada} → ${ordForm.fecha_fin_programada}.`
+      );
+    }
+
+    setEditingOriginalClave(null);
     setSelectedTemplateClave('');
-    setOrdForm({
-      partidaId: '1.0',
-      clave: '',
-      descripcion: '',
-      alcancesTexto: '',
-      unidad: 'm²',
-      cantidad: '',
-      costoMateriales: '',
-      costoInstalacion: '',
-      indirectosPct: '28',
-    });
     setShowAddOrdModal(false);
-    setSuccessMsg(
-      `Concepto ordinario ${claveNorm} agregado con P.U. calculado de ${formatMXN(
-        ordCalc.precioUnitario
-      )}.`
-    );
   };
 
   const handleRequestExtraordinario = (e: React.FormEvent) => {
@@ -286,6 +405,16 @@ export const CatalogoPage: React.FC = () => {
 
     if (!claveNorm || !extForm.descripcion.trim() || cantidad <= 0 || extCalc.precioUnitario <= 0) {
       setErrorMsg('Completa todos los datos numéricos y descriptivos del concepto extraordinario.');
+      return;
+    }
+
+    if (!extForm.fecha_inicio_programada || !extForm.fecha_fin_programada) {
+      setErrorMsg('Captura las fechas programadas de inicio y fin para el concepto extraordinario.');
+      return;
+    }
+
+    if (extForm.fecha_fin_programada < extForm.fecha_inicio_programada) {
+      setErrorMsg('La fecha fin programada no puede ser anterior a la fecha inicio programada.');
       return;
     }
 
@@ -321,6 +450,8 @@ export const CatalogoPage: React.FC = () => {
       cantidadAdicionalAutorizada: 0,
       cantidadEjecutada: 0,
       ...extCalc,
+      fecha_inicio_programada: extForm.fecha_inicio_programada,
+      fecha_fin_programada: extForm.fecha_fin_programada,
       tipo: 'EXTRAORDINARIO',
       autorizadoPorResidente: true,
       dictamenApuNombre: apuFiles[0]?.name,
@@ -338,6 +469,8 @@ export const CatalogoPage: React.FC = () => {
       costoMateriales: '',
       costoInstalacion: '',
       indirectosPct: '28',
+      fecha_inicio_programada: '2024-10-15',
+      fecha_fin_programada: selectedObra.fechaFinIso ?? '2024-12-20',
     });
     setApuFiles([]);
     setSuccessMsg(
@@ -362,7 +495,57 @@ export const CatalogoPage: React.FC = () => {
     setAdicionalDelta('');
   };
 
-  const totalColumns = isResidente ? 10 : 9;
+  // --- Importación desde Excel (.xlsx / .csv) ---
+  const handleExcelFileSelected = async (file: File | undefined) => {
+    if (!file) return;
+    setExcelError(null);
+    setExcelWarnings([]);
+    setExcelParsed([]);
+    setExcelFileName(file.name);
+
+    const check = validarArchivoExcel(file);
+    if (!check.valido) {
+      setExcelError(check.error ?? 'Archivo no válido.');
+      return;
+    }
+
+    setExcelParsing(true);
+    try {
+      const result = await parseCatalogoExcelFile(file);
+      setExcelParsed(result.conceptos);
+      setExcelWarnings(result.warnings);
+      if (result.conceptos.length === 0) {
+        setExcelError(
+          'No se encontraron conceptos válidos en el archivo. Verifica encabezados: clave, partida, descripcion, unidad, cantidad, costo_materiales, costo_instalacion, fecha_inicio_programada, fecha_fin_programada.'
+        );
+      }
+    } catch (err) {
+      setExcelError(
+        err instanceof Error
+          ? err.message
+          : 'Error al procesar el archivo Excel (.xlsx).'
+      );
+    } finally {
+      setExcelParsing(false);
+      if (excelInputRef.current) excelInputRef.current.value = '';
+    }
+  };
+
+  const handleConfirmExcelImport = () => {
+    if (excelParsed.length === 0) return;
+    const { added, updated } = importConceptosToSelectedObra(excelParsed);
+    setSuccessMsg(
+      `Importación completada desde "${excelFileName}": ${added} concepto(s) nuevo(s) y ${updated} actualizado(s) con fechas programadas.`
+    );
+    setShowImportModal(false);
+    setExcelParsed([]);
+    setExcelWarnings([]);
+    setExcelFileName(null);
+    setExcelError(null);
+  };
+
+  const showActionColumn = isResidente || canEditConcept;
+  const totalColumns = showActionColumn ? 11 : 10;
 
   return (
     <div className="space-y-5">
@@ -370,7 +553,7 @@ export const CatalogoPage: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-wider text-fg-muted">
-            Contrato {selectedObra.contrato} · Presupuesto por partidas y ensamblados de costos
+            Contrato {selectedObra.contrato} · Presupuesto por partidas, costos y fechas programadas
           </p>
           <h1 className="text-2xl font-normal text-fg tracking-tight mt-0.5">
             Catálogo de conceptos
@@ -384,8 +567,29 @@ export const CatalogoPage: React.FC = () => {
               onClick={() => setLineaBaseCongelada((prev) => !prev)}
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-line-strong bg-surface text-xs font-medium text-fg-soft cursor-pointer"
             >
-              {lineaBaseCongelada ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
+              {lineaBaseCongelada ? (
+                <Lock className="w-3.5 h-3.5" />
+              ) : (
+                <Unlock className="w-3.5 h-3.5" />
+              )}
               <span>{lineaBaseCongelada ? 'Línea base congelada' : 'Fase inicial (editable)'}</span>
+            </button>
+          )}
+
+          {canImportExcel && (
+            <button
+              type="button"
+              onClick={() => {
+                setExcelError(null);
+                setExcelWarnings([]);
+                setExcelParsed([]);
+                setExcelFileName(null);
+                setShowImportModal(true);
+              }}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-line-strong bg-surface hover:border-brand text-xs font-semibold text-fg-soft cursor-pointer"
+            >
+              <FileSpreadsheet className="w-4 h-4 text-ok-fg" />
+              <span>Importar Excel (.xlsx)</span>
             </button>
           )}
 
@@ -393,10 +597,7 @@ export const CatalogoPage: React.FC = () => {
             <button
               type="button"
               disabled={lineaBaseCongelada}
-              onClick={() => {
-                setErrorMsg(null);
-                setShowAddOrdModal(true);
-              }}
+              onClick={openCreateOrdModal}
               className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors ${
                 lineaBaseCongelada
                   ? 'bg-line text-fg-muted cursor-not-allowed'
@@ -424,7 +625,7 @@ export const CatalogoPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Tarjeta de control presupuestal (Costo Directo + Indirectos = P.U.) */}
+      {/* Tarjeta de control presupuestal + Avance Programado */}
       <div className="bg-surface border border-line rounded-xl p-4 space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
           <div className="flex items-center gap-2">
@@ -445,23 +646,32 @@ export const CatalogoPage: React.FC = () => {
         </div>
 
         <div className="h-2 bg-subtle rounded-full overflow-hidden">
-          <div className="h-full bg-brand rounded-full" style={{ width: `${porcentajeAsignado}%` }} />
+          <div
+            className="h-full bg-brand rounded-full"
+            style={{ width: `${porcentajeAsignado}%` }}
+          />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-[11px]">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 pt-1 text-[11px]">
           <div className="p-2.5 rounded-lg bg-canvas border border-line">
             <span className="text-fg-muted block">Total a Costo Directo (CD)</span>
             <strong className="text-fg text-xs">{formatMXN(totalesPresupuesto.totalCD)}</strong>
           </div>
           <div className="p-2.5 rounded-lg bg-canvas border border-line">
-            <span className="text-fg-muted block">Indirectos acumulados (28%)</span>
+            <span className="text-fg-muted block">Indirectos acumulados</span>
             <strong className="text-fg text-xs">
               {formatMXN(totalesPresupuesto.totalPU - totalesPresupuesto.totalCD)}
             </strong>
           </div>
           <div className="p-2.5 rounded-lg bg-canvas border border-line">
-            <span className="text-fg-muted block">Total Presupuesto (P.U. con adic./ext.)</span>
+            <span className="text-fg-muted block">Total Presupuesto (P.U.)</span>
             <strong className="text-accent text-xs">{formatMXN(totalesPresupuesto.totalPU)}</strong>
+          </div>
+          <div className="p-2.5 rounded-lg bg-canvas border border-line">
+            <span className="text-fg-muted block">
+              Avance Programado al {FECHA_CORTE_CATALOGO}
+            </span>
+            <strong className="text-ok-fg text-xs">{avanceProgramadoGlobal}%</strong>
           </div>
         </div>
       </div>
@@ -476,7 +686,11 @@ export const CatalogoPage: React.FC = () => {
             <ShieldAlert className="w-4 h-4 shrink-0" />
             <span>{errorMsg}</span>
           </div>
-          <button type="button" onClick={() => setErrorMsg(null)} className="underline cursor-pointer">
+          <button
+            type="button"
+            onClick={() => setErrorMsg(null)}
+            className="underline cursor-pointer"
+          >
             Cerrar
           </button>
         </div>
@@ -488,7 +702,11 @@ export const CatalogoPage: React.FC = () => {
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>{successMsg}</span>
           </div>
-          <button type="button" onClick={() => setSuccessMsg(null)} className="underline cursor-pointer">
+          <button
+            type="button"
+            onClick={() => setSuccessMsg(null)}
+            className="underline cursor-pointer"
+          >
             Cerrar
           </button>
         </div>
@@ -502,7 +720,7 @@ export const CatalogoPage: React.FC = () => {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por clave, concepto, alcance o unidad"
+            placeholder="Buscar por clave, concepto, fecha, alcance o unidad"
             className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-surface border border-line text-fg focus:border-brand"
           />
         </div>
@@ -524,7 +742,9 @@ export const CatalogoPage: React.FC = () => {
         <select
           aria-label="Filtrar por tipo de concepto"
           value={tipoFilter}
-          onChange={(e) => setTipoFilter(e.target.value as 'TODOS' | 'ORDINARIO' | 'EXTRAORDINARIO')}
+          onChange={(e) =>
+            setTipoFilter(e.target.value as 'TODOS' | 'ORDINARIO' | 'EXTRAORDINARIO')
+          }
           className="px-3 py-2 text-xs rounded-lg bg-surface border border-line text-fg-soft cursor-pointer"
         >
           <option value="TODOS">Todos los tipos</option>
@@ -533,14 +753,15 @@ export const CatalogoPage: React.FC = () => {
         </select>
       </div>
 
-      {/* Tabla agrupada por partidas (Formato Costos Paramétricos) */}
+      {/* Tabla agrupada por partidas con fechas programadas */}
       <div className="bg-surface border border-line rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-230 text-xs">
+          <table className="w-full text-left border-collapse min-w-260 text-xs">
             <thead>
               <tr className="bg-canvas text-[10px] font-semibold uppercase text-fg-muted border-b border-line">
                 <th className="py-3 px-4">Clave</th>
                 <th className="py-3 px-3">Descripción del Ensamblado / Concepto</th>
+                <th className="py-3 px-2">Programa (Inicio – Fin)</th>
                 <th className="py-3 px-2">Uni.</th>
                 <th className="py-3 px-2 text-right">Cantidad (+Adic.)</th>
                 <th className="py-3 px-2 text-right">Ejecutado</th>
@@ -548,7 +769,7 @@ export const CatalogoPage: React.FC = () => {
                 <th className="py-3 px-2 text-right">P.U. (+Ind.)</th>
                 <th className="py-3 px-3 text-right">Importe</th>
                 <th className="py-3 px-3 text-right">%</th>
-                {isResidente && <th className="py-3 px-4 text-right">Acción</th>}
+                {showActionColumn && <th className="py-3 px-4 text-right">Acciones</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
@@ -572,6 +793,13 @@ export const CatalogoPage: React.FC = () => {
                       totalesPresupuesto.totalPU > 0
                         ? (importe / totalesPresupuesto.totalPU) * 100
                         : 0;
+                    const pctProgConcepto = calcularAvanceProgramadoConcepto(
+                      c.fecha_inicio_programada,
+                      c.fecha_fin_programada,
+                      FECHA_CORTE_CATALOGO
+                    );
+                    const pctRealConcepto =
+                      volTotal > 0 ? Math.min(100, (c.cantidadEjecutada / volTotal) * 100) : 0;
                     const isExpanded = expandedKeys.includes(c.clave);
 
                     return (
@@ -619,6 +847,22 @@ export const CatalogoPage: React.FC = () => {
                             </div>
                           </td>
 
+                          <td className="py-3 px-2 whitespace-nowrap align-top">
+                            <div className="inline-flex items-center gap-1 text-[11px] font-medium text-fg">
+                              <Calendar className="w-3 h-3 text-accent shrink-0" />
+                              <span>{c.fecha_inicio_programada}</span>
+                            </div>
+                            <div className="text-[10px] text-fg-muted pl-4">
+                              al {c.fecha_fin_programada}
+                            </div>
+                            <div className="text-[10px] text-fg-muted pl-4 mt-0.5">
+                              Prog: <strong>{pctProgConcepto}%</strong> · Real:{' '}
+                              <strong className="text-accent">
+                                {pctRealConcepto.toFixed(0)}%
+                              </strong>
+                            </div>
+                          </td>
+
                           <td className="py-3 px-2 text-fg-muted align-top">{c.unidad}</td>
 
                           <td className="py-3 px-2 text-right whitespace-nowrap align-top">
@@ -650,27 +894,38 @@ export const CatalogoPage: React.FC = () => {
                             {pctConcepto.toFixed(1)}%
                           </td>
 
-                          {isResidente && (
-                            <td className="py-3 px-4 text-right align-top">
-                              {c.tipo === 'ORDINARIO' ? (
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setAdicionalTarget(c);
-                                    setAdicionalDelta('');
-                                  }}
-                                  className="px-2.5 py-1 rounded border border-line-strong hover:border-brand text-[11px] font-medium text-fg-soft cursor-pointer"
-                                >
-                                  + Adicional
-                                </button>
-                              ) : (
-                                <span className="text-[10px] text-fg-muted">Autorizado</span>
-                              )}
+                          {showActionColumn && (
+                            <td className="py-3 px-4 text-right align-top whitespace-nowrap">
+                              <div className="inline-flex items-center gap-1.5">
+                                {canEditConcept && (
+                                  <button
+                                    type="button"
+                                    onClick={() => openEditConceptModal(c)}
+                                    className="inline-flex items-center gap-1 px-2 py-1 rounded border border-line-strong hover:border-brand text-[11px] font-medium text-fg-soft cursor-pointer"
+                                    title="Editar concepto y fechas programadas"
+                                  >
+                                    <Pencil className="w-3 h-3" />
+                                    <span>Editar</span>
+                                  </button>
+                                )}
+                                {isResidente && c.tipo === 'ORDINARIO' && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setAdicionalTarget(c);
+                                      setAdicionalDelta('');
+                                    }}
+                                    className="px-2 py-1 rounded border border-line-strong hover:border-brand text-[11px] font-medium text-fg-soft cursor-pointer"
+                                  >
+                                    + Adic.
+                                  </button>
+                                )}
+                              </div>
                             </td>
                           )}
                         </tr>
 
-                        {/* Panel expandible: Alcances del ensamblado + Desglose de Costos Paramétricos */}
+                        {/* Panel expandible */}
                         {isExpanded && (
                           <tr className="bg-canvas/70">
                             <td colSpan={totalColumns} className="px-6 py-4 space-y-3">
@@ -729,7 +984,7 @@ export const CatalogoPage: React.FC = () => {
 
                   {/* Subtotal por partida */}
                   <tr className="bg-canvas/90 font-semibold text-[11px]">
-                    <td colSpan={5} className="py-2.5 px-4 text-right text-fg-soft uppercase">
+                    <td colSpan={6} className="py-2.5 px-4 text-right text-fg-soft uppercase">
                       Total de {partida.nombre}:
                     </td>
                     <td className="py-2.5 px-2 text-right text-fg-muted whitespace-nowrap">
@@ -742,7 +997,7 @@ export const CatalogoPage: React.FC = () => {
                     <td className="py-2.5 px-3 text-right text-accent whitespace-nowrap">
                       {incidenciaPct.toFixed(1)}%
                     </td>
-                    {isResidente && <td />}
+                    {showActionColumn && <td />}
                   </tr>
                 </React.Fragment>
               ))}
@@ -750,22 +1005,18 @@ export const CatalogoPage: React.FC = () => {
               {/* Gran Total del Presupuesto */}
               {groupedByPartida.length > 0 && (
                 <tr className="bg-info-bg/50 font-bold text-xs border-t-2 border-line">
-                  <td colSpan={5} className="py-3 px-4 text-right uppercase text-fg">
+                  <td colSpan={6} className="py-3 px-4 text-right uppercase text-fg">
                     Total general del catálogo visible:
                   </td>
                   <td className="py-3 px-2 text-right text-fg-soft whitespace-nowrap">
-                    {formatMXN(
-                      groupedByPartida.reduce((acc, g) => acc + g.subtotalCD, 0)
-                    )}
+                    {formatMXN(groupedByPartida.reduce((acc, g) => acc + g.subtotalCD, 0))}
                   </td>
                   <td className="py-3 px-2 text-right text-fg-muted">—</td>
                   <td className="py-3 px-3 text-right text-accent whitespace-nowrap">
-                    {formatMXN(
-                      groupedByPartida.reduce((acc, g) => acc + g.subtotalPU, 0)
-                    )}
+                    {formatMXN(groupedByPartida.reduce((acc, g) => acc + g.subtotalPU, 0))}
                   </td>
                   <td className="py-3 px-3 text-right text-accent whitespace-nowrap">100.0%</td>
-                  {isResidente && <td />}
+                  {showActionColumn && <td />}
                 </tr>
               )}
             </tbody>
@@ -773,7 +1024,7 @@ export const CatalogoPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal: Agregar concepto ordinario (con selector de Catálogo Paramétrico del PDF) */}
+      {/* Modal: Alta / Edición de concepto (incluye fecha_inicio_programada y fecha_fin_programada) */}
       {showAddOrdModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
@@ -787,10 +1038,13 @@ export const CatalogoPage: React.FC = () => {
             <div className="flex items-start justify-between gap-3 border-b border-line pb-3">
               <div>
                 <h3 className="text-sm font-semibold text-fg">
-                  Nuevo concepto del catálogo original
+                  {editingOriginalClave
+                    ? `Editar concepto · ${editingOriginalClave}`
+                    : 'Nuevo concepto del catálogo original'}
                 </h3>
                 <p className="text-[11px] text-fg-muted mt-0.5">
-                  Elige un ensamblado del Catálogo Paramétrico o captura un concepto manual.
+                  Captura los datos técnicos, costos y fechas programadas (base del avance
+                  programado).
                 </p>
               </div>
               <button
@@ -802,33 +1056,34 @@ export const CatalogoPage: React.FC = () => {
               </button>
             </div>
 
-            {/* Selector rápido del catálogo paramétrico del PDF */}
-            <div className="p-3 rounded-lg bg-info-bg/40 border border-brand/30 space-y-1.5">
-              <label className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-accent">
-                <BookMarked className="w-3.5 h-3.5" />
-                <span>Cargar plantilla desde Catálogo Paramétrico (PDF)</span>
-              </label>
-              <select
-                value={selectedTemplateClave}
-                onChange={(e) => handleSelectParametricTemplate(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-lg border border-line-strong bg-surface cursor-pointer"
-              >
-                <option value="">— Captura manual o selecciona un ensamblado base —</option>
-                {PARTIDAS_CONSTRUCTIVAS.map((p) => {
-                  const items = CATALOGO_PARAMETRICO_PDF.filter((t) => t.partidaId === p.id);
-                  if (items.length === 0) return null;
-                  return (
-                    <optgroup key={p.id} label={p.nombre}>
-                      {items.map((tpl) => (
-                        <option key={tpl.clave} value={tpl.clave}>
-                          {tpl.clave} · {tpl.titulo} ({tpl.unidad})
-                        </option>
-                      ))}
-                    </optgroup>
-                  );
-                })}
-              </select>
-            </div>
+            {!editingOriginalClave && (
+              <div className="p-3 rounded-lg bg-info-bg/40 border border-brand/30 space-y-1.5">
+                <label className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-accent">
+                  <BookMarked className="w-3.5 h-3.5" />
+                  <span>Cargar plantilla desde Catálogo Paramétrico (PDF)</span>
+                </label>
+                <select
+                  value={selectedTemplateClave}
+                  onChange={(e) => handleSelectParametricTemplate(e.target.value)}
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-line-strong bg-surface cursor-pointer"
+                >
+                  <option value="">— Captura manual o selecciona un ensamblado base —</option>
+                  {PARTIDAS_CONSTRUCTIVAS.map((p) => {
+                    const items = CATALOGO_PARAMETRICO_PDF.filter((t) => t.partidaId === p.id);
+                    if (items.length === 0) return null;
+                    return (
+                      <optgroup key={p.id} label={p.nombre}>
+                        {items.map((tpl) => (
+                          <option key={tpl.clave} value={tpl.clave}>
+                            {tpl.clave} · {tpl.titulo} ({tpl.unidad})
+                          </option>
+                        ))}
+                      </optgroup>
+                    );
+                  })}
+                </select>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
@@ -880,6 +1135,36 @@ export const CatalogoPage: React.FC = () => {
                 onChange={(e) => setOrdForm({ ...ordForm, descripcion: e.target.value })}
                 className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas"
               />
+            </div>
+
+            {/* Fechas programadas del concepto */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-lg bg-info-bg/30 border border-info-line">
+              <div>
+                <label className="block text-[10px] font-semibold text-fg-soft mb-1">
+                  Fecha inicio programada (fecha_inicio_programada) *
+                </label>
+                <input
+                  type="date"
+                  value={ordForm.fecha_inicio_programada}
+                  onChange={(e) =>
+                    setOrdForm({ ...ordForm, fecha_inicio_programada: e.target.value })
+                  }
+                  className="w-full px-3 py-2 rounded-lg border border-line-strong bg-surface"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-semibold text-fg-soft mb-1">
+                  Fecha fin programada (fecha_fin_programada) *
+                </label>
+                <input
+                  type="date"
+                  value={ordForm.fecha_fin_programada}
+                  onChange={(e) =>
+                    setOrdForm({ ...ordForm, fecha_fin_programada: e.target.value })
+                  }
+                  className="w-full px-3 py-2 rounded-lg border border-line-strong bg-surface"
+                />
+              </div>
             </div>
 
             <div>
@@ -950,7 +1235,6 @@ export const CatalogoPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Resumen calculado en vivo */}
             <div className="p-3 rounded-lg bg-canvas border border-line grid grid-cols-2 sm:grid-cols-4 gap-3 text-[11px]">
               <div>
                 <span className="text-fg-muted block">Costo Directo (Ⓒ)</span>
@@ -984,10 +1268,182 @@ export const CatalogoPage: React.FC = () => {
                 type="submit"
                 className="px-4 py-1.5 text-xs rounded-lg bg-brand hover:bg-brand-hover text-white font-semibold cursor-pointer"
               >
-                Guardar concepto
+                {editingOriginalClave ? 'Guardar cambios' : 'Guardar concepto'}
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* Modal: Importar catálogo desde Excel (.xlsx) */}
+      {showImportModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          onClick={() => setShowImportModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-surface border border-line rounded-xl max-w-3xl w-full p-5 space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto text-xs"
+          >
+            <div className="flex items-start justify-between gap-3 border-b border-line pb-3">
+              <div className="flex items-center gap-2">
+                <FileSpreadsheet className="w-5 h-5 text-ok-fg shrink-0" />
+                <div>
+                  <h3 className="text-sm font-semibold text-fg">
+                    Importar Catálogo de Conceptos desde Excel (.xlsx)
+                  </h3>
+                  <p className="text-[11px] text-fg-muted mt-0.5">
+                    Carga masiva de conceptos incluyendo fecha_inicio_programada y
+                    fecha_fin_programada.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowImportModal(false)}
+                aria-label="Cerrar"
+                className="p-1 text-fg-muted hover:text-fg cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-lg bg-canvas border border-line text-[11px]">
+              <span className="text-fg-soft">
+                Columnas esperadas:{' '}
+                <code className="font-mono text-[10px]">
+                  clave, partida, descripcion, unidad, cantidad, costo_materiales,
+                  costo_instalacion, indirectos_pct, fecha_inicio_programada, fecha_fin_programada
+                </code>
+              </span>
+              <button
+                type="button"
+                onClick={downloadCatalogoTemplateCsv}
+                className="inline-flex items-center gap-1 text-accent font-semibold hover:underline cursor-pointer shrink-0"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Descargar plantilla</span>
+              </button>
+            </div>
+
+            {/* Dropzone Excel (.xlsx / .csv) */}
+            <div
+              onDragOver={(e) => {
+                e.preventDefault();
+                setExcelDragging(true);
+              }}
+              onDragLeave={() => setExcelDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setExcelDragging(false);
+                void handleExcelFileSelected(e.dataTransfer.files?.[0]);
+              }}
+              onClick={() => excelInputRef.current?.click()}
+              className={`rounded-xl border-2 border-dashed p-6 text-center transition-colors cursor-pointer ${
+                excelDragging
+                  ? 'border-brand bg-info-bg/50'
+                  : 'border-line-strong hover:border-brand bg-canvas/50'
+              }`}
+            >
+              <input
+                ref={excelInputRef}
+                type="file"
+                accept=".xlsx,.csv"
+                onChange={(e) => void handleExcelFileSelected(e.target.files?.[0])}
+                className="hidden"
+              />
+              <Upload className="w-7 h-7 text-ok-fg mx-auto mb-2" />
+              <p className="text-xs font-semibold text-fg">
+                {excelParsing
+                  ? 'Procesando libro de Excel...'
+                  : excelFileName
+                  ? `Archivo seleccionado: ${excelFileName}`
+                  : 'Arrastra tu archivo Excel (.xlsx) aquí o haz clic para seleccionar'}
+              </p>
+              <p className="text-[11px] text-fg-muted mt-1">
+                Formatos admitidos: Excel (.xlsx) y CSV (.csv) · Máx. 10 MB
+              </p>
+            </div>
+
+            {excelError && (
+              <div
+                role="alert"
+                className="flex items-start gap-2 p-3 rounded-lg bg-danger-bg border border-danger-line text-danger-fg"
+              >
+                <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{excelError}</span>
+              </div>
+            )}
+
+            {excelWarnings.length > 0 && (
+              <div className="p-3 rounded-lg bg-warn-bg border border-warn-line text-warn-fg space-y-1 text-[11px]">
+                <p className="font-semibold">Advertencias de validación ({excelWarnings.length}):</p>
+                <ul className="list-disc pl-4 space-y-0.5">
+                  {excelWarnings.slice(0, 5).map((w, i) => (
+                    <li key={i}>{w}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {excelParsed.length > 0 && (
+              <div className="space-y-2">
+                <p className="font-semibold text-ok-fg">
+                  Vista previa lista para importar: {excelParsed.length} concepto(s) válido(s)
+                </p>
+                <div className="overflow-x-auto border border-line rounded-lg max-h-56">
+                  <table className="w-full text-left border-collapse text-[11px]">
+                    <thead>
+                      <tr className="bg-canvas text-[10px] uppercase text-fg-muted border-b border-line">
+                        <th className="py-2 px-3">Clave</th>
+                        <th className="py-2 px-2">Partida</th>
+                        <th className="py-2 px-2">Descripción</th>
+                        <th className="py-2 px-2">Programa</th>
+                        <th className="py-2 px-2 text-right">Cant.</th>
+                        <th className="py-2 px-3 text-right">P.U.</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-line">
+                      {excelParsed.map((item) => (
+                        <tr key={item.clave}>
+                          <td className="py-1.5 px-3 font-semibold text-accent">{item.clave}</td>
+                          <td className="py-1.5 px-2">{item.partidaId}</td>
+                          <td className="py-1.5 px-2 max-w-60 truncate">{item.descripcion}</td>
+                          <td className="py-1.5 px-2 whitespace-nowrap font-mono text-[10px]">
+                            {item.fecha_inicio_programada} → {item.fecha_fin_programada}
+                          </td>
+                          <td className="py-1.5 px-2 text-right">
+                            {item.cantidadPresupuestada} {item.unidad}
+                          </td>
+                          <td className="py-1.5 px-3 text-right font-medium">
+                            {formatMXN(item.precioUnitario)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-line">
+              <button
+                type="button"
+                onClick={() => setShowImportModal(false)}
+                className="px-3 py-1.5 rounded-lg border border-line-strong cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                disabled={excelParsed.length === 0}
+                onClick={handleConfirmExcelImport}
+                className="px-4 py-1.5 rounded-lg bg-brand hover:bg-brand-hover disabled:opacity-40 text-white font-semibold cursor-pointer"
+              >
+                Importar {excelParsed.length} concepto(s)
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -1006,8 +1462,8 @@ export const CatalogoPage: React.FC = () => {
               Inyectar Concepto Extraordinario (RF-RES-04)
             </h3>
             <p className="text-[11px] text-fg-muted">
-              Requiere desglose de costos, Análisis de Precio Unitario (APU) en PDF y firma
-              electrónica.
+              Requiere desglose de costos, fechas programadas, Análisis de Precio Unitario (APU)
+              en PDF y firma electrónica.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -1047,6 +1503,35 @@ export const CatalogoPage: React.FC = () => {
               onChange={(e) => setExtForm({ ...extForm, descripcion: e.target.value })}
               className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas"
             />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-lg bg-info-bg/30 border border-info-line">
+              <div>
+                <label className="block text-[10px] font-semibold text-fg-soft mb-1">
+                  Fecha inicio programada *
+                </label>
+                <input
+                  type="date"
+                  value={extForm.fecha_inicio_programada}
+                  onChange={(e) =>
+                    setExtForm({ ...extForm, fecha_inicio_programada: e.target.value })
+                  }
+                  className="w-full px-3 py-2 rounded-lg border border-line-strong bg-surface"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-semibold text-fg-soft mb-1">
+                  Fecha fin programada *
+                </label>
+                <input
+                  type="date"
+                  value={extForm.fecha_fin_programada}
+                  onChange={(e) =>
+                    setExtForm({ ...extForm, fecha_fin_programada: e.target.value })
+                  }
+                  className="w-full px-3 py-2 rounded-lg border border-line-strong bg-surface"
+                />
+              </div>
+            </div>
 
             <textarea
               rows={2}
@@ -1105,7 +1590,8 @@ export const CatalogoPage: React.FC = () => {
                 Costo Directo: <strong>{formatMXN(extCalc.costoDirecto)}</strong>
               </span>
               <span>
-                P.U. Autorizado: <strong className="text-accent">{formatMXN(extCalc.precioUnitario)}</strong>
+                P.U. Autorizado:{' '}
+                <strong className="text-accent">{formatMXN(extCalc.precioUnitario)}</strong>
               </span>
             </div>
 
@@ -1189,7 +1675,7 @@ export const CatalogoPage: React.FC = () => {
         description={`Se incorporará ${extForm.clave.toUpperCase()} al catálogo oficial con P.U. de ${formatMXN(
           extCalc.precioUnitario
         )} y dictamen ${apuFiles[0]?.name ?? 'PDF'}.`}
-        confirmLabel="Firmar e inyectar"
+        confirmLabel="Autorizar y firmar"
         requireSignature
         onCancel={() => setConfirmExtSign(false)}
         onConfirm={handleConfirmExtraordinarioSign}

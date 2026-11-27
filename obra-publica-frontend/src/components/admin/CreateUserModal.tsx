@@ -1,17 +1,24 @@
-import React, { useState } from 'react';
-import { UserPlus, ShieldAlert, X } from 'lucide-react';
-import type { UserRole } from '../../types/obra.types';
+import React, { useEffect, useState } from 'react';
+import { UserPlus, UserCog, ShieldAlert, X, BadgeCheck } from 'lucide-react';
+import {
+  OPERATIONAL_SIGNER_ROLES,
+  type UserRole,
+} from '../../types/obra.types';
 import type { AdminUserRecord } from '../../mocks/admin.mock';
+import { validarRFC } from '../../utils/businessRules';
+import { useObra } from '../../context/ObraContext';
 
 interface CreateUserModalProps {
   open: boolean;
   existingEmails: string[];
+  editingUser?: AdminUserRecord | null;
   onClose: () => void;
   onCreateUser: (newUser: Omit<AdminUserRecord, 'id'>) => void;
+  onUpdateUser?: (updatedUser: AdminUserRecord) => void;
 }
 
 const INTERNAL_DOMAINS = ['@obra.gob.mx'];
-const ACTIVE_CONTRACTOR_DOMAINS = ['@constructoradelnorte.mx'];
+const BASE_CONTRACTOR_DOMAINS = ['@constructoradelnorte.mx'];
 
 const ALL_ROLES: readonly UserRole[] = [
   'RESIDENTE',
@@ -21,21 +28,65 @@ const ALL_ROLES: readonly UserRole[] = [
   'ADMINISTRADOR',
 ];
 
+function isOperationalProfile(role: UserRole): boolean {
+  return (OPERATIONAL_SIGNER_ROLES as readonly string[]).includes(role);
+}
+
 export const CreateUserModal: React.FC<CreateUserModalProps> = ({
   open,
   existingEmails,
+  editingUser = null,
   onClose,
   onCreateUser,
+  onUpdateUser,
 }) => {
+  const { contratistas } = useObra();
+  const isEditing = editingUser !== null;
+
   const [nombre, setNombre] = useState('');
   const [area, setArea] = useState('Residencia');
   const [correo, setCorreo] = useState('');
   const [rol, setRol] = useState<UserRole>('RESIDENTE');
+  const [rfc, setRfc] = useState('');
   const [password, setPassword] = useState('');
-  const [firmaElectronica, setFirmaElectronica] = useState('');
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (!open) return;
+    setError(null);
+    if (editingUser) {
+      setNombre(editingUser.nombre);
+      setArea(editingUser.area);
+      setCorreo(editingUser.correo);
+      setRol(editingUser.rol);
+      setRfc(editingUser.rfc ?? '');
+      setPassword('');
+    } else {
+      setNombre('');
+      setArea('Residencia');
+      setCorreo('');
+      setRol('RESIDENTE');
+      setRfc('');
+      setPassword('');
+    }
+  }, [open, editingUser]);
+
   if (!open) return null;
+
+  const requiresRfc = isOperationalProfile(rol);
+  const roleLockedInEdit =
+    isEditing &&
+    editingUser !== null &&
+    (editingUser.rol === 'ADMINISTRADOR' ||
+      editingUser.obrasAsignadas.length > 0 ||
+      editingUser.tieneHistorialOperativo);
+
+  const activeContractorDomains = [
+    ...BASE_CONTRACTOR_DOMAINS,
+    ...contratistas
+      .filter((c) => c.activo && c.dominioCorreo)
+      .map((c) => c.dominioCorreo!.toLowerCase()),
+  ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,26 +94,34 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
 
     const nombreTrim = nombre.trim();
     const correoNorm = correo.trim().toLowerCase();
+    const rfcNorm = rfc.trim().toUpperCase();
 
     if (!nombreTrim || !correoNorm || !correoNorm.includes('@')) {
       setError('Captura el nombre completo y un correo electrónico válido.');
       return;
     }
 
-    // RN-ADM-01.1: Unicidad de correo
-    if (existingEmails.some((em) => em.toLowerCase() === correoNorm)) {
+    // RN-ADM-01.1: Unicidad de correo (excepto el propio en edición)
+    const emailDuplicated = existingEmails.some(
+      (em) =>
+        em.toLowerCase() === correoNorm &&
+        (!isEditing || editingUser?.correo.toLowerCase() !== correoNorm)
+    );
+    if (emailDuplicated) {
       setError('El correo proporcionado ya existe en el sistema (RN-ADM-01.1).');
       return;
     }
 
     // RN-ADM-01.8 y RN-ADM-01.10: Validación por diccionario de correos autorizados
     if (rol === 'SUPERINTENDENTE') {
-      const validContractor = ACTIVE_CONTRACTOR_DOMAINS.some((dom) =>
+      const validContractor = activeContractorDomains.some((dom) =>
         correoNorm.endsWith(dom)
       );
       if (!validContractor) {
         setError(
-          'El correo proporcionado no pertenece al diccionario de correos autorizados de ninguna empresa contratista con contrato activo (RN-ADM-01.10).'
+          `El correo no pertenece a ningún dominio autorizado de empresa contratista activa (${Array.from(
+            new Set(activeContractorDomains)
+          ).join(', ')}) (RN-ADM-01.10).`
         );
         return;
       }
@@ -78,31 +137,53 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
       }
     }
 
-    // RNF-SEG-01: Longitud mínima de contraseña y firma electrónica
-    if (password.length < 8) {
+    // Validación RFC (12-13 caracteres) obligatoria para perfiles operativos (SAT)
+    if (requiresRfc) {
+      const rfcCheck = validarRFC(rfcNorm);
+      if (!rfcCheck.valido) {
+        setError(rfcCheck.error ?? 'RFC inválido.');
+        return;
+      }
+    } else if (rfcNorm.length > 0) {
+      const rfcCheck = validarRFC(rfcNorm);
+      if (!rfcCheck.valido) {
+        setError(rfcCheck.error ?? 'RFC inválido.');
+        return;
+      }
+    }
+
+    // RNF-SEG-01: Longitud mínima de contraseña (obligatoria en alta; opcional en edición)
+    if (!isEditing && password.length < 8) {
       setError('La contraseña inicial debe tener al menos 8 caracteres (RNF-SEG-01).');
       return;
     }
-
-    if (firmaElectronica.trim().length < 6) {
-      setError('La firma electrónica debe tener al menos 6 caracteres (RNF-SEG-01).');
+    if (isEditing && password.length > 0 && password.length < 8) {
+      setError('Si deseas cambiar la contraseña, debe tener al menos 8 caracteres (RNF-SEG-01).');
       return;
     }
 
-    onCreateUser({
-      nombre: nombreTrim,
-      area: area.trim() || 'Administración',
-      correo: correoNorm,
-      rol,
-      obrasAsignadas: [],
-      estado: 'ACTIVO',
-      tieneHistorialOperativo: false,
-    });
+    if (isEditing && editingUser && onUpdateUser) {
+      onUpdateUser({
+        ...editingUser,
+        nombre: nombreTrim,
+        area: area.trim() || editingUser.area,
+        correo: correoNorm,
+        rol,
+        rfc: requiresRfc || rfcNorm ? rfcNorm : undefined,
+      });
+    } else {
+      onCreateUser({
+        nombre: nombreTrim,
+        area: area.trim() || 'Administración',
+        correo: correoNorm,
+        rol,
+        rfc: requiresRfc || rfcNorm ? rfcNorm : undefined,
+        obrasAsignadas: [],
+        estado: 'ACTIVO',
+        tieneHistorialOperativo: false,
+      });
+    }
 
-    setNombre('');
-    setCorreo('');
-    setPassword('');
-    setFirmaElectronica('');
     onClose();
   };
 
@@ -112,14 +193,20 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="bg-surface border border-line rounded-xl max-w-md w-full p-5 shadow-xl"
+        className="bg-surface border border-line rounded-xl max-w-md w-full p-5 shadow-xl max-h-[92vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3 mb-4">
           <div className="flex items-center gap-2">
-            <UserPlus className="w-4 h-4 text-accent shrink-0" />
-            <h3 className="text-sm font-semibold text-fg ">
-              Registrar nueva cuenta de usuario (RF-ADM-01)
+            {isEditing ? (
+              <UserCog className="w-4 h-4 text-accent shrink-0" />
+            ) : (
+              <UserPlus className="w-4 h-4 text-accent shrink-0" />
+            )}
+            <h3 className="text-sm font-semibold text-fg">
+              {isEditing
+                ? `Editar cuenta de usuario · ${editingUser.nombre}`
+                : 'Registrar nueva cuenta de usuario (RF-ADM-01)'}
             </h3>
           </div>
           <button
@@ -142,7 +229,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               placeholder="Ej. Ing. Patricia Morales"
-              className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas "
+              className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas"
             />
           </div>
 
@@ -153,6 +240,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
               </label>
               <select
                 value={rol}
+                disabled={roleLockedInEdit}
                 onChange={(e) => {
                   const nextRole = e.target.value as UserRole;
                   setRol(nextRole);
@@ -166,7 +254,9 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                     setArea(nextRole === 'SUPERVISOR' ? 'Supervisión' : 'Residencia');
                   }
                 }}
-                className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas cursor-pointer"
+                className={`w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas ${
+                  roleLockedInEdit ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
+                }`}
               >
                 {ALL_ROLES.map((r) => (
                   <option key={r} value={r}>
@@ -184,14 +274,42 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                 type="text"
                 value={area}
                 onChange={(e) => setArea(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas "
+                className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas"
               />
             </div>
           </div>
 
+          {/* Campo RFC obligatorio para perfiles operativos (RESIDENTE, SUPERVISOR, SUPERINTENDENTE) */}
+          {requiresRfc && (
+            <div className="p-3 rounded-lg bg-info-bg/40 border border-info-line space-y-1.5">
+              <div className="flex items-center justify-between gap-2">
+                <label className="text-[11px] font-semibold text-fg inline-flex items-center gap-1.5">
+                  <BadgeCheck className="w-3.5 h-3.5 text-accent" />
+                  RFC (12–13 caracteres) *
+                </label>
+                <span className="text-[10px] font-mono text-fg-muted">
+                  {rfc.trim().length}/13
+                </span>
+              </div>
+              <input
+                type="text"
+                maxLength={13}
+                value={rfc}
+                onChange={(e) => setRfc(e.target.value.toUpperCase().replace(/[^A-ZÑ&0-9]/g, ''))}
+                placeholder="Ej. TOMA840512HK4"
+                className="w-full px-3 py-2 rounded-lg border border-line-strong bg-surface font-mono uppercase tracking-wider"
+              />
+              <p className="text-[10px] text-fg-muted">
+                Obligatorio para perfiles operativos (Residente, Supervisor y Superintendente)
+                por requerimiento del servicio de firma electrónica tipo SAT.
+              </p>
+            </div>
+          )}
+
           <div>
             <label className="block text-[11px] font-medium text-fg-soft mb-1">
-              Correo electrónico ({rol === 'SUPERINTENDENTE' ? '@constructoradelnorte.mx' : '@obra.gob.mx'}) *
+              Correo electrónico (
+              {rol === 'SUPERINTENDENTE' ? '@constructoradelnorte.mx u otra contratista' : '@obra.gob.mx'}) *
             </label>
             <input
               type="email"
@@ -202,49 +320,40 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                   ? 'nombre@constructoradelnorte.mx'
                   : 'nombre@obra.gob.mx'
               }
-              className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas "
+              className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas"
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-[11px] font-medium text-fg-soft mb-1">
-                Contraseña (mín. 8) *
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas "
-              />
-            </div>
-
-            <div>
-              <label className="block text-[11px] font-medium text-fg-soft mb-1">
-                Firma electrónica (mín. 6) *
-              </label>
-              <input
-                type="password"
-                value={firmaElectronica}
-                onChange={(e) => setFirmaElectronica(e.target.value)}
-                placeholder="••••••"
-                className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas "
-              />
-            </div>
+          <div>
+            <label className="block text-[11px] font-medium text-fg-soft mb-1">
+              {isEditing
+                ? 'Nueva contraseña (opcional, mín. 8 caracteres)'
+                : 'Contraseña de acceso (mín. 8 caracteres) *'}
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder={isEditing ? 'Dejar vacío para conservar la actual' : '••••••••'}
+              className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas"
+            />
+            <p className="text-[10px] text-fg-muted mt-1">
+              El correo y contraseña de la cuenta se utilizarán para autorizar peticiones al
+              servicio externo de firma electrónica.
+            </p>
           </div>
 
           {error && (
             <div
               role="alert"
-              className="flex items-start gap-2 p-2.5 rounded-lg bg-danger-bg border border-danger-line text-danger-fg "
+              className="flex items-start gap-2 p-2.5 rounded-lg bg-danger-bg border border-danger-line text-danger-fg"
             >
               <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
           )}
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-line ">
+          <div className="flex justify-end gap-2 pt-3 border-t border-line">
             <button
               type="button"
               onClick={onClose}
@@ -256,7 +365,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
               type="submit"
               className="px-3.5 py-1.5 rounded-lg bg-brand hover:bg-brand-hover text-white font-semibold cursor-pointer"
             >
-              Crear cuenta
+              {isEditing ? 'Guardar cambios' : 'Crear cuenta'}
             </button>
           </div>
         </form>

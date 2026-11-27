@@ -76,6 +76,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
   const [openMenuUserId, setOpenMenuUserId] = useState<number | null>(null);
   const [page, setPage] = useState(1);
   const [createUserModalOpen, setCreateUserModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<AdminUserRecord | null>(null);
 
   const pageSize = 10;
 
@@ -93,6 +94,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
         u.nombre.toLowerCase().includes(q) ||
         u.correo.toLowerCase().includes(q) ||
         u.rol.toLowerCase().includes(q) ||
+        (u.rfc ?? '').toLowerCase().includes(q) ||
         u.obrasAsignadas.some((obra) => obra.toLowerCase().includes(q))
     );
   }, [users, searchTerm]);
@@ -209,6 +211,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
               type="button"
               onClick={() => {
                 setFeedbackError(null);
+                setEditingUser(null);
                 setCreateUserModalOpen(true);
               }}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-brand hover:bg-brand-hover text-white text-xs font-semibold transition-colors cursor-pointer self-start md:self-auto"
@@ -279,7 +282,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
                 <thead>
                   <tr className="bg-canvas/80 text-[10px] font-medium text-fg-muted uppercase tracking-wider border-b border-line ">
                     <th className="py-2.5 px-5">Usuario</th>
-                    <th className="py-2.5 px-4">Correo</th>
+                    <th className="py-2.5 px-4">Correo / RFC</th>
                     <th className="py-2.5 px-4">Rol Único</th>
                     <th className="py-2.5 px-4">Obras Asignadas</th>
                     <th className="py-2.5 px-4">Estatus</th>
@@ -309,7 +312,20 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
                         </td>
 
                         <td className="py-2.5 px-4 text-fg-muted ">
-                          {row.correo}
+                          <div>{row.correo}</div>
+                          {row.rfc ? (
+                            <div className="mt-0.5 inline-flex items-center px-1.5 py-0.5 rounded bg-subtle text-[10px] font-mono text-fg-soft">
+                              RFC: {row.rfc}
+                            </div>
+                          ) : (
+                            (row.rol === 'RESIDENTE' ||
+                              row.rol === 'SUPERVISOR' ||
+                              row.rol === 'SUPERINTENDENTE') && (
+                              <div className="mt-0.5 text-[10px] text-warn-fg font-medium">
+                                RFC pendiente (firma SAT)
+                              </div>
+                            )
+                          )}
                         </td>
 
                         <td className="py-2.5 px-4">
@@ -423,6 +439,19 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
 
                           {isMenuOpen && (
                             <div className="absolute right-5 mt-1 w-48 bg-surface border border-line-strong rounded-lg shadow-lg py-1 z-30 text-left text-xs">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setOpenMenuUserId(null);
+                                  setFeedbackError(null);
+                                  setEditingUser(row);
+                                  setCreateUserModalOpen(true);
+                                }}
+                                className="w-full text-left px-3 py-1.5 text-accent hover:bg-subtle cursor-pointer font-medium"
+                              >
+                                Editar usuario / RFC
+                              </button>
+
                               {row.rol !== 'ADMINISTRADOR' && !isCurrentAdmin ? (
                                 <button
                                   type="button"
@@ -537,7 +566,11 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
       <CreateUserModal
         open={createUserModalOpen}
         existingEmails={users.map((u) => u.correo)}
-        onClose={() => setCreateUserModalOpen(false)}
+        editingUser={editingUser}
+        onClose={() => {
+          setCreateUserModalOpen(false);
+          setEditingUser(null);
+        }}
         onCreateUser={(newUserData) => {
           const created: AdminUserRecord = {
             ...newUserData,
@@ -546,10 +579,23 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
           setUsers((prev) => [created, ...prev]);
           appendAuditLog(
             'Crear',
-            `Cuenta de usuario para ${created.nombre} (${created.rol})`
+            `Cuenta de usuario para ${created.nombre} (${created.rol}${
+              created.rfc ? ` · RFC: ${created.rfc}` : ''
+            })`
           );
-          }}
-          />
+        }}
+        onUpdateUser={(updated) => {
+          setUsers((prev) =>
+            prev.map((u) => (u.id === updated.id ? updated : u))
+          );
+          appendAuditLog(
+            'Editar',
+            `Actualización de cuenta para ${updated.nombre} (${updated.rol}${
+              updated.rfc ? ` · RFC: ${updated.rfc}` : ''
+            })`
+          );
+        }}
+      />
     </div>
   );
 };

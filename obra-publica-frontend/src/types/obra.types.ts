@@ -5,6 +5,14 @@ export type UserRole =
   | 'SUPERVISOR'
   | 'SUPERINTENDENTE';
 
+export type OperationalRole = 'RESIDENTE' | 'SUPERVISOR' | 'SUPERINTENDENTE';
+
+export const OPERATIONAL_SIGNER_ROLES: readonly OperationalRole[] = [
+  'RESIDENTE',
+  'SUPERVISOR',
+  'SUPERINTENDENTE',
+];
+
 export type ObraStatus =
   | 'EN_CONFIGURACION'
   | 'EN_EJECUCION'
@@ -20,6 +28,7 @@ export interface UserSession {
   correo: string;
   rol: UserRole;
   area: string;
+  rfc?: string;
   obrasAsignadas: string[];
 }
 
@@ -33,4 +42,49 @@ export interface ObraResumen {
   avanceFisico: number;
   avanceFinanciero: number;
   presupuestoTotal: number;
+}
+
+export interface ContratistaRecord {
+  id: string;
+  rfc: string;
+  razon_social: string;
+  dominioCorreo?: string;
+  activo: boolean;
+}
+
+export interface ContratoObra {
+  id: string;
+  obraId: string;
+  numero_contrato: string;
+  monto_contrato: number;
+  monto_anticipo: number;
+  id_contratista: string;
+  fecha_firma?: string;
+}
+
+export type TipoPolizaFianza = 'ANTICIPO' | 'CUMPLIMIENTO' | 'VICIOS_OCULTOS';
+
+export interface PolizaFianza {
+  id: string;
+  obraId: string;
+  contratoId: string;
+  tipo: TipoPolizaFianza;
+  numero_poliza: string;
+  afianzadora: string;
+  monto_asegurado: number;
+  fecha_emision: string;
+  fecha_vencimiento: string;
+  estatus: 'VIGENTE' | 'POR_VENCER' | 'VENCIDA';
+  archivoNombre?: string;
+}
+
+export interface SystemNotification {
+  id: string;
+  titulo: string;
+  detalle: string;
+  urgente: boolean;
+  seccionDestino: string;
+  categoria: 'bitacora' | 'estimaciones' | 'programa' | 'cierre' | 'obra';
+  rolesObjetivo?: UserRole[];
+  fecha: string;
 }

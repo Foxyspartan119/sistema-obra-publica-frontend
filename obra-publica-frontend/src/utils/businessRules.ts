@@ -20,6 +20,52 @@ export interface ValidationResult {
   error?: string;
 }
 
+export function validarRFC(rfc: string): ValidationResult {
+  const clean = rfc.trim().toUpperCase();
+  if (clean.length < 12 || clean.length > 13) {
+    return {
+      valido: false,
+      error: 'El RFC debe tener exactamente 12 caracteres (Persona Moral) o 13 caracteres (Persona Física).',
+    };
+  }
+
+  const rfcRegex = /^([A-ZÑ&]{3,4})(\d{2})(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])[A-Z0-9]{3}$/;
+  if (!rfcRegex.test(clean)) {
+    return {
+      valido: false,
+      error: 'Formato de RFC inválido (ej. TORM850412AB3 o CNO9804128A3). Requerido por el servicio de firma tipo SAT.',
+    };
+  }
+
+  return { valido: true };
+}
+
+export function validarArchivoExcel(file: File): ValidationResult {
+  const fileName = file.name.toLowerCase();
+  if (BUSINESS_CONSTANTS.BLOCKED_EXTENSIONS.some((ext) => fileName.endsWith(ext))) {
+    return {
+      valido: false,
+      error: `Archivo bloqueado por seguridad (${file.name}).`,
+    };
+  }
+
+  if (!fileName.endsWith('.xlsx') && !fileName.endsWith('.csv')) {
+    return {
+      valido: false,
+      error: 'Formato no válido. Solo se admiten archivos Excel (.xlsx) o CSV (.csv).',
+    };
+  }
+
+  if (file.size > BUSINESS_CONSTANTS.MAX_FILE_SIZE_BYTES) {
+    return {
+      valido: false,
+      error: 'El archivo supera el límite máximo permitido de 10 MB.',
+    };
+  }
+
+  return { valido: true };
+}
+
 export function validarArchivo(file: File): { valido: boolean; error?: string } {
   const fileName = file.name.toLowerCase();
 

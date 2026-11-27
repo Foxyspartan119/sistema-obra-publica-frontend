@@ -20,12 +20,17 @@ import {
   Clock,
   Sun,
   Moon,
+  ArrowUpRight,
 } from 'lucide-react';
 import { useAuth, type Appearance } from '../../context/AuthContext';
 import { useObra } from '../../context/ObraContext';
-import type { UserRole } from '../../types/obra.types';
+import {
+  OPERATIONAL_SIGNER_ROLES,
+  type OperationalRole,
+  type SystemNotification,
+  type UserRole,
+} from '../../types/obra.types';
 import { StatusBadge } from '../common/StatusBadge';
-
 
 interface AppLayoutProps {
   activeSection: string;
@@ -38,12 +43,14 @@ const APPEARANCE_OPTIONS: readonly { id: Appearance; name: string; icon: typeof 
   { id: 'oscuro', name: 'Oscuro', icon: Moon },
 ];
 
+const FECHA_CORTE_ALERTAS = '2024-10-14';
+
 function getUserInitials(fullName: string): string {
-  const clean = fullName.replace(/^(ing\.|arq\.|lic\.|dr\.)\s+/i, '').trim(); // Remove common prefixes
-  const parts = clean.split(/\s+/).filter(Boolean); // Split by whitespace and remove empty parts
+  const clean = fullName.replace(/^(ing\.|arq\.|lic\.|dr\.)\s+/i, '').trim();
+  const parts = clean.split(/\s+/).filter(Boolean);
   if (parts.length === 0) return 'US';
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase(); // First two letters of the single name
-  return `${parts[0][0]}${parts[1][0]}`.toUpperCase(); // First letters of the first two names
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
 }
 
 export const AppLayout: React.FC<AppLayoutProps> = ({
@@ -51,9 +58,22 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   onNavigate,
   children,
 }) => {
-  const { user, appearance, setAppearance, highContrast, setHighContrast, loginAsRole, logout } =
-    useAuth();
-  const { obras, selectedObra} = useObra();
+  const {
+    user,
+    appearance,
+    setAppearance,
+    highContrast,
+    setHighContrast,
+    loginAsRole,
+    logout,
+  } = useAuth();
+  const {
+    obras,
+    selectedObra,
+    selectedConceptos,
+    selectedPolizas,
+    pendingBitacoraByRole,
+  } = useObra();
   const [accOpen, setAccOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
@@ -62,34 +82,128 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   const isAdmin = user?.rol === 'ADMINISTRADOR';
   const isDirectivo = user?.rol === 'DIRECTIVO';
 
-  const systemAlerts = useMemo(() => {
-    const vacantes = obras
-    .filter((o) => o.estado === 'ALERTA_VACANTE_OPERATIVA')
-    .map((o) => ({
-      id: `vac-${o.id}`,
-      urgent: true,
-      title: `Vacante operativa en obra ${o.id}`,
-      detail: `Requiere suplente de ${o.vacanteRol ?? 'personal operativo'} (RN-ADM-03.4).`,
-    }));
+  const overdueConceptosCount = useMemo(() => {
+    if (selectedObra.estado === 'SUSPENDIDA' || selectedObra.estado === 'FINIQUITADA') {
+      return 0;
+    }
+    return selectedConceptos.filter((c) => {
+      const vol = c.cantidadPresupuestada + c.cantidadAdicionalAutorizada;
+      const pct = vol > 0 ? (c.cantidadEjecutada / vol) * 100 : 0;
+      return c.fecha_fin_programada < FECHA_CORTE_ALERTAS && pct < 100;
+    }).length;
+  }, [selectedConceptos, selectedObra.estado]);
 
-    return [
-      ...vacantes,
-      {
+  const missingPolizasTypes = useMemo(() => {
+    const present = new Set(selectedPolizas.map((p) => p.tipo));
+    return (['ANTICIPO', 'CUMPLIMIENTO', 'VICIOS_OCULTOS'] as const).filter(
+      (t) => !present.has(t)
+    );
+  }, [selectedPolizas]);
+
+  const pendingBitacoraCount = useMemo(() => {
+    if (!user) return 0;
+    if ((OPERATIONAL_SIGNER_ROLES as readonly string[]).includes(user.rol)) {
+      return pendingBitacoraByRole[user.rol as OperationalRole] ?? 0;
+    }
+    return 0;
+  }, [user, pendingBitacoraByRole]);
+
+  const vacantesCount = useMemo(
+    () => obras.filter((o) => o.estado === 'ALERTA_VACANTE_OPERATIVA').length,
+    [obras]
+  );
+
+  const systemAlerts = useMemo<SystemNotification[]>(() => {
+    const list: SystemNotification[] = [];
+
+    // 1. Vacantes operativas
+    for (const o of obras) {
+      if (o.estado === 'ALERTA_VACANTE_OPERATIVA') {
+        list.push({
+          id: `vac-${o.id}`,
+          urgente: true,
+          titulo: `Vacante operativa en obra ${o.id}`,
+          detalle: `Requiere suplente de ${o.vacanteRol ?? 'personal operativo'} (RN-ADM-03.4).`,
+          seccionDestino: isAdmin ? 'admin-obras' : 'mis-obras',
+          categoria: 'obra',
+          fecha: 'Urgente',
+        });
+      }
+    }
+
+    if (!isAdmin) {
+      // 2. Notas de bitácora pendientes de firma por el perfil en sesión
+      if (pendingBitacoraCount > 0) {
+        list.push({
+          id: `bit-firmas-${user?.rol ?? 'op'}`,
+          urgente: true,
+          titulo: `${pendingBitacoraCount} nota(s) de Bitácora por firmar`,
+          detalle: `Tienes firmas electrónicas pendientes como ${user?.rol} en ${selectedObra.id} (Multifirma 3/3).`,
+          seccionDestino: 'bitacora',
+          categoria: 'bitacora',
+          fecha: 'Hoy',
+        });
+      }
+
+      // 3. Plazo de revisión de estimación
+      list.push({
         id: 'plazo-est-06',
-        urgent: true,
-        title: 'Plazo de revisión · Estimación N.° 06',
-        detail: 'Dia 12 de 15 naturales para dictmen de Supervisión (RF-SUP-06).',
-      },
-      {
-        id: 'lab-ter-008',
-        urgent: false,
-        title: 'Control de calidad · Concepto TER-008',
-        detail: 'Ensayo de compactación registrado en Supervisión (RN-SUP-03.3).',
-      },
-    ].filter((a) => !dismissedAlerts.includes(a.id));
-  }, [obras, dismissedAlerts]);
+        urgente: true,
+        titulo: 'Por revisar · Estimación N.° 06',
+        detalle: 'Día 12 de 15 naturales para dictamen y autorización de pago (RF-SUP-06).',
+        seccionDestino: 'estimaciones',
+        categoria: 'estimaciones',
+        fecha: 'Vence en 3 días',
+      });
+
+      // 4. Conceptos con atraso en ruta crítica
+      if (overdueConceptosCount > 0) {
+        list.push({
+          id: `prog-atraso-${selectedObra.id}`,
+          urgente: true,
+          titulo: `${overdueConceptosCount} concepto(s) con atraso en Programa`,
+          detalle: 'Fecha fin programada vencida sin alcanzar 100% de ejecución (RN-SUP-04.1).',
+          seccionDestino: 'programa',
+          categoria: 'programa',
+          fecha: 'Corte actual',
+        });
+      }
+
+      // 5. Pólizas de fianza faltantes
+      if (missingPolizasTypes.length > 0) {
+        list.push({
+          id: `polizas-falt-${selectedObra.id}`,
+          urgente: false,
+          titulo: `Faltan ${missingPolizasTypes.length} póliza(s) de fianza`,
+          detalle: `Pendiente registrar: ${missingPolizasTypes.join(', ')} en Documentos y Cierre.`,
+          seccionDestino: 'cierre',
+          categoria: 'cierre',
+          fecha: 'Expediente',
+        });
+      }
+    }
+
+    return list.filter((a) => !dismissedAlerts.includes(a.id));
+  }, [
+    obras,
+    isAdmin,
+    pendingBitacoraCount,
+    user?.rol,
+    selectedObra.id,
+    overdueConceptosCount,
+    missingPolizasTypes,
+    dismissedAlerts,
+  ]);
 
   if (!user) return null;
+
+  const badgeBySection: Record<string, number> = {
+    bitacora: pendingBitacoraCount,
+    estimaciones: 1,
+    programa: overdueConceptosCount,
+    cierre: missingPolizasTypes.length,
+    'admin-obras': vacantesCount,
+  };
 
   const navItems = isAdmin
     ? [
@@ -112,23 +226,29 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   const handleSelectNav = (id: string) => {
     onNavigate(id);
     setMobileMenuOpen(false);
-  }
+  };
+
+  const handleOpenNotification = (alerta: SystemNotification) => {
+    setDismissedAlertsIds((prev) => (prev.includes(alerta.id) ? prev : [...prev, alerta.id]));
+    setAlertsOpen(false);
+    onNavigate(alerta.seccionDestino);
+  };
 
   return (
-    <div className="h-screen w-full overflow-hidden flex bg-canvas text-fg ">
+    <div className="h-screen w-full overflow-hidden flex bg-canvas text-fg">
       {mobileMenuOpen && (
         <div
           className="fixed inset-0 z-30 bg-black/50 lg:hidden"
           onClick={() => setMobileMenuOpen(false)}
           aria-hidden="true"
-          />
+        />
       )}
       <aside
         className={`fixed inset-y-0 left-0 z-40 lg:static w-64 h-full bg-sidebar text-sidebar-fg flex flex-col shrink-0 select-none overflow-y-auto transition-transform duration-200 ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
-        >
-          <div className="p-5 flex items-center justify-between border-b border-sidebar-line">
+      >
+        <div className="p-5 flex items-center justify-between border-b border-sidebar-line">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-brand flex items-center justify-center text-white font-bold">
               OB
@@ -156,20 +276,36 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = activeSection === item.id;
+            const badgeCount = badgeBySection[item.id] ?? 0;
+
             return (
               <button
                 key={item.id}
                 type="button"
                 aria-current={active ? 'page' : undefined}
                 onClick={() => handleSelectNav(item.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+                className={`w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
                   active
                     ? 'bg-active-bg text-active-fg'
                     : 'text-sidebar-fg hover:bg-sidebar-hover hover:text-white'
                 }`}
               >
-                <Icon className="w-4 h-4 shrink-0" />
-                <span className="truncate">{item.label}</span>
+                <span className="flex items-center gap-3 min-w-0">
+                  <Icon className="w-4 h-4 shrink-0" />
+                  <span className="truncate">{item.label}</span>
+                </span>
+                {badgeCount > 0 && (
+                  <span
+                    aria-label={`${badgeCount} pendiente(s)`}
+                    className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
+                      active
+                        ? 'bg-white/20 text-white'
+                        : 'bg-warn-solid text-white'
+                    }`}
+                  >
+                    {badgeCount}
+                  </span>
+                )}
               </button>
             );
           })}
@@ -241,7 +377,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
                   <span
                     aria-hidden="true"
                     className={`relative w-9 h-5 rounded-full shrink-0 transition-colors ${
-                      highContrast ? 'bg-active-bg' : 'bg-sidebar-hover border border-sidebar-muted'
+                      highContrast
+                        ? 'bg-active-bg'
+                        : 'bg-sidebar-hover border border-sidebar-muted'
                     }`}
                   >
                     <span
@@ -271,7 +409,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             Cerrar sesión
           </button>
         </div>
-        </aside>
+      </aside>
+
       {/* Área Principal */}
       <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
         <header className="h-16 shrink-0 bg-surface border-b border-line px-4 sm:px-6 flex items-center justify-between gap-3 z-20">
@@ -314,6 +453,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
               onChange={(e) => {
                 const newRole = e.target.value as UserRole;
                 loginAsRole(newRole);
+                setDismissedAlertsIds([]);
                 onNavigate(newRole === 'ADMINISTRADOR' ? 'admin-usuarios' : 'inicio');
               }}
               className="hidden sm:block text-xs border border-warn-line bg-warn-bg text-warn-fg rounded-md px-2 py-1 font-medium cursor-pointer"
@@ -325,66 +465,93 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
               <option value="ADMINISTRADOR">Simular: Administrador</option>
             </select>
 
-            {/* Campana de notificaciones (RNF-USA-03) */}
+            {/* Campana de notificaciones interactiva con contador numérico (RNF-USA-03) */}
             <div className="relative">
               <button
                 type="button"
-                aria-label="Alertas del sistema"
+                aria-label={`Notificaciones pendientes (${systemAlerts.length})`}
                 onClick={() => setAlertsOpen((prev) => !prev)}
-                className="p-2 text-fg-muted hover:text-fg-soft relative cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-line hover:border-brand text-fg-soft hover:text-fg relative cursor-pointer"
               >
                 <Bell className="w-4 h-4" />
                 {systemAlerts.length > 0 && (
-                  <span className="w-2 h-2 bg-danger-solid rounded-full absolute top-1.5 right-1.5" />
+                  <span className="inline-flex items-center justify-center min-w-5 h-5 px-1 rounded-full bg-danger-solid text-white text-[10px] font-bold">
+                    {systemAlerts.length}
+                  </span>
                 )}
               </button>
 
               {alertsOpen && (
-                <div className="absolute right-0 mt-2 w-80 bg-surface border border-line-strong rounded-xl shadow-xl p-3 z-50 text-xs">
-                  <div className="flex items-center justify-between pb-2 mb-2 border-b border-line ">
-                    <span className="font-semibold text-fg ">
-                      Alertas del sistema ({systemAlerts.length})
-                    </span>
-                    {systemAlerts.length > 0 && (
+                <div className="absolute right-0 mt-2 w-88 max-w-[92vw] bg-surface border border-line-strong rounded-xl shadow-xl p-3 z-50 text-xs">
+                  <div className="flex items-center justify-between pb-2 mb-2 border-b border-line">
+                    <div>
+                      <span className="font-semibold text-fg block">
+                        Pendientes por ver ({systemAlerts.length})
+                      </span>
+                      <span className="text-[10px] text-fg-muted">
+                        Haz clic en un aviso para abrir su sección
+                      </span>
+                    </div>
+                    {systemAlerts.length > 0 ? (
                       <button
                         type="button"
                         onClick={() =>
-                          setDismissedAlertsIds(systemAlerts.map((a) => a.id))
+                          setDismissedAlertsIds((prev) => [
+                            ...prev,
+                            ...systemAlerts.map((a) => a.id),
+                          ])
                         }
-                        className="text-[11px] text-accent hover:underline cursor-pointer"
+                        className="text-[11px] text-accent hover:underline cursor-pointer shrink-0"
                       >
                         Marcar leídas
                       </button>
+                    ) : (
+                      dismissedAlerts.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setDismissedAlertsIds([])}
+                          className="text-[11px] text-accent hover:underline cursor-pointer shrink-0"
+                        >
+                          Mostrar todas
+                        </button>
+                      )
                     )}
                   </div>
 
                   {systemAlerts.length === 0 ? (
-                    <p className="py-4 text-center text-[11px] text-fg-muted">
-                      Sin alertas pendientes por atender.
+                    <p className="py-5 text-center text-[11px] text-fg-muted">
+                      Estás al día · sin notificaciones pendientes por revisar.
                     </p>
                   ) : (
-                    <div className="space-y-2 max-h-64 overflow-y-auto">
+                    <div className="space-y-2 max-h-72 overflow-y-auto">
                       {systemAlerts.map((alerta) => (
-                        <div
+                        <button
                           key={alerta.id}
-                          className={`p-2.5 rounded-lg border ${
-                            alerta.urgent
-                              ? 'bg-warn-bg/70 border-warn-line '
-                              : 'bg-subtle border-line-strong '
+                          type="button"
+                          onClick={() => handleOpenNotification(alerta)}
+                          className={`w-full text-left p-2.5 rounded-lg border transition-colors hover:border-brand cursor-pointer ${
+                            alerta.urgente
+                              ? 'bg-warn-bg/70 border-warn-line'
+                              : 'bg-subtle border-line-strong'
                           }`}
                         >
-                          <div className="flex items-center gap-1.5 font-semibold text-fg ">
-                            {alerta.urgent ? (
-                              <AlertTriangle className="w-3.5 h-3.5 text-warn-fg shrink-0" />
-                            ) : (
-                              <Clock className="w-3.5 h-3.5 text-accent shrink-0" />
-                            )}
-                            <span>{alerta.title}</span>
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex items-center gap-1.5 font-semibold text-fg">
+                              {alerta.urgente ? (
+                                <AlertTriangle className="w-3.5 h-3.5 text-warn-fg shrink-0" />
+                              ) : (
+                                <Clock className="w-3.5 h-3.5 text-accent shrink-0" />
+                              )}
+                              <span>{alerta.titulo}</span>
+                            </div>
+                            <ArrowUpRight className="w-3.5 h-3.5 text-fg-muted shrink-0" />
                           </div>
-                          <p className="text-[11px] text-fg-muted mt-1">
-                            {alerta.detail}
-                          </p>
-                        </div>
+                          <p className="text-[11px] text-fg-muted mt-1">{alerta.detalle}</p>
+                          <div className="flex items-center justify-between mt-1.5 text-[10px]">
+                            <span className="text-fg-muted">{alerta.fecha}</span>
+                            <span className="text-accent font-semibold">Abrir módulo →</span>
+                          </div>
+                        </button>
                       ))}
                     </div>
                   )}
@@ -392,12 +559,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
               )}
             </div>
 
-            <div className="flex items-center gap-2.5 pl-3 border-l border-line-strong ">
+            <div className="flex items-center gap-2.5 pl-3 border-l border-line-strong">
               <div className="w-8 h-8 rounded-full bg-info-bg text-accent font-bold text-xs flex items-center justify-center">
                 {getUserInitials(user.nombre)}
               </div>
               <div className="hidden md:block text-xs">
-                <p className="font-semibold text-fg ">{user.rol}</p>
+                <p className="font-semibold text-fg">{user.rol}</p>
                 <p className="text-fg-muted">{user.nombre}</p>
               </div>
             </div>

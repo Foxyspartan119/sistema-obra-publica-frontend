@@ -17,6 +17,7 @@ const MOCK_USERS_BY_ROLE: Record<UserRole, UserSession> = {
     correo: 'marco.torres@obra.gob.mx',
     rol: 'RESIDENTE',
     area: 'Residencia',
+    rfc: 'TOMA840512HK4',
     obrasAsignadas: ['OP-2024-001'],
   },
   SUPERVISOR: {
@@ -25,6 +26,7 @@ const MOCK_USERS_BY_ROLE: Record<UserRole, UserSession> = {
     correo: 'lucia.ramirez@obra.gob.mx',
     rol: 'SUPERVISOR',
     area: 'Supervisión',
+    rfc: 'RALU880923MN7',
     obrasAsignadas: ['OP-2024-001'],
   },
   SUPERINTENDENTE: {
@@ -33,6 +35,7 @@ const MOCK_USERS_BY_ROLE: Record<UserRole, UserSession> = {
     correo: 'javier.mendoza@obra.gob.mx',
     rol: 'SUPERINTENDENTE',
     area: 'Constructora del Norte, S.A. de C.V.',
+    rfc: 'MEJA811104PQ2',
     obrasAsignadas: ['OP-2024-001'],
   },
   DIRECTIVO: {

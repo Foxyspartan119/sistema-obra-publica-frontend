@@ -50,9 +50,52 @@ export interface CatalogoConcepto {
   indirectosPct: number;     // Ej. 28
   indirectosMonto: number;   // Costo Directo * (indirectosPct / 100)
   precioUnitario: number;    // Costo Directo + Indirectos
+  fecha_inicio_programada: string; // YYYY-MM-DD (base del avance programado)
+  fecha_fin_programada: string;    // YYYY-MM-DD (base del avance programado)
   tipo: 'ORDINARIO' | 'EXTRAORDINARIO';
   autorizadoPorResidente?: boolean;
   dictamenApuNombre?: string;
+}
+
+/** Calcula el porcentaje programado (0-100) de un concepto a una fecha de corte dada. */
+export function calcularAvanceProgramadoConcepto(
+  fechaInicio: string,
+  fechaFin: string,
+  fechaCorte: string
+): number {
+  if (!fechaInicio || !fechaFin || !fechaCorte) return 0;
+  const start = new Date(`${fechaInicio}T00:00:00`).getTime();
+  const end = new Date(`${fechaFin}T00:00:00`).getTime();
+  const cutoff = new Date(`${fechaCorte}T00:00:00`).getTime();
+  if (Number.isNaN(start) || Number.isNaN(end) || Number.isNaN(cutoff)) return 0;
+  if (cutoff < start) return 0;
+  if (cutoff >= end || end <= start) return 100;
+  return Number((((cutoff - start) / (end - start)) * 100).toFixed(1));
+}
+
+/** Calcula el Avance Programado ponderado por importe total del catálogo a una fecha de corte. */
+export function calcularAvanceProgramadoAFecha(
+  conceptos: CatalogoConcepto[],
+  fechaCorte: string
+): number {
+  let totalImporte = 0;
+  let importeProgramado = 0;
+
+  for (const c of conceptos) {
+    const vol = c.cantidadPresupuestada + c.cantidadAdicionalAutorizada;
+    const importe = vol * c.precioUnitario;
+    if (importe <= 0) continue;
+    const pct = calcularAvanceProgramadoConcepto(
+      c.fecha_inicio_programada,
+      c.fecha_fin_programada,
+      fechaCorte
+    );
+    totalImporte += importe;
+    importeProgramado += importe * (pct / 100);
+  }
+
+  if (totalImporte <= 0) return 0;
+  return Number(((importeProgramado / totalImporte) * 100).toFixed(1));
 }
 
 export function calcularCostosUnitarios(
@@ -363,6 +406,8 @@ function createConcepto(params: {
   costoMateriales: number;
   costoInstalacion: number;
   indirectosPct?: number;
+  fecha_inicio_programada: string;
+  fecha_fin_programada: string;
   tipo?: 'ORDINARIO' | 'EXTRAORDINARIO';
 }): CatalogoConcepto {
   const costos = calcularCostosUnitarios(
@@ -381,6 +426,8 @@ function createConcepto(params: {
     cantidadAdicionalAutorizada: params.cantidadAdicionalAutorizada ?? 0,
     cantidadEjecutada: params.cantidadEjecutada ?? 0,
     ...costos,
+    fecha_inicio_programada: params.fecha_inicio_programada,
+    fecha_fin_programada: params.fecha_fin_programada,
     tipo: params.tipo ?? 'ORDINARIO',
   };
 }
@@ -401,6 +448,8 @@ export const INITIAL_CONCEPTOS_BY_OBRA: Record<string, CatalogoConcepto[]> = {
       cantidadEjecutada: 980,
       costoMateriales: 1507.65,
       costoInstalacion: 723.61,
+      fecha_inicio_programada: '2024-05-06',
+      fecha_fin_programada: '2024-08-30',
     }),
     createConcepto({
       clave: 'EST-001',
@@ -415,6 +464,8 @@ export const INITIAL_CONCEPTOS_BY_OBRA: Record<string, CatalogoConcepto[]> = {
       cantidadEjecutada: 315,
       costoMateriales: 2380.0,
       costoInstalacion: 1135.63,
+      fecha_inicio_programada: '2024-08-15',
+      fecha_fin_programada: '2024-10-12',
     }),
     createConcepto({
       clave: 'SUP-012',
@@ -429,6 +480,8 @@ export const INITIAL_CONCEPTOS_BY_OBRA: Record<string, CatalogoConcepto[]> = {
       cantidadEjecutada: 16,
       costoMateriales: 235000.0,
       costoInstalacion: 77500.0,
+      fecha_inicio_programada: '2024-07-01',
+      fecha_fin_programada: '2024-10-10',
     }),
     createConcepto({
       clave: 'F01-410',
@@ -444,6 +497,8 @@ export const INITIAL_CONCEPTOS_BY_OBRA: Record<string, CatalogoConcepto[]> = {
       cantidadEjecutada: 2900,
       costoMateriales: 99.52,
       costoInstalacion: 15.2,
+      fecha_inicio_programada: '2024-09-10',
+      fecha_fin_programada: '2024-11-20',
     }),
     createConcepto({
       clave: 'E05-400',
@@ -458,6 +513,8 @@ export const INITIAL_CONCEPTOS_BY_OBRA: Record<string, CatalogoConcepto[]> = {
       cantidadEjecutada: 2100,
       costoMateriales: 493.74,
       costoInstalacion: 47.39,
+      fecha_inicio_programada: '2024-09-20',
+      fecha_fin_programada: '2024-12-10',
     }),
     createConcepto({
       clave: 'E05-420',
@@ -472,6 +529,8 @@ export const INITIAL_CONCEPTOS_BY_OBRA: Record<string, CatalogoConcepto[]> = {
       cantidadEjecutada: 820,
       costoMateriales: 114.21,
       costoInstalacion: 65.8,
+      fecha_inicio_programada: '2024-10-01',
+      fecha_fin_programada: '2024-12-20',
     }),
   ],
 
@@ -489,6 +548,8 @@ export const INITIAL_CONCEPTOS_BY_OBRA: Record<string, CatalogoConcepto[]> = {
       cantidadEjecutada: 0,
       costoMateriales: 1507.65,
       costoInstalacion: 723.61,
+      fecha_inicio_programada: '2025-01-15',
+      fecha_fin_programada: '2025-03-15',
     }),
     createConcepto({
       clave: 'E02-041',
@@ -503,6 +564,8 @@ export const INITIAL_CONCEPTOS_BY_OBRA: Record<string, CatalogoConcepto[]> = {
       cantidadEjecutada: 0,
       costoMateriales: 1088.36,
       costoInstalacion: 648.67,
+      fecha_inicio_programada: '2025-03-16',
+      fecha_fin_programada: '2025-06-01',
     }),
     createConcepto({
       clave: 'E06-090',
@@ -517,6 +580,8 @@ export const INITIAL_CONCEPTOS_BY_OBRA: Record<string, CatalogoConcepto[]> = {
       cantidadEjecutada: 0,
       costoMateriales: 204.88,
       costoInstalacion: 157.42,
+      fecha_inicio_programada: '2025-05-15',
+      fecha_fin_programada: '2025-07-15',
     }),
     createConcepto({
       clave: 'E07-150',
@@ -530,6 +595,8 @@ export const INITIAL_CONCEPTOS_BY_OBRA: Record<string, CatalogoConcepto[]> = {
       cantidadEjecutada: 0,
       costoMateriales: 451.43,
       costoInstalacion: 582.04,
+      fecha_inicio_programada: '2025-06-01',
+      fecha_fin_programada: '2025-08-10',
     }),
   ],
 };

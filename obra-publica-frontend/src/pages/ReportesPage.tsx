@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   FileSpreadsheet,
   FileDown,
@@ -7,21 +7,8 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useObra } from '../context/ObraContext';
 import { StatusBadge } from '../components/common/StatusBadge';
-
-interface ReporteObraRow {
-  clave: string;
-  contrato: string;
-  nombre: string;
-  estado: 'EN_EJECUCION' | 'ALERTA_VACANTE_OPERATIVA' | 'SUSPENDIDA' | 'EN_CONFIGURACION' | 'FINIQUITADA';
-  avanceFisico: number;
-  avanceFinanciero: number;
-  presupuestoContratado: number;
-  montoBrutoEstimado: number;
-  amortizacionAnticipo: number;
-  montoNetoAutorizado: number;
-  montoLiquidado: number;
-}
 
 interface ExportAuditEntry {
   id: string;
@@ -30,61 +17,6 @@ interface ExportAuditEntry {
   actor: string;
   ipOrigen: string;
 }
-
-const REPORT_ROWS: ReporteObraRow[] = [
-  {
-    clave: 'OP-2024-001',
-    contrato: 'SOP-LP-024/2024',
-    nombre: 'Construcción de Puente Vehicular OP-2024-001',
-    estado: 'EN_EJECUCION',
-    avanceFisico: 62,
-    avanceFinanciero: 58,
-    presupuestoContratado: 25000000,
-    montoBrutoEstimado: 15500000,
-    amortizacionAnticipo: 1000000,
-    montoNetoAutorizado: 14500000,
-    montoLiquidado: 14500000,
-  },
-  {
-    clave: 'OP-2024-002',
-    contrato: 'SOP-LP-031/2024',
-    nombre: 'Rehabilitación de Colector Pluvial Zona Norte',
-    estado: 'ALERTA_VACANTE_OPERATIVA',
-    avanceFisico: 44,
-    avanceFinanciero: 40,
-    presupuestoContratado: 18400000,
-    montoBrutoEstimado: 8100000,
-    amortizacionAnticipo: 740000,
-    montoNetoAutorizado: 7360000,
-    montoLiquidado: 7360000,
-  },
-  {
-    clave: 'OP-2024-003',
-    contrato: 'SOP-LP-045/2024',
-    nombre: 'Modernización de Vialidad Primaria Av. Politécnico',
-    estado: 'SUSPENDIDA',
-    avanceFisico: 31,
-    avanceFinanciero: 28,
-    presupuestoContratado: 32000000,
-    montoBrutoEstimado: 9800000,
-    amortizacionAnticipo: 840000,
-    montoNetoAutorizado: 8960000,
-    montoLiquidado: 8960000,
-  },
-  {
-    clave: 'OP-2024-005',
-    contrato: 'SOP-LP-011/2024',
-    nombre: 'Sustitución de Red de Alumbrado Público Etapa I',
-    estado: 'FINIQUITADA',
-    avanceFisico: 100,
-    avanceFinanciero: 100,
-    presupuestoContratado: 9800000,
-    montoBrutoEstimado: 10300000,
-    amortizacionAnticipo: 500000,
-    montoNetoAutorizado: 9800000,
-    montoLiquidado: 9800000,
-  },
-];
 
 const formatMXN = (n: number) =>
   new Intl.NumberFormat('es-MX', {
@@ -95,14 +27,58 @@ const formatMXN = (n: number) =>
 
 export const ReportesPage: React.FC = () => {
   const { user } = useAuth();
+  const { obras } = useObra();
   const [auditExports, setAuditExports] = useState<ExportAuditEntry[]>([]);
 
-  const totalContratado = REPORT_ROWS.reduce((s, r) => s + r.presupuestoContratado, 0);
-  const totalLiquidado = REPORT_ROWS.reduce((s, r) => s + r.montoLiquidado, 0);
+  const reportRows = useMemo(() => {
+    return obras.map((o) => {
+      const contratado = o.presupuestoTotal ?? 25000000;
+      const liquidado = Math.round(contratado * (o.avanceFinanciero / 100));
+      const amortizacion = Math.round(liquidado * 0.08);
+      const brutoEstimado = liquidado + amortizacion;
+      return {
+        clave: o.id,
+        contrato: o.contrato,
+        nombre: o.nombre,
+        estado: o.estado,
+        avanceProgramado: o.avanceProgramado,
+        avanceFisico: o.avanceFisico,
+        avanceFinanciero: o.avanceFinanciero,
+        desviacion: Number((o.avanceFisico - o.avanceProgramado).toFixed(1)),
+        presupuestoContratado: contratado,
+        montoBrutoEstimado: brutoEstimado,
+        amortizacionAnticipo: amortizacion,
+        montoNetoAutorizado: liquidado,
+        montoLiquidado: liquidado,
+      };
+    });
+  }, [obras]);
+
+  const totalContratado = reportRows.reduce((s, r) => s + r.presupuestoContratado, 0);
+  const totalLiquidado = reportRows.reduce((s, r) => s + r.montoLiquidado, 0);
   const totalPorEjercer = totalContratado - totalLiquidado;
-  const promedioFisico = Math.round(
-    REPORT_ROWS.reduce((s, r) => s + r.avanceFisico, 0) / REPORT_ROWS.length
-  );
+  const promedioProgramado =
+    reportRows.length > 0
+      ? Number(
+          (
+            reportRows.reduce((s, r) => s + r.avanceProgramado, 0) / reportRows.length
+          ).toFixed(1)
+        )
+      : 0;
+  const promedioFisico =
+    reportRows.length > 0
+      ? Number(
+          (reportRows.reduce((s, r) => s + r.avanceFisico, 0) / reportRows.length).toFixed(1)
+        )
+      : 0;
+  const promedioFinanciero =
+    reportRows.length > 0
+      ? Number(
+          (
+            reportRows.reduce((s, r) => s + r.avanceFinanciero, 0) / reportRows.length
+          ).toFixed(1)
+        )
+      : 0;
 
   const registerExportLog = (formato: 'EXCEL (CSV)' | 'PDF') => {
     setAuditExports((prev) => [
@@ -117,15 +93,16 @@ export const ReportesPage: React.FC = () => {
     ]);
   };
 
-  // RF-DIR-04 / RN-DIR-04.1: Exportación real a CSV compatible con Excel
   const handleExportCsv = () => {
     const headers = [
       'Clave',
       'Contrato',
       'Obra',
       'Estatus',
-      'Avance Fisico (%)',
+      'Avance Programado (%)',
+      'Avance Fisico Real (%)',
       'Avance Financiero (%)',
+      'Desviacion (pp)',
       'Presupuesto Contratado',
       'Monto Bruto Estimado',
       'Amortizacion Anticipo',
@@ -134,13 +111,15 @@ export const ReportesPage: React.FC = () => {
       'Saldo por Ejercer',
     ];
 
-    const lines = REPORT_ROWS.map((r) => [
+    const lines = reportRows.map((r) => [
       r.clave,
       r.contrato,
       `"${r.nombre}"`,
       r.estado,
+      r.avanceProgramado,
       r.avanceFisico,
       r.avanceFinanciero,
+      r.desviacion,
       r.presupuestoContratado,
       r.montoBrutoEstimado,
       r.amortizacionAnticipo,
@@ -172,7 +151,7 @@ export const ReportesPage: React.FC = () => {
       {/* Encabezado */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-fg-muted ">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-fg-muted">
             Tablero directivo y consolidado financiero (RF-DIR-01 / RF-DIR-04)
           </p>
           <h1 className="text-2xl font-normal text-fg tracking-tight mt-0.5">
@@ -201,49 +180,52 @@ export const ReportesPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Resumen ejecutivo global */}
+      {/* Resumen ejecutivo global con todos los porcentajes promedio */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 text-xs">
         <div className="bg-surface border border-line rounded-xl p-4">
           <p className="text-fg-muted">Presupuesto total contratado</p>
-          <p className="text-xl font-bold text-fg mt-1">
-            {formatMXN(totalContratado)}
-          </p>
+          <p className="text-xl font-bold text-fg mt-1">{formatMXN(totalContratado)}</p>
         </div>
         <div className="bg-surface border border-line rounded-xl p-4">
           <p className="text-fg-muted">Monto efectivamente liquidado</p>
           <p className="text-xl font-bold text-ok-fg mt-1">{formatMXN(totalLiquidado)}</p>
-        </div>
-        <div className="bg-surface border border-line rounded-xl p-4">
-          <p className="text-fg-muted">Saldo pendiente por ejercer</p>
-          <p className="text-xl font-bold text-fg mt-1">
-            {formatMXN(totalPorEjercer)}
+          <p className="text-[10px] text-fg-muted mt-0.5">
+            Promedio financiero: <strong>{promedioFinanciero}%</strong>
           </p>
         </div>
         <div className="bg-surface border border-line rounded-xl p-4">
+          <p className="text-fg-muted">Saldo pendiente por ejercer</p>
+          <p className="text-xl font-bold text-fg mt-1">{formatMXN(totalPorEjercer)}</p>
+        </div>
+        <div className="bg-surface border border-line rounded-xl p-4">
           <div className="flex items-center justify-between text-fg-muted">
-            <span>Avance físico promedio</span>
+            <span>Promedios de avance</span>
             <TrendingUp className="w-4 h-4 text-accent" />
           </div>
-          <p className="text-xl font-bold text-accent mt-1">{promedioFisico}%</p>
+          <p className="text-xl font-bold text-accent mt-1">Real: {promedioFisico}%</p>
+          <p className="text-[10px] text-fg-muted mt-0.5">
+            Programado: <strong>{promedioProgramado}%</strong> · Financiero:{' '}
+            <strong>{promedioFinanciero}%</strong>
+          </p>
         </div>
       </div>
 
-      {/* Tabla desglosada financiera (RN-DIR-04.1) */}
+      {/* Tabla desglosada financiera con los 3 porcentajes */}
       <div className="bg-surface border border-line rounded-xl overflow-hidden">
         <div className="px-5 py-4 border-b border-line flex items-center gap-2">
           <BarChart3 className="w-4 h-4 text-accent" />
-          <h2 className="text-sm font-semibold text-fg ">
-            Desglose financiero y avance físico vs. financiero por contrato
+          <h2 className="text-sm font-semibold text-fg">
+            Desglose financiero y comparativo Programado vs. Físico Real vs. Financiero
           </h2>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-230 text-xs">
+          <table className="w-full text-left border-collapse min-w-240 text-xs">
             <thead>
-              <tr className="bg-canvas text-[10px] font-semibold uppercase text-fg-muted border-b border-line ">
+              <tr className="bg-canvas text-[10px] font-semibold uppercase text-fg-muted border-b border-line">
                 <th className="py-3 px-4">Obra / Contrato</th>
                 <th className="py-3 px-3">Estatus</th>
-                <th className="py-3 px-3">Físico / Financ.</th>
+                <th className="py-3 px-3">Prog. / Físico / Financ.</th>
                 <th className="py-3 px-3 text-right">Contratado</th>
                 <th className="py-3 px-3 text-right">Bruto Est.</th>
                 <th className="py-3 px-3 text-right">Amortiz.</th>
@@ -251,35 +233,51 @@ export const ReportesPage: React.FC = () => {
                 <th className="py-3 px-4 text-right">Saldo</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-line ">
-              {REPORT_ROWS.map((r) => {
+            <tbody className="divide-y divide-line">
+              {reportRows.map((r) => {
                 const saldo = r.presupuestoContratado - r.montoLiquidado;
                 return (
-                  <tr key={r.clave} className="hover:bg-subtle/60 ">
+                  <tr key={r.clave} className="hover:bg-subtle/60">
                     <td className="py-3.5 px-4">
                       <p className="font-semibold text-accent">{r.clave}</p>
-                      <p className="font-medium text-fg ">{r.nombre}</p>
+                      <p className="font-medium text-fg">{r.nombre}</p>
                       <p className="text-[10px] text-fg-muted">{r.contrato}</p>
                     </td>
                     <td className="py-3.5 px-3">
                       <StatusBadge status={r.estado} />
                     </td>
-                    <td className="py-3.5 px-3 w-40">
-                      <div className="space-y-1.5 text-[10px]">
+                    <td className="py-3.5 px-3 w-48">
+                      <div className="space-y-1 text-[10px]">
                         <div className="flex justify-between">
-                          <span className="text-fg-muted">Físico</span>
-                          <span className="font-semibold text-accent">{r.avanceFisico}%</span>
-                        </div>
-                        <div className="h-1.5 bg-info-bg rounded-full overflow-hidden">
-                          <div className="h-full bg-brand" style={{ width: `${r.avanceFisico}%` }} />
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-fg-muted">Financ.</span>
-                          <span className="font-semibold">{r.avanceFinanciero}%</span>
+                          <span className="text-fg-muted">Programado</span>
+                          <span className="font-semibold text-fg-soft">{r.avanceProgramado}%</span>
                         </div>
                         <div className="h-1.5 bg-subtle rounded-full overflow-hidden">
                           <div
                             className="h-full bg-fg-muted"
+                            style={{ width: `${r.avanceProgramado}%` }}
+                          />
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-fg-muted">Físico Real</span>
+                          <span className="font-semibold text-accent">
+                            {r.avanceFisico}% ({r.desviacion >= 0 ? '+' : ''}
+                            {r.desviacion} pp)
+                          </span>
+                        </div>
+                        <div className="h-1.5 bg-info-bg rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-brand"
+                            style={{ width: `${r.avanceFisico}%` }}
+                          />
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-fg-muted">Financiero</span>
+                          <span className="font-semibold text-ok-fg">{r.avanceFinanciero}%</span>
+                        </div>
+                        <div className="h-1.5 bg-ok-bg rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-ok-solid"
                             style={{ width: `${r.avanceFinanciero}%` }}
                           />
                         </div>
@@ -314,15 +312,15 @@ export const ReportesPage: React.FC = () => {
 
         {auditExports.length === 0 ? (
           <p className="text-[11px] text-fg-muted">
-            Aún no se han generado descargas en esta sesión. Al exportar en Excel o PDF se registrará
-            automáticamente fecha UTC, usuario e IP de origen.
+            Aún no se han generado descargas en esta sesión. Al exportar en Excel o PDF se
+            registrará automáticamente fecha UTC, usuario e IP de origen.
           </p>
         ) : (
-          <div className="divide-y divide-line ">
+          <div className="divide-y divide-line">
             {auditExports.map((log) => (
               <div key={log.id} className="py-2 flex flex-wrap items-center justify-between gap-2">
                 <span className="font-mono text-[11px] text-fg-muted">{log.fechaUtc}</span>
-                <span className="font-medium text-fg ">{log.actor}</span>
+                <span className="font-medium text-fg">{log.actor}</span>
                 <span className="px-2 py-0.5 rounded bg-info-bg text-accent text-[10px] font-semibold">
                   {log.formato}
                 </span>

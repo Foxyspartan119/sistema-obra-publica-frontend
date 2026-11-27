@@ -25,6 +25,7 @@ export interface ProgressPeriod {
     months: string[];
     programado: number[];
     real: number[];
+    financiero: number[];
 }
 
 export const OBRA_DETAIL_MOCK = {
@@ -52,29 +53,32 @@ export const PROGRESS_PERIODS: ProgressPeriod[] = [
     {
         id: 'may-oct',
         label: 'May - Oct 2024',
-        note: 'Corte al 14 oct 2024 · 3 puntos por debajo del avance programado.',
+        note: 'Corte al 14 oct 2024 · 3 pp por debajo del avance programado · Financiero en regla.',
         badge: '62%',
-        months: ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+        months: ['May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct'],
         programado: [10, 22, 35, 48, 57, 65],
         real: [9, 20, 31, 42, 53, 62],
+        financiero: [7, 17, 28, 39, 49, 58],
     },
     {
         id: 'may-ago',
         label: 'May - Ago 2024',
-        note: 'Corte al 31 ago 2024 · 4 puntos por debajo del avance programado.',
+        note: 'Corte al 31 ago 2024 · 4 pp por debajo del avance programado.',
         badge: '42%',
-        months: ['May', 'Jun', 'Jul', 'Aug'],
+        months: ['May', 'Jun', 'Jul', 'Ago'],
         programado: [10, 22, 35, 46],
         real: [9, 20, 31, 42],
+        financiero: [7, 17, 28, 39],
     },
     {
         id: 'ago-oct',
         label: 'Ago - Oct 2024',
-        note: 'Periodo bimestral · Recuperación de 2 puntos en frente estructural.',
+        note: 'Periodo bimestral · Recuperación de 2 pp en frente estructural.',
         badge: '62%',
         months: ['Ago', 'Sep', 'Oct'],
         programado: [46, 57, 65],
         real: [42, 53, 62],
+        financiero: [39, 49, 58],
     },
 ];
 
