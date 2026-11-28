@@ -49,7 +49,17 @@ export interface ContratistaRecord {
   rfc: string;
   razon_social: string;
   dominioCorreo?: string;
+  registro_iva?: string;
+  registro_cmic?: string;
+  registro_padron?: string;
   activo: boolean;
+}
+
+export interface AnticipoEjercicioFiscal {
+  id: string;
+  anio: number;
+  monto: number;
+  porcentaje_amortizacion: number; // default 10 (%)
 }
 
 export interface ContratoObra {
@@ -59,7 +69,10 @@ export interface ContratoObra {
   monto_contrato: number;
   monto_anticipo: number;
   id_contratista: string;
+  fecha_contrato?: string;
   fecha_firma?: string;
+  adendum?: string;
+  anticipos_por_ejercicio: AnticipoEjercicioFiscal[];
 }
 
 export type TipoPolizaFianza = 'ANTICIPO' | 'CUMPLIMIENTO' | 'VICIOS_OCULTOS';

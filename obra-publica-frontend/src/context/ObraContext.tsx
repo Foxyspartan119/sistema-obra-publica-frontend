@@ -35,6 +35,7 @@ export interface NewObraInput {
   presupuesto_total: number;
   fecha_inicio: string; // YYYY-MM-DD
   fecha_fin: string;    // YYYY-MM-DD
+  lugar_obra?: string;
   ubicacion?: string;
 }
 
@@ -95,6 +96,9 @@ const INITIAL_CONTRATISTAS: ContratistaRecord[] = [
     rfc: 'CNO9804128A3',
     razon_social: 'Constructora del Norte, S.A. de C.V.',
     dominioCorreo: '@constructoradelnorte.mx',
+    registro_iva: 'IVA-NL-980412',
+    registro_cmic: 'CMIC-2024-04182',
+    registro_padron: 'SOP-PAD-2024-019',
     activo: true,
   },
   {
@@ -102,6 +106,9 @@ const INITIAL_CONTRATISTAS: ContratistaRecord[] = [
     rfc: 'IHM0511209K1',
     razon_social: 'Infraestructura Hidráulica MX, S.A.',
     dominioCorreo: '@hidraulicamx.com',
+    registro_iva: 'IVA-CDMX-051120',
+    registro_cmic: 'CMIC-2024-07210',
+    registro_padron: 'SOP-PAD-2024-034',
     activo: true,
   },
   {
@@ -109,6 +116,7 @@ const INITIAL_CONTRATISTAS: ContratistaRecord[] = [
     rfc: 'PEV0108154R7',
     razon_social: 'Pavimentos y Estructuras del Valle, S.A. de C.V.',
     dominioCorreo: '@pavimentosvalle.mx',
+    registro_cmic: 'CMIC-2024-05309',
     activo: true,
   },
   {
@@ -116,6 +124,7 @@ const INITIAL_CONTRATISTAS: ContratistaRecord[] = [
     rfc: 'ECC1203087M2',
     razon_social: 'Edificaciones Civiles del Centro, S.A. de C.V.',
     dominioCorreo: '@edificacionescentro.mx',
+    registro_padron: 'SOP-PAD-2024-088',
     activo: true,
   },
   {
@@ -135,7 +144,13 @@ const INITIAL_CONTRATOS_BY_OBRA: Record<string, ContratoObra> = {
     monto_contrato: 25000000,
     monto_anticipo: 7500000,
     id_contratista: 'ctr-1',
+    fecha_contrato: '2024-05-02',
     fecha_firma: '2024-05-02',
+    adendum: 'Convenio Modificatorio CM-01/2024 (ajuste programa)',
+    anticipos_por_ejercicio: [
+      { id: 'ant-2024-1', anio: 2024, monto: 5000000, porcentaje_amortizacion: 10 },
+      { id: 'ant-2025-1', anio: 2025, monto: 2500000, porcentaje_amortizacion: 10 },
+    ],
   },
   'OP-2024-002': {
     id: 'cnt-002',
@@ -144,7 +159,11 @@ const INITIAL_CONTRATOS_BY_OBRA: Record<string, ContratoObra> = {
     monto_contrato: 18400000,
     monto_anticipo: 5520000,
     id_contratista: 'ctr-2',
+    fecha_contrato: '2024-06-10',
     fecha_firma: '2024-06-10',
+    anticipos_por_ejercicio: [
+      { id: 'ant-2024-2', anio: 2024, monto: 5520000, porcentaje_amortizacion: 10 },
+    ],
   },
   'OP-2024-003': {
     id: 'cnt-003',
@@ -153,7 +172,11 @@ const INITIAL_CONTRATOS_BY_OBRA: Record<string, ContratoObra> = {
     monto_contrato: 32000000,
     monto_anticipo: 9600000,
     id_contratista: 'ctr-3',
+    fecha_contrato: '2024-07-05',
     fecha_firma: '2024-07-05',
+    anticipos_por_ejercicio: [
+      { id: 'ant-2024-3', anio: 2024, monto: 9600000, porcentaje_amortizacion: 10 },
+    ],
   },
   'OP-2024-004': {
     id: 'cnt-004',
@@ -162,7 +185,11 @@ const INITIAL_CONTRATOS_BY_OBRA: Record<string, ContratoObra> = {
     monto_contrato: 14200000,
     monto_anticipo: 4260000,
     id_contratista: 'ctr-4',
+    fecha_contrato: '2024-09-20',
     fecha_firma: '2024-09-20',
+    anticipos_por_ejercicio: [
+      { id: 'ant-2025-4', anio: 2025, monto: 4260000, porcentaje_amortizacion: 10 },
+    ],
   },
   'OP-2024-005': {
     id: 'cnt-005',
@@ -171,7 +198,11 @@ const INITIAL_CONTRATOS_BY_OBRA: Record<string, ContratoObra> = {
     monto_contrato: 9800000,
     monto_anticipo: 2940000,
     id_contratista: 'ctr-5',
+    fecha_contrato: '2024-02-15',
     fecha_firma: '2024-02-15',
+    anticipos_por_ejercicio: [
+      { id: 'ant-2024-5', anio: 2024, monto: 2940000, porcentaje_amortizacion: 10 },
+    ],
   },
 };
 
@@ -271,7 +302,8 @@ interface ObraContextValue {
   addContratista: (input: Omit<ContratistaRecord, 'id' | 'activo'>) => ContratistaRecord;
   toggleContratistaActivo: (id: string) => void;
   saveContratoForSelectedObra: (
-    input: Omit<ContratoObra, 'id' | 'obraId'>
+    input: Omit<ContratoObra, 'id' | 'obraId'>,
+    lugarObra?: string
   ) => ContratoObra;
   savePolizaForSelectedObra: (
     input: Omit<PolizaFianza, 'id' | 'obraId' | 'contratoId'> & { id?: string }
@@ -336,11 +368,12 @@ export const ObraProvider: React.FC<{ children: React.ReactNode }> = ({
   const addObra = (input: NewObraInput): ObraPortfolioItem => {
     const nextIdx = obras.length + 1;
     const newId = `OP-2024-${String(nextIdx).padStart(3, '0')}`;
+    const lugar = (input.lugar_obra ?? input.ubicacion ?? '').trim() || 'Por definir';
     const created: ObraPortfolioItem = {
       id: newId,
       contrato: 'Sin contrato asignado',
       nombre: input.nombre_obra.trim(),
-      ubicacion: input.ubicacion?.trim() || 'Por definir',
+      ubicacion: lugar,
       contratista: 'Sin contratista asignado',
       estado: 'EN_CONFIGURACION',
       avanceFisico: 0,
@@ -497,6 +530,9 @@ export const ObraProvider: React.FC<{ children: React.ReactNode }> = ({
       rfc: input.rfc.trim().toUpperCase(),
       razon_social: input.razon_social.trim(),
       dominioCorreo: input.dominioCorreo?.trim().toLowerCase() || undefined,
+      registro_iva: input.registro_iva?.trim() || undefined,
+      registro_cmic: input.registro_cmic?.trim() || undefined,
+      registro_padron: input.registro_padron?.trim() || undefined,
       activo: true,
     };
     setContratistas((prev) => [created, ...prev]);
@@ -510,13 +546,15 @@ export const ObraProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const saveContratoForSelectedObra = (
-    input: Omit<ContratoObra, 'id' | 'obraId'>
+    input: Omit<ContratoObra, 'id' | 'obraId'>,
+    lugarObra?: string
   ): ContratoObra => {
     const existing = contratosByObra[selectedObra.id];
     const saved: ContratoObra = {
       id: existing?.id ?? `cnt-${Date.now()}`,
       obraId: selectedObra.id,
       ...input,
+      fecha_firma: input.fecha_contrato ?? input.fecha_firma,
     };
     setContratosByObra((prev) => ({
       ...prev,
@@ -531,6 +569,7 @@ export const ObraProvider: React.FC<{ children: React.ReactNode }> = ({
               ...o,
               contrato: input.numero_contrato,
               contratista: contratista?.razon_social ?? o.contratista,
+              ubicacion: lugarObra?.trim() ? lugarObra.trim() : o.ubicacion,
               presupuestoTotal: input.monto_contrato,
               montoLabel: formatMontoLabel(input.monto_contrato),
             }

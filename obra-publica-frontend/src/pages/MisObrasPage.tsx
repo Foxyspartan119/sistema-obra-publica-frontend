@@ -194,7 +194,7 @@ export const MisObrasPage: React.FC<MisObrasPageProps> = ({
       presupuesto_total: monto,
       fecha_inicio: fechaInicio,
       fecha_fin: fechaFin,
-      ubicacion,
+      lugar_obra: ubicacion,
     });
 
     setNombreObra('');
@@ -442,13 +442,13 @@ export const MisObrasPage: React.FC<MisObrasPageProps> = ({
 
               <div>
                 <label className="block text-[11px] font-medium text-fg-soft mb-1">
-                  Ubicación (opcional)
+                  Lugar de la obra (lugar_obra)
                 </label>
                 <input
                   type="text"
                   value={ubicacion}
                   onChange={(e) => setUbicacion(e.target.value)}
-                  placeholder="Municipio / Alcaldía"
+                  placeholder="Ej. San Pedro Garza García, N.L."
                   className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas"
                 />
               </div>

@@ -58,10 +58,13 @@ const INITIAL_ENTRIES: CatalogEntry[] = [
 export const AdminCatalogosTab: React.FC = () => {
   const { contratistas, addContratista, toggleContratistaActivo } = useObra();
 
-  // --- Alta de Empresa Contratista (rfc, razon_social) ---
+  // --- Alta de Empresa Contratista (rfc, razon_social + registros opcionales) ---
   const [rfcContratista, setRfcContratista] = useState('');
   const [razonSocial, setRazonSocial] = useState('');
   const [dominioCorreo, setDominioCorreo] = useState('');
+  const [registroIva, setRegistroIva] = useState('');
+  const [registroCmic, setRegistroCmic] = useState('');
+  const [registroPadron, setRegistroPadron] = useState('');
   const [ctrError, setCtrError] = useState<string | null>(null);
   const [ctrSuccess, setCtrSuccess] = useState<string | null>(null);
 
@@ -106,6 +109,9 @@ export const AdminCatalogosTab: React.FC = () => {
       rfc: rfcNorm,
       razon_social: razonNorm,
       dominioCorreo: domFormatted,
+      registro_iva: registroIva,
+      registro_cmic: registroCmic,
+      registro_padron: registroPadron,
     });
 
     if (domFormatted) {
@@ -125,6 +131,9 @@ export const AdminCatalogosTab: React.FC = () => {
     setRfcContratista('');
     setRazonSocial('');
     setDominioCorreo('');
+    setRegistroIva('');
+    setRegistroCmic('');
+    setRegistroPadron('');
     setCtrSuccess(
       `Empresa contratista "${created.razon_social}" (RFC: ${created.rfc}) registrada correctamente.`
     );
@@ -227,6 +236,47 @@ export const AdminCatalogosTab: React.FC = () => {
             </div>
           </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="space-y-1">
+              <label className="text-[11px] font-medium text-fg-soft">
+                Registro IVA (opcional)
+              </label>
+              <input
+                type="text"
+                placeholder="Ej. IVA-CDMX-980412"
+                value={registroIva}
+                onChange={(e) => setRegistroIva(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas font-mono"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[11px] font-medium text-fg-soft">
+                Registro CMIC (opcional)
+              </label>
+              <input
+                type="text"
+                placeholder="Ej. CMIC-2024-04182"
+                value={registroCmic}
+                onChange={(e) => setRegistroCmic(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas font-mono"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[11px] font-medium text-fg-soft">
+                Registro Padrón / Dependencia (opcional)
+              </label>
+              <input
+                type="text"
+                placeholder="Ej. SOP-PAD-2024-019"
+                value={registroPadron}
+                onChange={(e) => setRegistroPadron(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas font-mono"
+              />
+            </div>
+          </div>
+
           {ctrError && (
             <div
               role="alert"
@@ -277,11 +327,28 @@ export const AdminCatalogosTab: React.FC = () => {
                       RFC: {ctr.rfc}
                     </span>
                   </div>
-                  {ctr.dominioCorreo && (
-                    <p className="text-[11px] text-fg-muted">
-                      Dominio autorizado: <span className="font-mono">{ctr.dominioCorreo}</span>
-                    </p>
-                  )}
+                  <div className="flex flex-wrap items-center gap-2 text-[11px] text-fg-muted pt-0.5">
+                    {ctr.dominioCorreo && (
+                      <span>
+                        Dominio: <span className="font-mono">{ctr.dominioCorreo}</span>
+                      </span>
+                    )}
+                    {ctr.registro_iva && (
+                      <span className="px-1.5 py-0.5 rounded bg-subtle font-mono text-[10px]">
+                        IVA: {ctr.registro_iva}
+                      </span>
+                    )}
+                    {ctr.registro_cmic && (
+                      <span className="px-1.5 py-0.5 rounded bg-subtle font-mono text-[10px]">
+                        CMIC: {ctr.registro_cmic}
+                      </span>
+                    )}
+                    {ctr.registro_padron && (
+                      <span className="px-1.5 py-0.5 rounded bg-subtle font-mono text-[10px]">
+                        Padrón: {ctr.registro_padron}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-3">

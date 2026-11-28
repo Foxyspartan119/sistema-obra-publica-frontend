@@ -181,32 +181,32 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3">
-        <div className="flex items-center justify-between text-[11px] font-semibold text-fg-muted ">
-          <span className="uppercase tracking-wider">Administración del sistema</span>
-          <span className="inline-flex items-center gap-1.5 font-normal">
-            <RefreshCw className="w-3 h-3" />
-            Actualizado hoy, 08:45 h
-          </span>
-        </div>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="space-y-2.5">
-            <h1 className="text-2xl font-normal text-fg tracking-tight">
-              Administración de usuarios y accesos
-            </h1>
-            <div className="flex flex-wrap items-center gap-4 text-xs text-fg-muted ">
-              <span className="px-2.5 py-1 rounded-md bg-info-bg text-accent font-semibold">
-                {totalRegistrados} usuarios registrados
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5" />
-                Dirección de Obras
-              </span>
-              <span>Última auditoría: 14 oct 2024</span>
-            </div>
+      {activeTab === 'cuentas' ? (
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between text-[11px] font-semibold text-fg-muted ">
+            <span className="uppercase tracking-wider">Administración del sistema</span>
+            <span className="inline-flex items-center gap-1.5 font-normal">
+              <RefreshCw className="w-3 h-3" />
+              Actualizado hoy, 08:45 h
+            </span>
           </div>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="space-y-2.5">
+              <h1 className="text-2xl font-normal text-fg tracking-tight">
+                Administración de usuarios y accesos
+              </h1>
+              <div className="flex flex-wrap items-center gap-4 text-xs text-fg-muted ">
+                <span className="px-2.5 py-1 rounded-md bg-info-bg text-accent font-semibold">
+                  {totalRegistrados} usuarios registrados
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5" />
+                  Dirección de Obras
+                </span>
+                <span>Última auditoría: 14 oct 2024</span>
+              </div>
+            </div>
 
-          {activeTab === 'cuentas' && (
             <button
               type="button"
               onClick={() => {
@@ -218,10 +218,30 @@ export const AdminPage: React.FC<AdminPageProps> = ({ activeSubSection }) => {
             >
               <Plus className="w-4 h-4" />
               Crear nuevo usuario
-              </button>
-          )}
+            </button>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="space-y-1">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-fg-muted">
+            Administración del sistema
+          </p>
+          <h1 className="text-2xl font-normal text-fg tracking-tight">
+            {activeTab === 'vinculacion'
+              ? 'Asignación de obras y personal operativo'
+              : activeTab === 'catalogos'
+              ? 'Catálogos maestros y empresas contratistas'
+              : 'Logs de auditoría y trazabilidad'}
+          </h1>
+          <p className="text-xs text-fg-muted">
+            {activeTab === 'vinculacion'
+              ? 'Alta de obras públicas y control de relevos de Residente, Supervisor y Superintendente.'
+              : activeTab === 'catalogos'
+              ? 'Padrón de empresas contratistas, dominios autorizados y catálogos institucionales.'
+              : 'Consulta de eventos inmutables y bitácora de acciones administrativas.'}
+          </p>
+        </div>
+      )}
 
       {feedbackError && (
         <div

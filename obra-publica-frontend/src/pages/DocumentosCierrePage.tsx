@@ -16,7 +16,11 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useObra } from '../context/ObraContext';
-import type { PolizaFianza, TipoPolizaFianza } from '../types/obra.types';
+import type {
+  AnticipoEjercicioFiscal,
+  PolizaFianza,
+  TipoPolizaFianza,
+} from '../types/obra.types';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { FileDropzone } from '../components/common/FileDropzone';
 import { ConfirmActionModal } from '../components/common/ConfirmActionModal';
@@ -110,15 +114,19 @@ export const DocumentosCierrePage: React.FC = () => {
   const [selloFiniquito, setSelloFiniquito] = useState<string | null>(null);
   const [confirmCierreOpen, setConfirmCierreOpen] = useState(false);
 
-  // --- Modal Contrato (numero_contrato, monto_contrato, monto_anticipo, id_contratista) ---
+  // --- Modal Contrato (numero_contrato, monto_contrato, monto_anticipo, id_contratista, lugar_obra, fecha_contrato, adendum, anticipos_por_ejercicio) ---
   const [showContratoModal, setShowContratoModal] = useState(false);
   const [contratoForm, setContratoForm] = useState({
     numero_contrato: '',
     id_contratista: '',
+    lugar_obra: '',
     monto_contrato: '',
-    monto_anticipo: '',
-    fecha_firma: '',
+    fecha_contrato: '',
+    adendum: '',
   });
+  const [anticiposDraft, setAnticiposDraft] = useState<
+    { id: string; anio: string; monto: string; porcentaje_amortizacion: string }[]
+  >([]);
   const [contratoError, setContratoError] = useState<string | null>(null);
 
   // --- Modal Póliza de Fianza (ANTICIPO, CUMPLIMIENTO, VICIOS_OCULTOS) ---
@@ -159,17 +167,62 @@ export const DocumentosCierrePage: React.FC = () => {
 
   const openContratoModal = () => {
     setContratoError(null);
+    const defaultAnio = (selectedObra.fechaInicio ?? '2024-05-06').slice(0, 4);
+    const existingEjercicios = selectedContrato?.anticipos_por_ejercicio ?? [];
     setContratoForm({
       numero_contrato: selectedContrato?.numero_contrato ?? selectedObra.contrato ?? '',
       id_contratista: selectedContrato?.id_contratista ?? contratistas[0]?.id ?? '',
+      lugar_obra: selectedObra.ubicacion ?? '',
       monto_contrato: String(selectedContrato?.monto_contrato ?? selectedObraMontoContrato),
-      monto_anticipo: String(
-        selectedContrato?.monto_anticipo ?? Math.round(selectedObraMontoContrato * 0.3)
-      ),
-      fecha_firma: selectedContrato?.fecha_firma ?? selectedObra.fechaInicio ?? '2024-05-02',
+      fecha_contrato:
+        selectedContrato?.fecha_contrato ??
+        selectedContrato?.fecha_firma ??
+        selectedObra.fechaInicio ??
+        '2024-05-02',
+      adendum: selectedContrato?.adendum ?? '',
     });
+    setAnticiposDraft(
+      existingEjercicios.length > 0
+        ? existingEjercicios.map((row) => ({
+            id: row.id,
+            anio: String(row.anio),
+            monto: String(row.monto),
+            porcentaje_amortizacion: String(row.porcentaje_amortizacion),
+          }))
+        : [
+            {
+              id: `ant-${Date.now()}`,
+              anio: defaultAnio,
+              monto: String(
+                selectedContrato?.monto_anticipo ?? Math.round(selectedObraMontoContrato * 0.3)
+              ),
+              porcentaje_amortizacion: '10',
+            },
+          ]
+    );
     setShowContratoModal(true);
   };
+
+  const handleAddEjercicioRow = () => {
+    const maxAnio = anticiposDraft.reduce(
+      (max, r) => Math.max(max, Number(r.anio) || 2024),
+      2023
+    );
+    setAnticiposDraft((prev) => [
+      ...prev,
+      {
+        id: `ant-${Date.now()}-${prev.length}`,
+        anio: String(maxAnio + 1),
+        monto: '0',
+        porcentaje_amortizacion: '10',
+      },
+    ]);
+  };
+
+  const totalAnticipoDraft = anticiposDraft.reduce(
+    (sum, r) => sum + Math.max(0, Number(r.monto) || 0),
+    0
+  );
 
   const handleSaveContrato = (e: React.FormEvent) => {
     e.preventDefault();
@@ -177,7 +230,6 @@ export const DocumentosCierrePage: React.FC = () => {
 
     const numero = contratoForm.numero_contrato.trim();
     const montoContrato = Number(contratoForm.monto_contrato);
-    const montoAnticipo = Number(contratoForm.monto_anticipo);
 
     if (!numero) {
       setContratoError('Captura el número de contrato (numero_contrato).');
@@ -187,30 +239,80 @@ export const DocumentosCierrePage: React.FC = () => {
       setContratoError('Selecciona la empresa contratista (id_contratista).');
       return;
     }
+    if (!contratoForm.fecha_contrato) {
+      setContratoError('Captura la fecha de contrato.');
+      return;
+    }
     if (Number.isNaN(montoContrato) || montoContrato <= 0) {
       setContratoError('El monto del contrato debe ser mayor a $0 MXN.');
       return;
     }
-    if (Number.isNaN(montoAnticipo) || montoAnticipo < 0 || montoAnticipo > montoContrato) {
+
+    const parsedEjercicios: AnticipoEjercicioFiscal[] = [];
+    const seenYears = new Set<number>();
+    for (const row of anticiposDraft) {
+      const anio = Math.floor(Number(row.anio));
+      const monto = Number(row.monto);
+      const pct = Number(row.porcentaje_amortizacion);
+
+      if (Number.isNaN(anio) || anio < 2000 || anio > 2100) {
+        setContratoError('Verifica que cada ejercicio fiscal tenga un año válido (ej. 2024).');
+        return;
+      }
+      if (seenYears.has(anio)) {
+        setContratoError(`El ejercicio fiscal ${anio} está duplicado en la tabla de anticipos.`);
+        return;
+      }
+      if (Number.isNaN(monto) || monto < 0) {
+        setContratoError(`El monto de anticipo del año ${anio} no puede ser negativo.`);
+        return;
+      }
+      if (Number.isNaN(pct) || pct <= 0 || pct > 100) {
+        setContratoError(
+          `El % de amortización del año ${anio} debe estar entre 1% y 100% (default 10%).`
+        );
+        return;
+      }
+      seenYears.add(anio);
+      parsedEjercicios.push({
+        id: row.id,
+        anio,
+        monto,
+        porcentaje_amortizacion: pct,
+      });
+    }
+
+    const montoAnticipoTotal = parsedEjercicios.reduce((s, r) => s + r.monto, 0);
+    if (montoAnticipoTotal > montoContrato) {
       setContratoError(
-        'El monto de anticipo debe estar entre $0 y el monto total del contrato.'
+        `La suma de anticipos por ejercicio (${formatMXN(
+          montoAnticipoTotal
+        )}) no puede superar el monto total del contrato (${formatMXN(montoContrato)}).`
       );
       return;
     }
 
-    const saved = saveContratoForSelectedObra({
-      numero_contrato: numero,
-      id_contratista: contratoForm.id_contratista,
-      monto_contrato: montoContrato,
-      monto_anticipo: montoAnticipo,
-      fecha_firma: contratoForm.fecha_firma || undefined,
-    });
+    const saved = saveContratoForSelectedObra(
+      {
+        numero_contrato: numero,
+        id_contratista: contratoForm.id_contratista,
+        monto_contrato: montoContrato,
+        monto_anticipo: montoAnticipoTotal,
+        fecha_contrato: contratoForm.fecha_contrato,
+        fecha_firma: contratoForm.fecha_contrato,
+        adendum: contratoForm.adendum.trim() || undefined,
+        anticipos_por_ejercicio: parsedEjercicios,
+      },
+      contratoForm.lugar_obra
+    );
 
     setShowContratoModal(false);
     setFeedbackMsg(
       `Contrato ${saved.numero_contrato} guardado correctamente (Monto: ${formatMXN(
         saved.monto_contrato
-      )} · Anticipo: ${formatMXN(saved.monto_anticipo)}).`
+      )} · Anticipo total: ${formatMXN(saved.monto_anticipo)} en ${
+        saved.anticipos_por_ejercicio.length
+      } ejercicio(s)).`
     );
   };
 
@@ -427,45 +529,89 @@ export const DocumentosCierrePage: React.FC = () => {
         </div>
 
         {selectedContrato ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
-            <div className="p-3 rounded-lg bg-canvas border border-line">
-              <p className="text-[10px] text-fg-muted uppercase">Número de contrato</p>
-              <p className="font-semibold text-accent mt-1">{selectedContrato.numero_contrato}</p>
-              {selectedContrato.fecha_firma && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+              <div className="p-3 rounded-lg bg-canvas border border-line">
+                <p className="text-[10px] text-fg-muted uppercase">Número / Fecha de contrato</p>
+                <p className="font-semibold text-accent mt-1">{selectedContrato.numero_contrato}</p>
                 <p className="text-[10px] text-fg-muted mt-0.5">
-                  Firma: {selectedContrato.fecha_firma}
+                  Fecha: {selectedContrato.fecha_contrato ?? selectedContrato.fecha_firma ?? '—'}
                 </p>
-              )}
-            </div>
+              </div>
 
-            <div className="p-3 rounded-lg bg-canvas border border-line sm:col-span-2">
-              <p className="text-[10px] text-fg-muted uppercase">Empresa Contratista</p>
-              <p className="font-semibold text-fg mt-1">
-                {contratistaActual?.razon_social ?? selectedObra.contratista}
-              </p>
-              {contratistaActual && (
-                <p className="text-[10px] font-mono text-fg-muted mt-0.5">
-                  RFC: {contratistaActual.rfc}
+              <div className="p-3 rounded-lg bg-canvas border border-line sm:col-span-2">
+                <p className="text-[10px] text-fg-muted uppercase">
+                  Empresa Contratista / Lugar de la obra
                 </p>
-              )}
+                <p className="font-semibold text-fg mt-1">
+                  {contratistaActual?.razon_social ?? selectedObra.contratista}
+                </p>
+                <p className="text-[10px] text-fg-muted mt-0.5">
+                  {contratistaActual && (
+                    <span className="font-mono mr-2">RFC: {contratistaActual.rfc}</span>
+                  )}
+                  · Lugar: <strong className="text-fg-soft">{selectedObra.ubicacion}</strong>
+                </p>
+              </div>
+
+              <div className="p-3 rounded-lg bg-canvas border border-line">
+                <p className="text-[10px] text-fg-muted uppercase">Monto del contrato</p>
+                <p className="font-semibold text-fg mt-1">
+                  {formatMXN(selectedContrato.monto_contrato)}
+                </p>
+                {selectedContrato.adendum && (
+                  <p className="text-[10px] text-accent mt-0.5 truncate" title={selectedContrato.adendum}>
+                    Adendum: {selectedContrato.adendum}
+                  </p>
+                )}
+              </div>
+
+              <div className="p-3 rounded-lg bg-canvas border border-line">
+                <p className="text-[10px] text-fg-muted uppercase">Anticipo total</p>
+                <p className="font-semibold text-ok-fg mt-1">
+                  {formatMXN(selectedContrato.monto_anticipo)}
+                </p>
+                <p className="text-[10px] text-fg-muted mt-0.5">
+                  {anticipoPct.toFixed(1)}% del contrato
+                </p>
+              </div>
             </div>
 
-            <div className="p-3 rounded-lg bg-canvas border border-line">
-              <p className="text-[10px] text-fg-muted uppercase">Monto del contrato</p>
-              <p className="font-semibold text-fg mt-1">
-                {formatMXN(selectedContrato.monto_contrato)}
-              </p>
-            </div>
-
-            <div className="p-3 rounded-lg bg-canvas border border-line">
-              <p className="text-[10px] text-fg-muted uppercase">Monto de anticipo</p>
-              <p className="font-semibold text-ok-fg mt-1">
-                {formatMXN(selectedContrato.monto_anticipo)}
-              </p>
-              <p className="text-[10px] text-fg-muted mt-0.5">
-                {anticipoPct.toFixed(1)}% del contrato
-              </p>
-            </div>
+            {/* Tabla de Anticipo por ejercicio fiscal */}
+            {selectedContrato.anticipos_por_ejercicio.length > 0 && (
+              <div className="border border-line rounded-lg overflow-hidden text-xs">
+                <div className="px-3.5 py-2 bg-canvas border-b border-line flex items-center justify-between">
+                  <span className="text-[11px] font-semibold text-fg">
+                    Anticipo por ejercicio fiscal
+                  </span>
+                  <span className="text-[10px] text-fg-muted">
+                    Base para la amortización en estimaciones (default 10%)
+                  </span>
+                </div>
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-canvas/60 text-[10px] uppercase text-fg-muted border-b border-line">
+                      <th className="py-2 px-3.5">Año fiscal</th>
+                      <th className="py-2 px-3 text-right">Monto de anticipo</th>
+                      <th className="py-2 px-3.5 text-right">% Amortización</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-line">
+                    {selectedContrato.anticipos_por_ejercicio.map((ej) => (
+                      <tr key={ej.id}>
+                        <td className="py-2 px-3.5 font-semibold text-fg">{ej.anio}</td>
+                        <td className="py-2 px-3 text-right font-medium text-ok-fg">
+                          {formatMXN(ej.monto)}
+                        </td>
+                        <td className="py-2 px-3.5 text-right font-semibold text-accent">
+                          {ej.porcentaje_amortizacion}%
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         ) : (
           <div className="p-4 rounded-lg bg-warn-bg/60 border border-warn-line text-warn-fg text-xs flex flex-wrap items-center justify-between gap-2">
@@ -534,13 +680,19 @@ export const DocumentosCierrePage: React.FC = () => {
                 </div>
 
                 {registered ? (
-                  <div className="text-[11px] pt-2 border-t border-line/60 flex items-center justify-between gap-2">
-                    <span className="font-mono text-fg-soft truncate">
-                      {registered.numero_poliza}
-                    </span>
-                    <strong className="text-fg shrink-0">
-                      {formatMXN(registered.monto_asegurado)}
-                    </strong>
+                  <div className="text-[11px] pt-2 border-t border-line/60 space-y-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-mono text-fg-soft truncate">
+                        {registered.numero_poliza}
+                      </span>
+                      <strong className="text-fg shrink-0">
+                        {formatMXN(registered.monto_asegurado)}
+                      </strong>
+                    </div>
+                    <p className="text-[10px] text-fg-muted">
+                      Emisión: <strong>{registered.fecha_emision}</strong> · Vence:{' '}
+                      {registered.fecha_vencimiento}
+                    </p>
                   </div>
                 ) : (
                   canManageLegal && (
@@ -567,7 +719,8 @@ export const DocumentosCierrePage: React.FC = () => {
                   <th className="py-2.5 px-3">Tipo</th>
                   <th className="py-2.5 px-3">N.º Póliza / Afianzadora</th>
                   <th className="py-2.5 px-3 text-right">Monto Asegurado</th>
-                  <th className="py-2.5 px-3">Vigencia</th>
+                  <th className="py-2.5 px-3">Fecha emisión</th>
+                  <th className="py-2.5 px-3">Vencimiento</th>
                   <th className="py-2.5 px-3">Estatus</th>
                   {canManageLegal && <th className="py-2.5 px-3 text-right">Acciones</th>}
                 </tr>
@@ -587,8 +740,11 @@ export const DocumentosCierrePage: React.FC = () => {
                     <td className="py-2.5 px-3 text-right font-semibold whitespace-nowrap">
                       {formatMXN(pol.monto_asegurado)}
                     </td>
+                    <td className="py-2.5 px-3 whitespace-nowrap font-medium text-fg">
+                      {pol.fecha_emision}
+                    </td>
                     <td className="py-2.5 px-3 whitespace-nowrap text-fg-muted">
-                      {pol.fecha_emision} → {pol.fecha_vencimiento}
+                      {pol.fecha_vencimiento}
                     </td>
                     <td className="py-2.5 px-3">
                       <StatusBadge
@@ -832,7 +988,7 @@ export const DocumentosCierrePage: React.FC = () => {
           <form
             onSubmit={handleSaveContrato}
             onClick={(e) => e.stopPropagation()}
-            className="bg-surface border border-line rounded-xl max-w-md w-full p-5 shadow-xl space-y-3.5 text-xs"
+            className="bg-surface border border-line rounded-xl max-w-xl w-full p-5 shadow-xl space-y-3.5 text-xs max-h-[92vh] overflow-y-auto"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-2">
@@ -851,40 +1007,73 @@ export const DocumentosCierrePage: React.FC = () => {
               </button>
             </div>
 
-            <div>
-              <label className="block text-[11px] font-medium text-fg-soft mb-1">
-                Número de contrato (numero_contrato) *
-              </label>
-              <input
-                type="text"
-                value={contratoForm.numero_contrato}
-                onChange={(e) =>
-                  setContratoForm({ ...contratoForm, numero_contrato: e.target.value })
-                }
-                placeholder="Ej. SOP-LP-024/2024"
-                className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[11px] font-medium text-fg-soft mb-1">
+                  Número de contrato (numero_contrato) *
+                </label>
+                <input
+                  type="text"
+                  value={contratoForm.numero_contrato}
+                  onChange={(e) =>
+                    setContratoForm({ ...contratoForm, numero_contrato: e.target.value })
+                  }
+                  placeholder="Ej. SOP-LP-024/2024"
+                  className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-medium text-fg-soft mb-1">
+                  Fecha de contrato (fecha_contrato) *
+                </label>
+                <input
+                  type="date"
+                  value={contratoForm.fecha_contrato}
+                  onChange={(e) =>
+                    setContratoForm({ ...contratoForm, fecha_contrato: e.target.value })
+                  }
+                  className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas"
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="block text-[11px] font-medium text-fg-soft mb-1">
-                Empresa Contratista (id_contratista) *
-              </label>
-              <select
-                value={contratoForm.id_contratista}
-                onChange={(e) =>
-                  setContratoForm({ ...contratoForm, id_contratista: e.target.value })
-                }
-                className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas cursor-pointer"
-              >
-                {contratistas
-                  .filter((c) => c.activo || c.id === contratoForm.id_contratista)
-                  .map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.razon_social} ({c.rfc})
-                    </option>
-                  ))}
-              </select>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[11px] font-medium text-fg-soft mb-1">
+                  Empresa Contratista (id_contratista) *
+                </label>
+                <select
+                  value={contratoForm.id_contratista}
+                  onChange={(e) =>
+                    setContratoForm({ ...contratoForm, id_contratista: e.target.value })
+                  }
+                  className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas cursor-pointer"
+                >
+                  {contratistas
+                    .filter((c) => c.activo || c.id === contratoForm.id_contratista)
+                    .map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.razon_social} ({c.rfc})
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-medium text-fg-soft mb-1">
+                  Lugar de la obra (lugar_obra)
+                </label>
+                <input
+                  type="text"
+                  value={contratoForm.lugar_obra}
+                  onChange={(e) =>
+                    setContratoForm({ ...contratoForm, lugar_obra: e.target.value })
+                  }
+                  placeholder="Ej. San Pedro, Nuevo León"
+                  className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas"
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -906,46 +1095,137 @@ export const DocumentosCierrePage: React.FC = () => {
 
               <div>
                 <label className="block text-[11px] font-medium text-fg-soft mb-1">
-                  Monto de anticipo MXN *
+                  Adendum (opcional)
                 </label>
                 <input
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  value={contratoForm.monto_anticipo}
+                  type="text"
+                  value={contratoForm.adendum}
                   onChange={(e) =>
-                    setContratoForm({ ...contratoForm, monto_anticipo: e.target.value })
+                    setContratoForm({ ...contratoForm, adendum: e.target.value })
                   }
+                  placeholder="Ej. Convenio Modificatorio CM-01/2024"
                   className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
-              <div>
-                <label className="block text-[11px] font-medium text-fg-soft mb-1">
-                  Fecha de firma
-                </label>
-                <input
-                  type="date"
-                  value={contratoForm.fecha_firma}
-                  onChange={(e) =>
-                    setContratoForm({ ...contratoForm, fecha_firma: e.target.value })
-                  }
-                  className="w-full px-3 py-2 rounded-lg border border-line-strong bg-canvas"
-                />
+            {/* Tabla editable de Anticipo por ejercicio fiscal */}
+            <div className="p-3.5 rounded-xl bg-canvas border border-line space-y-2.5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <p className="font-semibold text-fg text-xs">
+                    Anticipo por ejercicio fiscal
+                  </p>
+                  <p className="text-[10px] text-fg-muted">
+                    Año + Monto + % amortización (default 10%) · Total anticipo:{' '}
+                    <strong className="text-ok-fg">{formatMXN(totalAnticipoDraft)}</strong>
+                    {Number(contratoForm.monto_contrato) > 0 && (
+                      <span>
+                        {' '}
+                        (
+                        {(
+                          (totalAnticipoDraft / Number(contratoForm.monto_contrato)) *
+                          100
+                        ).toFixed(1)}
+                        %)
+                      </span>
+                    )}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddEjercicioRow}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-brand text-accent text-[11px] font-semibold hover:bg-info-bg cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Agregar año</span>
+                </button>
               </div>
-              <div className="p-2.5 rounded-lg bg-canvas border border-line text-[11px]">
-                <span className="text-fg-muted block">Porcentaje de anticipo</span>
-                <strong className="text-accent">
-                  {Number(contratoForm.monto_contrato) > 0
-                    ? `${(
-                        (Number(contratoForm.monto_anticipo || 0) /
-                          Number(contratoForm.monto_contrato)) *
-                        100
-                      ).toFixed(1)}%`
-                    : '0.0%'}
-                </strong>
+
+              <div className="overflow-x-auto border border-line rounded-lg bg-surface">
+                <table className="w-full text-left border-collapse text-[11px]">
+                  <thead>
+                    <tr className="bg-canvas text-[10px] uppercase text-fg-muted border-b border-line">
+                      <th className="py-1.5 px-2.5 w-24">Año</th>
+                      <th className="py-1.5 px-2.5">Monto MXN</th>
+                      <th className="py-1.5 px-2.5 w-28">% Amortización</th>
+                      <th className="py-1.5 px-2 w-10 text-right" />
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-line">
+                    {anticiposDraft.map((row) => (
+                      <tr key={row.id}>
+                        <td className="py-1.5 px-2">
+                          <input
+                            type="number"
+                            min={2000}
+                            max={2100}
+                            value={row.anio}
+                            onChange={(e) =>
+                              setAnticiposDraft((prev) =>
+                                prev.map((r) =>
+                                  r.id === row.id ? { ...r, anio: e.target.value } : r
+                                )
+                              )
+                            }
+                            className="w-full px-2 py-1 rounded border border-line-strong bg-canvas"
+                          />
+                        </td>
+                        <td className="py-1.5 px-2">
+                          <input
+                            type="number"
+                            min={0}
+                            step="0.01"
+                            value={row.monto}
+                            onChange={(e) =>
+                              setAnticiposDraft((prev) =>
+                                prev.map((r) =>
+                                  r.id === row.id ? { ...r, monto: e.target.value } : r
+                                )
+                              )
+                            }
+                            className="w-full px-2 py-1 rounded border border-line-strong bg-canvas text-right"
+                          />
+                        </td>
+                        <td className="py-1.5 px-2">
+                          <input
+                            type="number"
+                            min={1}
+                            max={100}
+                            step="0.5"
+                            value={row.porcentaje_amortizacion}
+                            onChange={(e) =>
+                              setAnticiposDraft((prev) =>
+                                prev.map((r) =>
+                                  r.id === row.id
+                                    ? { ...r, porcentaje_amortizacion: e.target.value }
+                                    : r
+                                )
+                              )
+                            }
+                            className="w-full px-2 py-1 rounded border border-line-strong bg-canvas text-right"
+                          />
+                        </td>
+                        <td className="py-1.5 px-2 text-right">
+                          {anticiposDraft.length > 1 && (
+                            <button
+                              type="button"
+                              aria-label={`Quitar año ${row.anio}`}
+                              onClick={() =>
+                                setAnticiposDraft((prev) =>
+                                  prev.filter((r) => r.id !== row.id)
+                                )
+                              }
+                              className="p-1 text-fg-muted hover:text-danger-fg cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
 
